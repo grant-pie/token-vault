@@ -250,7 +250,7 @@ form.addEventListener("submit", async (event) => {
     const res = await fetch(`${API_BASE}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: prompt }),
+      body: JSON.stringify({ description: prompt }),
     });
 
     const data = await res.json();
