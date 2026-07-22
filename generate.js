@@ -24,7 +24,6 @@ const generateBtn = document.getElementById("generate-btn");
 const SELECT_OPTIONS = {
   gender: GENDER_OPTIONS,
   age: AGE_OPTIONS,
-  race: RACE_OPTIONS,
   armor: ARMOR_OPTIONS,
   helm: HELM_OPTIONS,
 };
@@ -40,6 +39,7 @@ Object.entries(SELECT_OPTIONS).forEach(([fieldId, options]) => {
 });
 
 const COMBOBOX_OPTIONS = {
+  race: RACE_OPTIONS,
   class: CLASS_OPTIONS,
   mainhand: MAINHAND_OPTIONS,
   offhand: OFFHAND_OPTIONS,
@@ -225,6 +225,7 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const requiredCombos = [
+    { field: raceField, searchId: "race-search", label: "a race" },
     { field: classField, searchId: "class-search", label: "a class" },
     { field: mainhandField, searchId: "mainhand-search", label: "a mainhand item" },
     { field: offhandField, searchId: "offhand-search", label: "an offhand item" },

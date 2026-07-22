@@ -31,9 +31,21 @@
         <label for="age" class="generator-label">Age</label>
         <select id="age" name="age" class="generator-select"></select>
       </div>
-      <div class="generator-field">
-        <label for="race" class="generator-label">Race</label>
-        <select id="race" name="race" class="generator-select"></select>
+      <div class="generator-field combobox" data-combobox="race">
+        <label for="race-search" class="generator-label">Race</label>
+        <input
+          type="text"
+          id="race-search"
+          class="generator-select combobox-input"
+          role="combobox"
+          aria-expanded="false"
+          aria-autocomplete="list"
+          aria-controls="race-listbox"
+          autocomplete="off"
+          placeholder="Search races&hellip;"
+        >
+        <input type="hidden" id="race" name="race">
+        <ul id="race-listbox" class="combobox-list" role="listbox" hidden></ul>
       </div>
       <div class="generator-field generator-field-wide">
         <label class="generator-label">Skin Tone</label>
