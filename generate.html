@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge a Token &mdash; Token Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=EB+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="banner">
+  <h1>Forge a Token</h1>
+  <p class="subtitle">Describe a creature, conjure its portrait</p>
+  <div class="divider" aria-hidden="true">&#10038;</div>
+  <nav class="site-nav">
+    <a href="index.html">&laquo; Back Home</a>
+  </nav>
+</div>
+
+<main class="generator-main">
+  <form id="generate-form" class="generator-form">
+    <div class="generator-options-grid">
+      <div class="generator-field">
+        <label for="gender" class="generator-label">Gender</label>
+        <select id="gender" name="gender" class="generator-select"></select>
+      </div>
+      <div class="generator-field">
+        <label for="age" class="generator-label">Age</label>
+        <select id="age" name="age" class="generator-select"></select>
+      </div>
+      <div class="generator-field">
+        <label for="race" class="generator-label">Race</label>
+        <select id="race" name="race" class="generator-select"></select>
+      </div>
+      <div class="generator-field generator-field-wide">
+        <label class="generator-label">Skin Tone</label>
+        <div id="skin-swatches" class="color-swatches" role="radiogroup" aria-label="Skin tone"></div>
+        <input type="hidden" id="skin" name="skin">
+      </div>
+      <div class="generator-field generator-field-wide">
+        <label class="generator-label">Hair Color</label>
+        <div id="hair-swatches" class="color-swatches" role="radiogroup" aria-label="Hair color"></div>
+        <input type="hidden" id="hair" name="hair">
+      </div>
+      <div class="generator-field combobox" data-combobox="class">
+        <label for="class-search" class="generator-label">Class</label>
+        <input
+          type="text"
+          id="class-search"
+          class="generator-select combobox-input"
+          role="combobox"
+          aria-expanded="false"
+          aria-autocomplete="list"
+          aria-controls="class-listbox"
+          autocomplete="off"
+          placeholder="Search classes&hellip;"
+        >
+        <input type="hidden" id="class" name="class">
+        <ul id="class-listbox" class="combobox-list" role="listbox" hidden></ul>
+      </div>
+      <div class="generator-field">
+        <label for="armor" class="generator-label">Armor</label>
+        <select id="armor" name="armor" class="generator-select"></select>
+      </div>
+      <div class="generator-field">
+        <label for="helm" class="generator-label">Helm</label>
+        <select id="helm" name="helm" class="generator-select"></select>
+      </div>
+      <div class="generator-field combobox" data-combobox="mainhand">
+        <label for="mainhand-search" class="generator-label">Mainhand</label>
+        <input
+          type="text"
+          id="mainhand-search"
+          class="generator-select combobox-input"
+          role="combobox"
+          aria-expanded="false"
+          aria-autocomplete="list"
+          aria-controls="mainhand-listbox"
+          autocomplete="off"
+          placeholder="Search weapons&hellip;"
+        >
+        <input type="hidden" id="mainhand" name="mainhand">
+        <ul id="mainhand-listbox" class="combobox-list" role="listbox" hidden></ul>
+      </div>
+      <div class="generator-field combobox" data-combobox="offhand">
+        <label for="offhand-search" class="generator-label">Offhand</label>
+        <input
+          type="text"
+          id="offhand-search"
+          class="generator-select combobox-input"
+          role="combobox"
+          aria-expanded="false"
+          aria-autocomplete="list"
+          aria-controls="offhand-listbox"
+          autocomplete="off"
+          placeholder="Search items&hellip;"
+        >
+        <input type="hidden" id="offhand" name="offhand">
+        <ul id="offhand-listbox" class="combobox-list" role="listbox" hidden></ul>
+      </div>
+    </div>
+
+    <label for="description" class="generator-label">Describe your character</label>
+    <textarea
+      id="description"
+      class="generator-description"
+      maxlength="600"
+      rows="4"
+      placeholder="Add details not covered above: a jagged scar over one eye, braided silver hair, a snarling expression, tattered cloak, glowing runes on their weapon..."
+    ></textarea>
+
+    <button type="submit" class="page-btn generator-submit" id="generate-btn">Generate</button>
+  </form>
+
+  <p id="generator-status" class="generator-status" aria-live="polite"></p>
+
+  <section id="generator-result" class="generator-result" hidden>
+    <div class="token-frame generator-frame" id="result-frame">
+      <img id="result-image" alt="token">
+    </div>
+    <a id="download-link" class="page-btn" download="token.png" hidden>Download</a>
+  </section>
+</main>
+
+<footer>
+  <p>May your rolls be ever in your favor.</p>
+  <p class="footer-disclaimer">
+    Token Vault is a fan project and is not affiliated with or endorsed by Wizards of the Coast or Hasbro.
+    Portraits are generated by AI from what you type &mdash; you are responsible for the descriptions you submit.
+  </p>
+</footer>
+
+<script src="generator-options.js"></script>
+<script src="generate.js"></script>
+</body>
+</html>
