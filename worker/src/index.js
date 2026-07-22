@@ -1,4 +1,10 @@
-const PRODUCTION_ORIGIN = "https://grantpieterse.com";
+// The site is currently served from GitHub Pages; grantpieterse.com is the
+// custom domain used for image URLs but isn't wired up as the Pages host
+// (no CNAME file in the repo), so both need to be allowed here.
+const PRODUCTION_ORIGINS = new Set([
+  "https://grant-pie.github.io",
+  "https://grantpieterse.com",
+]);
 
 // Local dev can come from any port and, with tools like VS Code's Live
 // Server, from a LAN IP rather than localhost — so match those host
@@ -7,7 +13,7 @@ const LOCAL_DEV_HOSTNAME = /^(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,
 
 function isAllowedOrigin(origin) {
   if (!origin) return false;
-  if (origin === PRODUCTION_ORIGIN) return true;
+  if (PRODUCTION_ORIGINS.has(origin)) return true;
   try {
     const { hostname } = new URL(origin);
     return LOCAL_DEV_HOSTNAME.test(hostname);
