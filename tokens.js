@@ -3,7 +3,9 @@
 const TOKENS = [
   { name: "Aarakocra", file: "Aarakocra.webp" },
   { name: "Aboleth", file: "Aboleth.webp" },
-  { name: "Angel", file: "Angel.webp" },
+  { name: "Angel - Deva", file: "Angel - Deva.webp" },
+  { name: "Angel - Planetar", file: "Angel - Planetar.webp" },
+  { name: "Angel - Solar", file: "Angel - Solar.webp" },
   { name: "Animated Object - Animated Armor", file: "Animated Object - Animated Armor.webp" },
   { name: "Animated Object - Flying Sword", file: "Animated Object - Flying Sword.webp" },
   { name: "Animated Object - Rug of Smothering", file: "Animated Object - Rug of Smothering.webp" },

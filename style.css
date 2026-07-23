@@ -364,6 +364,59 @@ footer {
   font-size: 1.3rem;
 }
 
+/* News section (landing page) */
+.news-main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.news-heading {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 1.6rem;
+  color: var(--gold-bright);
+  text-align: center;
+  letter-spacing: 0.5px;
+  margin: 0 0 2rem;
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.news-item {
+  background: linear-gradient(var(--parchment), var(--parchment-dark));
+  color: var(--ink);
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 3px var(--wood-mid),
+    0 6px 14px rgba(0,0,0,0.5);
+  padding: 1.2rem 1.5rem;
+}
+
+.news-date {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #5a4425;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.news-title {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
+
+.news-body {
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Token generator page */
 .generator-main {
   max-width: 640px;
