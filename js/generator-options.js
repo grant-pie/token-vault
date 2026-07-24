@@ -4,34 +4,25 @@ const AGE_OPTIONS = ["Young", "Adult", "Old"];
 
 const RACE_OPTIONS = [
   "Aarakocra",
-
   "Aasimar",
   "Aasimar(Fallen)",
   "Aasimar(Protector)",
   "Aasimar(Scourge)",
-
   "Autognome",
-
   "Bugbear",
-
   "Centaur",
-
   "Changeling",
-
   "Dhampir",
-
   "Dragonborn",
   "Dragonborn(Chromatic)",
   "Dragonborn(Draconblood)",
   "Dragonborn(Gem)",
   "Dragonborn(Metallic)",
   "Dragonborn(Ravenite)",
-
   "Dwarf",
   "Dwarf(Duergar)",
   "Dwarf(Hill)",
   "Dwarf(Mountain)",
-
   "Elf",
   "Elf(Astral)",
   "Elf(Drow)",
@@ -40,55 +31,38 @@ const RACE_OPTIONS = [
   "Elf(Sea)",
   "Elf(Shadar-kai)",
   "Elf(Wood)",
-
   "Fairy",
-
   "Firbolg",
-
   "Genasi",
   "Genasi(Air)",
   "Genasi(Earth)",
   "Genasi(Fire)",
   "Genasi(Water)",
-
   "Giff",
-
   "Gith",
   "Gith(Githyanki)",
   "Gith(Githzerai)",
-
   "Gnome",
   "Gnome(Deep)",
   "Gnome(Forest)",
   "Gnome(Rock)",
-
   "Goblin",
-
   "Goliath",
-
   "Grung",
-
   "Hadozee",
-
   "Half-Elf",
   "Half-Elf(Mark of Detection)",
   "Half-Elf(Mark of Storm)",
-
   "Half-Orc",
-
   "Halfling",
   "Halfling(Ghostwise)",
   "Halfling(Lightfoot)",
   "Halfling(Mark of Healing)",
   "Halfling(Mark of Hospitality)",
   "Halfling(Stout)",
-
   "Harengon",
-
   "Hexblood",
-
   "Hobgoblin",
-
   "Human",
   "Human(Mark of Finding)",
   "Human(Mark of Handling)",
@@ -96,45 +70,27 @@ const RACE_OPTIONS = [
   "Human(Mark of Passage)",
   "Human(Mark of Sentinel)",
   "Human(Variant)",
-
   "Kalashtar",
-
   "Kenku",
-
   "Kobold",
-
   "Leonin",
-
   "Lizardfolk",
-
   "Locathah",
-
   "Loxodon",
-
   "Minotaur",
-
   "Orc",
-
   "Owlin",
-
   "Plasmoid",
-
   "Reborn",
-
   "Satyr",
-
   "Shifter",
   "Shifter(Beasthide)",
   "Shifter(Longtooth)",
   "Shifter(Swiftstride)",
   "Shifter(Wildhunt)",
-
   "Simic Hybrid",
-
   "Tabaxi",
-
   "Thri-kreen",
-
   "Tiefling",
   "Tiefling(Asmodeus)",
   "Tiefling(Baalzebul)",
@@ -145,17 +101,11 @@ const RACE_OPTIONS = [
   "Tiefling(Mammon)",
   "Tiefling(Mephistopheles)",
   "Tiefling(Zariel)",
-
   "Tortle",
-
   "Triton",
-
   "Vedalken",
-
   "Verdan",
-
   "Warforged",
-
   "Yuan-ti Pureblood"
 ];
 
@@ -198,14 +148,67 @@ const HAIR_OPTIONS = [
   { label: "Silver", hex: "#c9c9c9" },
   { label: "Blue", hex: "#3d5a80" },
   { label: "Green", hex: "#4a7856" },
+  { label: "None", hex: null },
 ];
 
-const ARMOR_OPTIONS = ["Robe", "Light", "Medium", "Heavy"];
+const ARMOR_OPTIONS = [
+  "Clothing",
+  "Robe",
+  // Light Armor
+  "Padded",
+  "Leather",
+  "Studded Leather",
+  // Medium Armor
+  "Hide",
+  "Chain Shirt",
+  "Scale Mail",
+  "Spiked Armor",
+  "Breastplate",
+  "Halfplate",
+  // Heavy Armor
+  "Ring Mail",
+  "Chain Mail",
+  "Splint",
+  "Plate",
+];
 
 const HELM_OPTIONS = ["None", "Helm"];
 
 const WEAPON_OPTIONS = [
   "None",
+  //Other
+  "Scroll",
+  "Potion",
+  "Wand",
+  "Staff",
+  "Arcane Focus",
+  "Druidic Focus",
+  "Holy Symbol",
+  "Arrow",
+  //Musical Instruments
+  "Bagpipes",
+  "Drum",
+  "Dulcimer",
+  "Flute",
+  "Lute",
+  "Lyre",
+  "Horn",
+  "Pan Flute",
+  "Shawm",
+  "Viol",
+  // Magic
+  "Arcane Energy",
+  "Acid Energy",
+  "Cold Energy",
+  "Fire Energy",
+  "Lightning Energy",
+  "Poison Energy",
+  "Thunder energy",
+  "Force energy",
+  "Radiant energy",
+  "Necrotic energy",
+  "Psionic energy",
+  "Shadow energy",
   // Simple Melee
   "Club",
   "Dagger",
@@ -249,6 +252,6 @@ const WEAPON_OPTIONS = [
   "Net",
 ];
 
-const MAINHAND_OPTIONS = [...WEAPON_OPTIONS, "Staff", "Wand"];
+const MAINHAND_OPTIONS = [...WEAPON_OPTIONS];
 
-const OFFHAND_OPTIONS = ["None", "Shield", "Buckler", ...WEAPON_OPTIONS];
+const OFFHAND_OPTIONS = ["Shield", "Buckler", ...WEAPON_OPTIONS];

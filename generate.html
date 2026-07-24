@@ -73,9 +73,21 @@
         <input type="hidden" id="class" name="class">
         <ul id="class-listbox" class="combobox-list" role="listbox" hidden></ul>
       </div>
-      <div class="generator-field">
-        <label for="armor" class="generator-label">Armor</label>
-        <select id="armor" name="armor" class="generator-select"></select>
+      <div class="generator-field combobox" data-combobox="armor">
+        <label for="armor-search" class="generator-label">Armor</label>
+        <input
+          type="text"
+          id="armor-search"
+          class="generator-select combobox-input"
+          role="combobox"
+          aria-expanded="false"
+          aria-autocomplete="list"
+          aria-controls="armor-listbox"
+          autocomplete="off"
+          placeholder="Search armor&hellip;"
+        >
+        <input type="hidden" id="armor" name="armor">
+        <ul id="armor-listbox" class="combobox-list" role="listbox" hidden></ul>
       </div>
       <div class="generator-field">
         <label for="helm" class="generator-label">Helm</label>
@@ -92,7 +104,7 @@
           aria-autocomplete="list"
           aria-controls="mainhand-listbox"
           autocomplete="off"
-          placeholder="Search weapons&hellip;"
+          placeholder="Search items&hellip;"
         >
         <input type="hidden" id="mainhand" name="mainhand">
         <ul id="mainhand-listbox" class="combobox-list" role="listbox" hidden></ul>
@@ -133,9 +145,85 @@
     <div class="token-frame generator-frame" id="result-frame">
       <img id="result-image" alt="token">
     </div>
-    <a id="download-link" class="page-btn" download="token.png" hidden>Download</a>
+    <div class="generator-result-actions">
+      <a id="download-link" class="page-btn" download="token.png" hidden>Download</a>
+      <button type="button" id="customize-btn" class="page-btn" hidden>Add Border</button>
+    </div>
   </section>
 </main>
+
+<dialog id="token-modal" class="token-modal">
+  <form method="dialog" class="token-modal-form">
+    <button type="submit" class="token-modal-close" aria-label="Close">&times;</button>
+    <h2 id="token-modal-title" class="token-modal-title">Token Name</h2>
+
+    <div class="token-modal-body">
+      <div class="token-preview-col">
+        <div class="token-preview-wrap">
+          <canvas id="token-preview-canvas" width="1024" height="1024"></canvas>
+        </div>
+        <p class="token-position-hint">Drag the token to reposition it</p>
+      </div>
+
+      <div class="token-modal-controls">
+        <fieldset class="token-control-group">
+          <legend class="generator-label">Position &amp; Zoom</legend>
+          <div class="token-subcontrol">
+            <label for="zoom-range" class="token-subcontrol-label">Zoom</label>
+            <input type="range" id="zoom-range" min="50" max="300" step="5" value="100">
+          </div>
+          <div class="token-modal-actions">
+            <button type="button" id="reset-position-btn" class="page-btn">Reset Position</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">
+            <label class="token-toggle">
+              <input type="checkbox" id="border-toggle">
+              Add border
+            </label>
+          </legend>
+          <div class="token-subcontrol">
+            <label for="border-color" class="token-subcontrol-label">Color</label>
+            <input type="color" id="border-color" value="#c9a227">
+          </div>
+          <div class="token-subcontrol">
+            <label for="border-width" class="token-subcontrol-label">Width</label>
+            <input type="range" id="border-width" min="1" max="12" step="1" value="5">
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">Shape</legend>
+          <div class="shape-options" id="shape-options" role="radiogroup" aria-label="Border shape">
+            <button type="button" class="shape-btn" data-shape="circle">Circle</button>
+            <button type="button" class="shape-btn" data-shape="square">Square</button>
+            <button type="button" class="shape-btn" data-shape="hexagon">Hexagon</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">
+            <label class="token-toggle">
+              <input type="checkbox" id="tint-toggle">
+              Add background tint
+            </label>
+          </legend>
+          <div class="token-subcontrol">
+            <label for="tint-color" class="token-subcontrol-label">Color</label>
+            <input type="color" id="tint-color" value="#241609">
+          </div>
+        </fieldset>
+
+        <div class="token-modal-actions">
+          <button type="button" id="token-download-btn" class="page-btn">Download</button>
+        </div>
+        <p id="token-modal-status" class="generator-status" aria-live="polite"></p>
+      </div>
+    </div>
+  </form>
+</dialog>
 
 <footer>
   <p>May your rolls be ever in your favor.</p>
@@ -145,7 +233,8 @@
   </p>
 </footer>
 
-<script src="generator-options.js"></script>
-<script src="generate.js"></script>
+<script src="js/generator-options.js"></script>
+<script src="js/generate.js"></script>
+<script src="js/token-customize.js"></script>
 </body>
 </html>

@@ -115,6 +115,8 @@ main {
   flex-direction: column;
   align-items: center;
   text-decoration: none;
+  font: inherit;
+  text-align: inherit;
   color: var(--ink);
   background:
     linear-gradient(var(--parchment), var(--parchment-dark));
@@ -252,6 +254,197 @@ main {
 .token-card:hover .token-hint,
 .token-card:focus-visible .token-hint {
   opacity: 1;
+}
+
+/* Token customize modal */
+.token-modal {
+  border: 3px solid var(--gold);
+  border-radius: 12px;
+  padding: 0;
+  background: linear-gradient(var(--parchment), var(--parchment-dark));
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 3px var(--wood-mid),
+    0 12px 32px rgba(0,0,0,0.6);
+  max-width: min(720px, 92vw);
+  width: 100%;
+}
+
+.token-modal::backdrop {
+  background: rgba(10, 6, 2, 0.75);
+}
+
+.token-modal .generator-label {
+  color: var(--ink);
+}
+
+.token-modal-form {
+  position: relative;
+  padding: 1.6rem 1.8rem 1.8rem;
+}
+
+.token-modal-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.8rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: var(--wood-dark);
+  color: var(--parchment);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.token-modal-close:hover {
+  border-color: var(--gold-bright);
+  transform: scale(1.08);
+}
+
+.token-modal-title {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 1.4rem;
+  text-align: center;
+  margin: 0 0 1.2rem;
+  padding-right: 2rem;
+}
+
+.token-modal-body {
+  display: flex;
+  gap: 1.8rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.token-preview-col {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.token-preview-wrap {
+  width: 260px;
+  height: 260px;
+  border-radius: 8px;
+  background:
+    repeating-conic-gradient(#3b2413 0% 25%, #2b1a0c 0% 50%) 0 0 / 20px 20px;
+  box-shadow: inset 0 0 0 3px var(--wood-mid), 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.token-preview-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.token-preview-wrap canvas.dragging {
+  cursor: grabbing;
+}
+
+.token-position-hint {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #5a4425;
+  margin: 0;
+  text-align: center;
+}
+
+.token-modal-controls {
+  flex: 1 1 240px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.token-control-group {
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem 0.9rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.token-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.shape-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.shape-btn {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--parchment);
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.shape-btn:hover {
+  transform: translateY(-1px);
+}
+
+.shape-btn.selected {
+  background: var(--gold);
+  border-color: var(--gold-bright);
+  font-weight: 600;
+}
+
+.token-subcontrol {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.token-subcontrol-label {
+  font-size: 0.9rem;
+}
+
+.token-subcontrol input[type="color"] {
+  width: 2.4rem;
+  height: 2rem;
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.token-subcontrol input[type="range"] {
+  flex: 1;
+  max-width: 140px;
+  accent-color: var(--gold);
+}
+
+.token-subcontrol input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.token-modal-actions {
+  display: flex;
+  justify-content: center;
 }
 
 /* Pagination */
@@ -484,6 +677,10 @@ footer {
   box-shadow: 0 0 0 3px rgba(240, 216, 120, 0.5), 0 3px 8px rgba(0,0,0,0.4);
 }
 
+.color-swatch-none {
+  background: linear-gradient(135deg, #eee 45%, #c0392b 47%, #c0392b 53%, #eee 55%);
+}
+
 .generator-select {
   width: 100%;
   font-family: 'EB Garamond', serif;
@@ -608,4 +805,11 @@ footer {
 
 .generator-frame img {
   object-fit: contain;
+}
+
+.generator-result-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }

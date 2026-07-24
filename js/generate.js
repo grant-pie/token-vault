@@ -19,12 +19,14 @@ const resultSection = document.getElementById("generator-result");
 const resultFrame = document.getElementById("result-frame");
 const resultImage = document.getElementById("result-image");
 const downloadLink = document.getElementById("download-link");
+const customizeBtn = document.getElementById("customize-btn");
 const generateBtn = document.getElementById("generate-btn");
+
+resultImage.crossOrigin = "anonymous";
 
 const SELECT_OPTIONS = {
   gender: GENDER_OPTIONS,
   age: AGE_OPTIONS,
-  armor: ARMOR_OPTIONS,
   helm: HELM_OPTIONS,
 };
 
@@ -41,6 +43,7 @@ Object.entries(SELECT_OPTIONS).forEach(([fieldId, options]) => {
 const COMBOBOX_OPTIONS = {
   race: RACE_OPTIONS,
   class: CLASS_OPTIONS,
+  armor: ARMOR_OPTIONS,
   mainhand: MAINHAND_OPTIONS,
   offhand: OFFHAND_OPTIONS,
 };
@@ -164,7 +167,11 @@ function initSwatchPicker(options, swatchesEl, hiddenField) {
     const swatch = document.createElement("button");
     swatch.type = "button";
     swatch.className = "color-swatch";
-    swatch.style.backgroundColor = option.hex;
+    if (option.hex) {
+      swatch.style.backgroundColor = option.hex;
+    } else {
+      swatch.classList.add("color-swatch-none");
+    }
     swatch.setAttribute("role", "radio");
     swatch.setAttribute("aria-label", option.label);
     swatch.setAttribute("aria-checked", String(index === 0));
@@ -214,8 +221,10 @@ function buildPrompt() {
   const genderText = buildGenderText(genderField.value);
   const armorText = buildArmorText(armorField.value, helmField.value);
   const weaponText = buildWeaponText(mainhandField.value, offhandField.value);
+  const hairText =
+    hairField.value.toLowerCase() === "none" ? "no hair (bald)" : `${hairField.value.toLowerCase()} hair`;
 
-  const invisText = `A ${ageField.value.toLowerCase()} ${genderText} ${raceField.value.toLowerCase()} ${classField.value.toLowerCase()} with ${skinField.value.toLowerCase()} skin and ${hairField.value.toLowerCase()} hair wearing ${armorText}. ${weaponText}`;
+  const invisText = `A ${ageField.value.toLowerCase()} ${genderText} ${raceField.value.toLowerCase()} ${classField.value.toLowerCase()} with ${skinField.value.toLowerCase()} skin and ${hairText} wearing ${armorText}. ${weaponText}`;
 
   const description = descriptionField.value.trim();
   return description ? `${invisText} ${description}` : invisText;
@@ -227,6 +236,7 @@ form.addEventListener("submit", async (event) => {
   const requiredCombos = [
     { field: raceField, searchId: "race-search", label: "a race" },
     { field: classField, searchId: "class-search", label: "a class" },
+    { field: armorField, searchId: "armor-search", label: "an armor type" },
     { field: mainhandField, searchId: "mainhand-search", label: "a mainhand item" },
     { field: offhandField, searchId: "offhand-search", label: "an offhand item" },
   ];
@@ -243,6 +253,7 @@ form.addEventListener("submit", async (event) => {
   generateBtn.textContent = "Conjuring...";
   statusEl.textContent = "";
   downloadLink.hidden = true;
+  customizeBtn.hidden = true;
   resultFrame.classList.add("is-loading");
   resultSection.hidden = false;
   console.log("Prompt:", prompt);
@@ -269,6 +280,14 @@ form.addEventListener("submit", async (event) => {
     downloadLink.download = `${data.id}.png`;
     resultFrame.classList.remove("is-loading");
     downloadLink.hidden = false;
+
+    const tokenName = [raceField.value, classField.value].filter(Boolean).join(" ") || "Token";
+    customizeBtn.hidden = false;
+    customizeBtn.onclick = () => {
+      if (window.openTokenCustomizer) {
+        window.openTokenCustomizer({ name: tokenName }, imageUrl);
+      }
+    };
   } catch {
     statusEl.textContent = "Couldn't reach the generator. Check your connection and try again.";
     resultFrame.classList.remove("is-loading");

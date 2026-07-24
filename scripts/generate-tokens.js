@@ -7,7 +7,7 @@ const path = require("path");
 
 const OPTIMIZED_DIR = path.join(__dirname, "..", "images-optimized");
 const FALLBACK_DIR = path.join(__dirname, "..", "images");
-const OUT_FILE = path.join(__dirname, "..", "tokens.js");
+const OUT_FILE = path.join(__dirname, "..", "js", "tokens.js");
 const IMG_RE = /\.(webp|png|jpe?g)$/i;
 
 function main() {

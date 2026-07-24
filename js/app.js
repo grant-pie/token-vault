@@ -20,17 +20,21 @@ function renderTokens(tokens, emptyMessage) {
 
   tokens.forEach((token) => {
     const src = imageUrl(token.file);
-    const ext = token.file.slice(token.file.lastIndexOf("."));
 
-    const card = document.createElement("a");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = "token-card";
-    card.href = src;
-    card.download = token.name + ext;
+    card.addEventListener("click", () => {
+      if (window.openTokenCustomizer) {
+        window.openTokenCustomizer(token, src);
+      }
+    });
 
     const frame = document.createElement("div");
     frame.className = "token-frame";
 
     const img = document.createElement("img");
+    img.crossOrigin = "anonymous";
     img.src = src;
     img.alt = token.name;
     img.loading = "lazy";
@@ -43,7 +47,7 @@ function renderTokens(tokens, emptyMessage) {
 
     const hint = document.createElement("span");
     hint.className = "token-hint";
-    hint.textContent = "click to download";
+    hint.textContent = "click to customize & download";
 
     card.appendChild(frame);
     card.appendChild(name);
