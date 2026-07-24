@@ -279,6 +279,15 @@ async function handleFeedback(request, env, ctx, origin) {
   return jsonResponse({ ok: true }, 200, origin);
 }
 
+// Not atomic — concurrent visits can race and undercount slightly, which is
+// an acceptable tradeoff for a low-traffic hobby-site counter.
+async function handleVisit(env, origin) {
+  const raw = await env.ANALYTICS.get("request_count");
+  const count = raw ? parseInt(raw, 10) : 0;
+  await env.ANALYTICS.put("request_count", String(count + 1));
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+}
+
 async function handleServeImage(env, pathname, origin) {
   const key = pathname.replace(/^\//, "");
   const object = await env.TOKEN_BUCKET.get(key);
@@ -311,6 +320,10 @@ export default {
 
     if (url.pathname === "/api/feedback" && request.method === "POST") {
       return handleFeedback(request, env, ctx, origin);
+    }
+
+    if (url.pathname === "/api/visit" && request.method === "GET") {
+      return handleVisit(env, origin);
     }
 
     if (url.pathname.startsWith("/generated/") && request.method === "GET") {

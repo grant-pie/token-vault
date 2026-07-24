@@ -14,6 +14,10 @@ id = "b3048eab0cb74a578258d4312422cf14"
 binding = "FEEDBACK"
 id = "f38ecc82f4774b15a48bdb38bbb19398"
 
+[[kv_namespaces]]
+binding = "ANALYTICS"
+id = "c64eeed4623545708a89b10bb9a2315c"
+
 [observability]
 enabled = true
 
