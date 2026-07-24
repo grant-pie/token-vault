@@ -1,6 +1,16 @@
 // News items shown on the landing page, newest first.
 const NEWS = [
   {
+    date: "2026-07-24",
+    title: "Added more main and off-hand items.",
+    body: "More items has been added to the generator."
+  },
+  {
+    date: "2026-07-24",
+    title: "Added border generator",
+    body: "The token vault and token generator both now support custom border styles."
+  },
+  {
     date: "2026-07-22",
     title: "Searchable race picker",
     body: "The race dropdown in the token forge now supports typing to filter, so finding the right ancestry is faster."
