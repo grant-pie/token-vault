@@ -185,7 +185,39 @@ async function handleGenerate(request, env, origin) {
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function handleFeedback(request, env, origin) {
+async function sendFeedbackEmail(env, { message, name, email, page }) {
+  if (!env.RESEND_API_KEY || !env.ADMIN_EMAIL) return;
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: env.FEEDBACK_FROM_EMAIL || "Token Vault <onboarding@resend.dev>",
+        to: env.ADMIN_EMAIL,
+        ...(email ? { reply_to: email } : {}),
+        subject: `Token Vault feedback${name ? ` from ${name}` : ""}`,
+        text: [
+          message,
+          "---",
+          `Name: ${name || "(not provided)"}`,
+          `Email: ${email || "(not provided)"}`,
+          `Page: ${page || "(not provided)"}`,
+        ].join("\n"),
+      }),
+    });
+    if (!res.ok) {
+      console.error("Resend error", res.status, await res.text());
+    }
+  } catch (err) {
+    console.error("Failed to send feedback email", err);
+  }
+}
+
+async function handleFeedback(request, env, ctx, origin) {
   let body;
   try {
     body = await request.json();
@@ -242,6 +274,8 @@ async function handleFeedback(request, env, origin) {
     })
   );
 
+  ctx.waitUntil(sendFeedbackEmail(env, { message, name, email: emailRaw, page }));
+
   return jsonResponse({ ok: true }, 200, origin);
 }
 
@@ -263,7 +297,7 @@ async function handleServeImage(env, pathname, origin) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin") || "";
 
@@ -276,7 +310,7 @@ export default {
     }
 
     if (url.pathname === "/api/feedback" && request.method === "POST") {
-      return handleFeedback(request, env, origin);
+      return handleFeedback(request, env, ctx, origin);
     }
 
     if (url.pathname.startsWith("/generated/") && request.method === "GET") {
