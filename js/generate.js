@@ -1,5 +1,3 @@
-const API_BASE = "https://token-vault-generator.grant-public1.workers.dev";
-
 const form = document.getElementById("generate-form");
 const descriptionField = document.getElementById("description");
 const genderField = document.getElementById("gender");

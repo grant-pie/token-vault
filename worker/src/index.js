@@ -1,3 +1,5 @@
+import { RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SECONDS, MAX_PROMPT_LENGTH, ALLOWED_QUALITIES, DEFAULT_QUALITY, SEND_TO_OPENAI } from "./config.js";
+
 // The site is currently served from GitHub Pages; grantpieterse.com is the
 // custom domain used for image URLs but isn't wired up as the Pages host
 // (no CNAME file in the repo), so both need to be allowed here.
@@ -21,16 +23,6 @@ function isAllowedOrigin(origin) {
     return false;
   }
 }
-
-const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
-const MAX_PROMPT_LENGTH = 2000;
-const ALLOWED_QUALITIES = new Set(["low", "medium", "high"]);
-
-// TESTING TOGGLE: when true, the worker builds the full prompt, logs it to
-// the console, and returns without calling OpenAI or spending any credits.
-// Flip back to false to resume real generation.
-const SEND_TO_OPENAI = true;
 
 function buildTokenPrompt(description) {
   return `Create a highly detailed top-down fantasy RPG creature token in the style of official Dungeons & Dragons 5e artwork. Highly detailed hand-painted digital illustration with realistic anatomy, painterly textures, vibrant natural colors, and bright neutral daylight. Professional fantasy concept art quality matching official Dungeons & Dragons 5e artwork. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. Add a soft circular colored shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. Use a red shadow for hostile creatures. The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
@@ -104,9 +96,9 @@ async function handleGenerate(request, env, origin) {
     );
   }
 
-  const quality = ALLOWED_QUALITIES.has(body.quality) ? body.quality : "medium";
+  const quality = ALLOWED_QUALITIES.has(body.quality) ? body.quality : DEFAULT_QUALITY;
   const prompt = buildTokenPrompt(description);
-
+  console.log(quality);
   if (!SEND_TO_OPENAI) {
     console.log("[DEBUG] Full prompt that would be sent to OpenAI:\n" + prompt);
     return jsonResponse(

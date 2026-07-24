@@ -1,4 +1,3 @@
-const PAGE_SIZE = 24;
 let currentPage = 1;
 let activeTokens = TOKENS;
 
