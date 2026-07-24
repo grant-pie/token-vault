@@ -35,9 +35,18 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
     - `ALLOWED_QUALITIES` — image quality values accepted from the client.
     - `DEFAULT_QUALITY` — quality used when the client omits `quality` or sends a value not in `ALLOWED_QUALITIES`.
     - `SEND_TO_OPENAI` — debug toggle; when `false`, the worker logs the built prompt and returns without calling OpenAI or spending credits.
+    - `MAX_FEEDBACK_LENGTH` — longest feedback message accepted.
+    - `FEEDBACK_RATE_LIMIT_MAX` / `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` — feedback submissions allowed per IP (Workers KV-backed), per window (default 5/hour).
   - Stores each result in the same R2 bucket the vault serves images from, under a separate `generated/` prefix — generated art never enters `js/tokens.js` or the curated vault.
   - Restricts CORS to the production origin plus local-dev hosts (`localhost`, LAN IPs) via `PRODUCTION_ORIGINS`/`isAllowedOrigin` in `worker/src/index.js`.
   - Needs an `OPENAI_API_KEY` secret set via `wrangler secret put` (never committed; see `worker/.gitignore`).
+
+### The feedback page
+
+- **`feedback.html`** — a short form (feedback type, optional name/email, message) styled to match the rest of the site, linked from the nav on every page.
+- **`js/feedback.js`** — validates the message client-side, then POSTs `{ message, name, email, page }` to the Worker's `/api/feedback` endpoint and shows an inline status message.
+- Worker-side, `handleFeedback` (`worker/src/index.js`) rate-limits by IP (`FEEDBACK_RATE_LIMIT_MAX` / `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` in `worker/src/config.js`, default 5/hour) and writes each submission to a dedicated `FEEDBACK` KV namespace, keyed by timestamp + UUID. The submitter's IP is only ever used for the rate-limit counter (which auto-expires); it is not stored on the feedback record itself.
+- Every page's footer discloses this: IP addresses are logged briefly to prevent abuse of the generator and feedback form, and those logs expire automatically within about an hour.
 
 See `IMAGE_GENERATOR_PLAN.md` for the fuller design rationale (architecture choice, cost estimates, abuse controls).
 
@@ -81,4 +90,4 @@ npm run dev
 ## Deploying
 
 - **Site**: GitHub Pages (or any static host) with images served from `images-optimized/`, or from a remote bucket (Cloudflare R2, S3, B2, etc.) by pointing `IMAGE_BASE_URL` in `js/config.js` at the bucket's public URL.
-- **Worker**: `cd worker && npm run deploy` (Wrangler). Requires the R2 bucket and KV namespace declared in `worker/wrangler.toml` to already exist in the Cloudflare account, and the `OPENAI_API_KEY` secret to be set (`wrangler secret put OPENAI_API_KEY`).
+- **Worker**: `cd worker && npm run deploy` (Wrangler). Requires the R2 bucket and both KV namespaces (`RATE_LIMIT`, `FEEDBACK`) declared in `worker/wrangler.toml` to already exist in the Cloudflare account, and the `OPENAI_API_KEY` secret to be set (`wrangler secret put OPENAI_API_KEY`).

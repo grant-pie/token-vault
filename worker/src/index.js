@@ -1,4 +1,14 @@
-import { RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SECONDS, MAX_PROMPT_LENGTH, ALLOWED_QUALITIES, DEFAULT_QUALITY, SEND_TO_OPENAI } from "./config.js";
+import {
+  RATE_LIMIT_MAX,
+  RATE_LIMIT_WINDOW_SECONDS,
+  MAX_PROMPT_LENGTH,
+  ALLOWED_QUALITIES,
+  DEFAULT_QUALITY,
+  SEND_TO_OPENAI,
+  MAX_FEEDBACK_LENGTH,
+  FEEDBACK_RATE_LIMIT_MAX,
+  FEEDBACK_RATE_LIMIT_WINDOW_SECONDS,
+} from "./config.js";
 
 // The site is currently served from GitHub Pages; grantpieterse.com is the
 // custom domain used for image URLs but isn't wired up as the Pages host
@@ -55,22 +65,22 @@ function jsonResponse(body, status, origin) {
   });
 }
 
-async function checkAndConsumeRateLimit(env, ip) {
-  const key = `rl:${ip}`;
+async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
+  const key = `${keyPrefix}${ip}`;
   const now = Math.floor(Date.now() / 1000);
-  const raw = await env.RATE_LIMIT.get(key);
+  const raw = await kv.get(key);
 
   let record = raw ? JSON.parse(raw) : null;
   if (!record || now > record.resetAt) {
-    record = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_SECONDS };
+    record = { count: 0, resetAt: now + windowSeconds };
   }
 
-  if (record.count >= RATE_LIMIT_MAX) {
+  if (record.count >= max) {
     return { allowed: false };
   }
 
   record.count += 1;
-  await env.RATE_LIMIT.put(key, JSON.stringify(record), {
+  await kv.put(key, JSON.stringify(record), {
     expiration: record.resetAt + 60,
   });
   return { allowed: true };
@@ -109,7 +119,13 @@ async function handleGenerate(request, env, origin) {
   }
 
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const rateLimit = await checkAndConsumeRateLimit(env, ip);
+  const rateLimit = await checkAndConsumeRateLimit(
+    env.RATE_LIMIT,
+    "rl:",
+    ip,
+    RATE_LIMIT_MAX,
+    RATE_LIMIT_WINDOW_SECONDS
+  );
   if (!rateLimit.allowed) {
     return jsonResponse(
       { error: "You've hit the hourly limit — try again in a bit." },
@@ -167,6 +183,68 @@ async function handleGenerate(request, env, origin) {
   return jsonResponse({ id, url: `/generated/${id}.png` }, 200, origin);
 }
 
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+async function handleFeedback(request, env, origin) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid request." }, 400, origin);
+  }
+
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  if (!message) {
+    return jsonResponse({ error: "Write a message before sending." }, 400, origin);
+  }
+  if (message.length > MAX_FEEDBACK_LENGTH) {
+    return jsonResponse(
+      { error: `Keep feedback under ${MAX_FEEDBACK_LENGTH} characters.` },
+      400,
+      origin
+    );
+  }
+
+  const name = typeof body.name === "string" ? body.name.trim().slice(0, 100) : "";
+  const emailRaw = typeof body.email === "string" ? body.email.trim().slice(0, 200) : "";
+  if (emailRaw && !EMAIL_SHAPE.test(emailRaw)) {
+    return jsonResponse({ error: "That email address doesn't look right." }, 400, origin);
+  }
+  const page = typeof body.page === "string" ? body.page.trim().slice(0, 200) : "";
+
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const rateLimit = await checkAndConsumeRateLimit(
+    env.FEEDBACK,
+    "fbrl:",
+    ip,
+    FEEDBACK_RATE_LIMIT_MAX,
+    FEEDBACK_RATE_LIMIT_WINDOW_SECONDS
+  );
+  if (!rateLimit.allowed) {
+    return jsonResponse(
+      { error: "You've hit the hourly limit — try again in a bit." },
+      429,
+      origin
+    );
+  }
+
+  const now = Date.now();
+  const id = crypto.randomUUID();
+  const key = `feedback:${now}:${id}`;
+  await env.FEEDBACK.put(
+    key,
+    JSON.stringify({
+      message,
+      name,
+      email: emailRaw,
+      page,
+      createdAt: new Date(now).toISOString(),
+    })
+  );
+
+  return jsonResponse({ ok: true }, 200, origin);
+}
+
 async function handleServeImage(env, pathname, origin) {
   const key = pathname.replace(/^\//, "");
   const object = await env.TOKEN_BUCKET.get(key);
@@ -195,6 +273,10 @@ export default {
 
     if (url.pathname === "/api/generate" && request.method === "POST") {
       return handleGenerate(request, env, origin);
+    }
+
+    if (url.pathname === "/api/feedback" && request.method === "POST") {
+      return handleFeedback(request, env, origin);
     }
 
     if (url.pathname.startsWith("/generated/") && request.method === "GET") {

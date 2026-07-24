@@ -17,3 +17,12 @@ export const DEFAULT_QUALITY = "high";
 // the console, and returns without calling OpenAI or spending any credits.
 // Flip back to false to resume real generation.
 export const SEND_TO_OPENAI = true;
+
+// Longest feedback message the worker will accept.
+export const MAX_FEEDBACK_LENGTH = 2000;
+
+// Max feedback submissions allowed per IP within the rate-limit window.
+export const FEEDBACK_RATE_LIMIT_MAX = 5;
+
+// Length of the feedback rate-limit window, in seconds.
+export const FEEDBACK_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;

@@ -10,5 +10,9 @@ bucket_name = "token-vault-images"
 binding = "RATE_LIMIT"
 id = "b3048eab0cb74a578258d4312422cf14"
 
+[[kv_namespaces]]
+binding = "FEEDBACK"
+id = "f38ecc82f4774b15a48bdb38bbb19398"
+
 [observability]
 enabled = true
