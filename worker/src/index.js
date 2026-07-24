@@ -4,10 +4,13 @@ import {
   MAX_PROMPT_LENGTH,
   ALLOWED_QUALITIES,
   DEFAULT_QUALITY,
+  ALLOWED_STYLES,
+  DEFAULT_STYLE,
   SEND_TO_OPENAI,
   MAX_FEEDBACK_LENGTH,
   FEEDBACK_RATE_LIMIT_MAX,
   FEEDBACK_RATE_LIMIT_WINDOW_SECONDS,
+  TOKEN_PROMPT_TEMPLATES,
 } from "./config.js";
 
 // The site is currently served from GitHub Pages; grantpieterse.com is the
@@ -34,14 +37,16 @@ function isAllowedOrigin(origin) {
   }
 }
 
-function buildTokenPrompt(description) {
-  return `Create a highly detailed top-down fantasy RPG creature token in the style of official Dungeons & Dragons 5e artwork. Highly detailed hand-painted digital illustration with realistic anatomy, painterly textures, vibrant natural colors, and bright neutral daylight. Professional fantasy concept art quality matching official Dungeons & Dragons 5e artwork. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. Add a soft circular colored shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. Use a red shadow for hostile creatures. The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+// Substitutes the description into the "[description]" placeholder of a
+// prompt template, letting the boilerplate wording live in config.js
+// instead of being hardcoded here.
+function parsePrompt(template, description) {
+  return template.replace("[description]", description);
+}
 
-Creature: ${description}
-Prioritize tabletop readability over anatomical realism. Slightly exaggerate the visibility of the head, shoulders, hands, weapons, and feet so the creature remains instantly recognizable from a true top-down perspective.
-
-Forgotten Realms aesthetic, colorful high fantasy adventure, whimsical but believable, vibrant natural colors, adventurous tone, official Dungeons & Dragons 5e artwork quality.
-`;
+function buildTokenPrompt(description, style) {
+  const template = TOKEN_PROMPT_TEMPLATES[style] || TOKEN_PROMPT_TEMPLATES[DEFAULT_STYLE];
+  return parsePrompt(template, description);
 }
 
 function corsHeaders(origin) {
@@ -107,7 +112,8 @@ async function handleGenerate(request, env, origin) {
   }
 
   const quality = ALLOWED_QUALITIES.has(body.quality) ? body.quality : DEFAULT_QUALITY;
-  const prompt = buildTokenPrompt(description);
+  const style = ALLOWED_STYLES.has(body.style) ? body.style : DEFAULT_STYLE;
+  const prompt = buildTokenPrompt(description, style);
   console.log(quality);
   if (!SEND_TO_OPENAI) {
     console.log("[DEBUG] Full prompt that would be sent to OpenAI:\n" + prompt);

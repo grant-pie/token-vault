@@ -18,6 +18,31 @@ export const DEFAULT_QUALITY = "high";
 // Flip back to false to resume real generation.
 export const SEND_TO_OPENAI = true;
 
+// Art style values accepted from the client, each mapped to its own prompt template below.
+export const ALLOWED_STYLES = new Set(["standard", "grimdark"]);
+
+// Style used when the client doesn't specify one (or specifies an invalid value).
+export const DEFAULT_STYLE = "standard";
+
+// Templates used to build the image generation prompt sent to OpenAI, keyed by style.
+// The literal "[description]" placeholder is replaced with the user's creature
+// description at request time — see parsePrompt() in index.js.
+export const TOKEN_PROMPT_TEMPLATES = {
+  standard: `Create a highly detailed top-down fantasy RPG creature token in the style of official Dungeons & Dragons 5e artwork. Highly detailed hand-painted digital illustration with realistic anatomy, painterly textures, vibrant natural colors, and bright neutral daylight. Professional fantasy concept art quality matching official Dungeons & Dragons 5e artwork. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. Add a soft circular colored shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. Use a red shadow for hostile creatures. The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+
+Description: [description]
+Prioritize tabletop readability over anatomical realism. Slightly exaggerate the visibility of the head, shoulders, hands, weapons, and feet so the creature remains instantly recognizable from a true top-down perspective.
+
+Forgotten Realms aesthetic, colorful high fantasy adventure, whimsical but believable, vibrant natural colors, adventurous tone, official Dungeons & Dragons 5e artwork quality.
+`,
+  grimdark: `Create a Highly detailed topdown hand-painted digital illustration with realistic anatomy, painterly textures, weathered materials, and professional fantasy concept art quality. Emphasize gritty, grounded realism, worn leather, tarnished metal, chipped weapons, frayed cloth, grime, and signs of age and wear where appropriate. Use muted, desaturated earth tones with deep blacks, cold grays, dirty browns, dark greens, and subdued crimson accents. Dramatic directional lighting with strong contrast, subtle rim lighting, and moody shadows. The creature should feel ancient, dangerous, and lived-in rather than heroic or pristine. It must be a top down view The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. Add a soft circular colored shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. Use a dark red shadow for hostile creatures. The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+
+Description: [description]
+
+Dark fantasy aesthetic inspired by classic grimdark worlds, oppressive atmosphere, gothic horror, medieval realism, harsh survival, ancient decay, and grounded realism. Avoid bright colors, whimsical elements, exaggerated cartoon features, heroic poses, clean equipment, polished armor, or cheerful fantasy. The creature should appear intimidating, ancient, and realistically weathered while remaining visually striking, suitable for a broad fantasy audience, and easy to identify as a tabletop token.
+`,
+};
+
 // Longest feedback message the worker will accept.
 export const MAX_FEEDBACK_LENGTH = 2000;
 

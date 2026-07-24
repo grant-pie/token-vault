@@ -12,6 +12,7 @@ const armorField = document.getElementById("armor");
 const helmField = document.getElementById("helm");
 const mainhandField = document.getElementById("mainhand");
 const offhandField = document.getElementById("offhand");
+const styleField = document.getElementById("style");
 const statusEl = document.getElementById("generator-status");
 const resultSection = document.getElementById("generator-result");
 const resultFrame = document.getElementById("result-frame");
@@ -260,7 +261,7 @@ form.addEventListener("submit", async (event) => {
     const res = await fetch(`${API_BASE}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description: prompt }),
+      body: JSON.stringify({ description: prompt, style: styleField.value }),
     });
 
     const data = await res.json();
