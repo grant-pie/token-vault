@@ -33,6 +33,7 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
     - `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_SECONDS` — requests allowed per IP (Workers KV-backed), per window (default 5/hour).
     - `MAX_PROMPT_LENGTH` — longest description accepted.
     - `ALLOWED_QUALITIES` — image quality values accepted from the client.
+    - `DEFAULT_QUALITY` — quality used when the client omits `quality` or sends a value not in `ALLOWED_QUALITIES`.
     - `SEND_TO_OPENAI` — debug toggle; when `false`, the worker logs the built prompt and returns without calling OpenAI or spending credits.
   - Stores each result in the same R2 bucket the vault serves images from, under a separate `generated/` prefix — generated art never enters `js/tokens.js` or the curated vault.
   - Restricts CORS to the production origin plus local-dev hosts (`localhost`, LAN IPs) via `PRODUCTION_ORIGINS`/`isAllowedOrigin` in `worker/src/index.js`.
