@@ -12,13 +12,17 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
 - **`js/config.js`** — sets `IMAGE_BASE_URL`, the prefix used to build each token's image URL. Points at a custom domain backed by Cloudflare R2 by default; swap it for `images-optimized/` to serve images locally, or any other public URL/bucket.
 - **`index.html`** — landing page with nav links to the vault and the generator.
 - **`vault.html`** / **`style.css`** — the token vault page shell and the parchment/dungeon styling.
-- **`js/app.js`** — renders the token grid, live search-as-you-type filtering, and pagination (24 tokens per page). Each token card links directly to its image with a `download` attribute so clicking it saves the file.
+- **`js/app.js`** — renders the token grid, live search-as-you-type filtering, and pagination (24 tokens per page). Clicking a token card opens the customizer modal (below) instead of downloading directly.
+
+### The customizer
+
+- **`js/token-customize.js`** — a shared modal, opened via `window.openTokenCustomizer(token, imageSrc)`, that lets a user apply a border shape (circle/square/hexagon), border color/width, and a background tint to a token before downloading it. Renders to an off-screen `<canvas>` (1024px) supporting drag-to-reposition and scroll/slider zoom, and exports the result as a PNG. Settings persist across tokens via `localStorage`. Wired up from both `vault.html` (customizing a vault token) and `generate.html` (customizing a freshly generated one); each page just needs the `#token-modal` dialog markup and controls (see either HTML file) plus the `<script src="js/token-customize.js">` include.
 
 ### The generator
 
 - **`generate.html`** — the "Forge a Token" page: a form of dropdowns, searchable comboboxes, and color swatches (gender, age, race, class, skin/hair color, armor, helm, main/offhand items) plus a free-text description field, and a result panel with a download link.
 - **`js/generator-options.js`** — the option lists and swatch colors (`RACE_OPTIONS`, `CLASS_OPTIONS`, `SKIN_OPTIONS`, weapon lists, etc.) that populate the form. Edit this to add/remove races, classes, or gear.
-- **`js/generate.js`** — wires up the form (combobox search/keyboard nav, swatch pickers), assembles the character description into a prompt string from the selected fields, and POSTs it to the Worker's `/api/generate` endpoint. Renders the returned image and enables its download link, or surfaces an inline error (rate limit, content rejection, network failure).
+- **`js/generate.js`** — wires up the form (combobox search/keyboard nav, swatch pickers), assembles the character description into a prompt string from the selected fields, and POSTs it to the Worker's `/api/generate` endpoint. Renders the returned image, enables its direct download link and a "Customize" button (opens the border/tint modal from `js/token-customize.js`), or surfaces an inline error (rate limit, content rejection, network failure).
 - **`worker/`** — a standalone Cloudflare Worker project (own `package.json`, deployed separately from the static site) that proxies OpenAI's Images API:
   - Wraps the incoming description in a fixed template (`worker/src/index.js`) tuned for top-down, transparent-background D&D token art, using `gpt-image-1` so it can return a real alpha cutout.
   - Rate-limits by IP via Workers KV (5 requests/hour) before calling OpenAI.
