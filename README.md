@@ -23,6 +23,7 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
 - **`generate.html`** — the "Forge a Token" page: a form of dropdowns, searchable comboboxes, and color swatches (gender, age, race, class, skin/hair color, armor, helm, main/offhand items) plus a free-text description field, and a result panel with a download link.
 - **`js/generator-options.js`** — the option lists and swatch colors (`RACE_OPTIONS`, `CLASS_OPTIONS`, `SKIN_OPTIONS`, weapon lists, etc.) that populate the form. Edit this to add/remove races, classes, or gear.
 - **`js/generate.js`** — wires up the form (combobox search/keyboard nav, swatch pickers), assembles the character description into a prompt string from the selected fields, and POSTs it to the Worker's `/api/generate` endpoint. Renders the returned image, enables its direct download link and a "Customize" button (opens the border/tint modal from `js/token-customize.js`), or surfaces an inline error (rate limit, content rejection, network failure).
+- **`monster.html`** / **`js/monster.js`** — the "Summon a Monster" page: a stripped-down variant of the generator with just a single free-text description field. Same result panel, loading animation, download link, and border/tint customize modal as `generate.html`, reusing `js/token-customize.js`. `js/monster.js` wraps the textarea input with light monster framing before POSTing it to the same `/api/generate` endpoint.
 - **`worker/`** — a standalone Cloudflare Worker project (own `package.json`, deployed separately from the static site) that proxies OpenAI's Images API:
   - Wraps the incoming description in a fixed template (`worker/src/index.js`) tuned for top-down, transparent-background D&D token art, using `gpt-image-1` so it can return a real alpha cutout.
   - Rate-limits by IP via Workers KV (5 requests/hour) before calling OpenAI.
@@ -67,7 +68,7 @@ npm install
 npm run dev
 ```
 
-`js/generate.js` points `API_BASE` at the deployed Worker URL — for local testing against `wrangler dev`, update `API_BASE` in `js/generate.js` to the local Worker URL it prints.
+`js/generate.js` and `js/monster.js` each point `API_BASE` at the deployed Worker URL — for local testing against `wrangler dev`, update `API_BASE` in both files to the local Worker URL it prints.
 
 ## Deploying
 

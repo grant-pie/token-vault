@@ -2,6 +2,11 @@
 const NEWS = [
   {
     date: "2026-07-24",
+    title: "Summon a Monster",
+    body: "A new page for conjuring beasts and creatures straight from a description, no character build required."
+  },
+  {
+    date: "2026-07-24",
     title: "Added more main and off-hand items.",
     body: "More items has been added to the generator."
   },

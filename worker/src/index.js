@@ -24,7 +24,7 @@ function isAllowedOrigin(origin) {
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
-const MAX_PROMPT_LENGTH = 600;
+const MAX_PROMPT_LENGTH = 2000;
 const ALLOWED_QUALITIES = new Set(["low", "medium", "high"]);
 
 // TESTING TOGGLE: when true, the worker builds the full prompt, logs it to
