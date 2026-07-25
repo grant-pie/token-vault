@@ -1,6 +1,12 @@
 const form = document.getElementById("summon-form");
 const descriptionField = document.getElementById("description");
 const styleField = document.getElementById("style");
+const shadowField = document.getElementById("shadow");
+const shadowSwatchesEl = document.getElementById("shadow-swatches");
+const armorField = document.getElementById("armor");
+const helmField = document.getElementById("helm");
+const mainhandField = document.getElementById("mainhand");
+const offhandField = document.getElementById("offhand");
 const statusEl = document.getElementById("generator-status");
 const resultSection = document.getElementById("generator-result");
 const resultFrame = document.getElementById("result-frame");
@@ -11,9 +17,52 @@ const summonBtn = document.getElementById("summon-btn");
 
 resultImage.crossOrigin = "anonymous";
 
-function buildPrompt() {
+initSwatchPicker(SHADOW_OPTIONS, shadowSwatchesEl, shadowField);
+
+HELM_OPTIONS.forEach((option) => {
+  const optionEl = document.createElement("option");
+  optionEl.value = option;
+  optionEl.textContent = option;
+  helmField.appendChild(optionEl);
+});
+
+const MONSTER_ARMOR_OPTIONS = ["None", ...ARMOR_OPTIONS];
+
+const COMBOBOX_OPTIONS = {
+  armor: MONSTER_ARMOR_OPTIONS,
+  mainhand: MAINHAND_OPTIONS,
+  offhand: OFFHAND_OPTIONS,
+};
+
+Object.entries(COMBOBOX_OPTIONS).forEach(([fieldId, options]) => {
+  initCombobox(fieldId, options);
+});
+
+function updateHelmAvailability() {
+  const noArmor = armorField.value === "None";
+  helmField.disabled = noArmor;
+  if (noArmor) {
+    helmField.value = "None";
+  }
+}
+
+armorField.addEventListener("change", updateHelmAvailability);
+updateHelmAvailability();
+
+function createDescription() {
   const description = descriptionField.value.trim();
-  return `A monster. ${description}`;
+  const armorText = buildArmorText(armorField.value, helmField.value);
+  const weaponText = buildWeaponText(mainhandField.value, offhandField.value);
+  const invisText = `${armorText}. ${weaponText}`;
+  return `${description}. ${invisText}`;
+}
+
+function buildPrompt() {
+  return `A monster. ${createDescription()}`;
+}
+
+function buildShadowColor() {
+  return shadowField.value.toLowerCase() === "none" ? "" : shadowField.value.toLowerCase();
 }
 
 form.addEventListener("submit", async (event) => {
@@ -26,8 +75,20 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
-  const prompt = buildPrompt();
+  const requiredCombos = [
+    { field: armorField, searchId: "armor-search", label: "an armor type" },
+    { field: mainhandField, searchId: "mainhand-search", label: "a mainhand item" },
+    { field: offhandField, searchId: "offhand-search", label: "an offhand item" },
+  ];
+  const missing = requiredCombos.find(({ field }) => !field.value);
+  if (missing) {
+    statusEl.textContent = `Please choose ${missing.label} before summoning.`;
+    document.getElementById(missing.searchId).focus();
+    return;
+  }
 
+  const prompt = buildPrompt();
+ 
   summonBtn.disabled = true;
   summonBtn.textContent = "Summoning...";
   statusEl.textContent = "";
@@ -40,7 +101,11 @@ form.addEventListener("submit", async (event) => {
     const res = await fetch(`${API_BASE}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description: prompt, style: styleField.value }),
+      body: JSON.stringify({
+        description: prompt,
+        style: styleField.value,
+        shadowColor: buildShadowColor(),
+      }),
     });
 
     const data = await res.json();

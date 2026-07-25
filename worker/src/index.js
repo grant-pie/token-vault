@@ -37,16 +37,28 @@ function isAllowedOrigin(origin) {
   }
 }
 
-// Substitutes the description into the "[description]" placeholder of a
-// prompt template, letting the boilerplate wording live in config.js
-// instead of being hardcoded here.
-function parsePrompt(template, description) {
-  return template.replace("[description]", description);
+// Substitutes the description into the "[description]" placeholder. The
+// "[[shadow]]...[[/shadow]]" span is the battlemap-readability shadow
+// instruction: when a shadow color was picked, the span's "[shadow color]"
+// placeholder is filled in and the markers are stripped; when none was
+// picked, the span is swapped for an explicit "no shadow" instruction —
+// image models default to adding a soft grounding shadow as a stylistic
+// habit, so simply omitting the request isn't enough to suppress one.
+// Letting the boilerplate wording live in config.js instead of being
+// hardcoded here.
+function parsePrompt(template, description, shadowColor) {
+  const withShadow = template.replace(/\[\[shadow\]\]([\s\S]*?)\[\[\/shadow\]\]\s*/, (_match, shadowSentence) => {
+    if (!shadowColor) {
+      return "Do not add any shadow, glow, halo, or highlight beneath or around the creature. ";
+    }
+    return `${shadowSentence.replace("[shadow color]", shadowColor)} `;
+  });
+  return withShadow.replace("[description]", description);
 }
 
-function buildTokenPrompt(description, style) {
+function buildTokenPrompt(description, style, shadowColor) {
   const template = TOKEN_PROMPT_TEMPLATES[style] || TOKEN_PROMPT_TEMPLATES[DEFAULT_STYLE];
-  return parsePrompt(template, description);
+  return parsePrompt(template, description, shadowColor);
 }
 
 function corsHeaders(origin) {
@@ -113,8 +125,10 @@ async function handleGenerate(request, env, origin) {
 
   const quality = ALLOWED_QUALITIES.has(body.quality) ? body.quality : DEFAULT_QUALITY;
   const style = ALLOWED_STYLES.has(body.style) ? body.style : DEFAULT_STYLE;
-  const prompt = buildTokenPrompt(description, style);
-  console.log(quality);
+  const shadowColor =
+    typeof body.shadowColor === "string" ? body.shadowColor.trim().slice(0, 30).toLowerCase() : "";
+  const prompt = buildTokenPrompt(description, style, shadowColor);
+
   if (!SEND_TO_OPENAI) {
     console.log("[DEBUG] Full prompt that would be sent to OpenAI:\n" + prompt);
     return jsonResponse(

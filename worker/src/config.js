@@ -1,5 +1,5 @@
 // Max generate requests allowed per IP within the rate-limit window.
-export const RATE_LIMIT_MAX = 5;
+export const RATE_LIMIT_MAX = 15;
 
 // Length of the rate-limit window, in seconds.
 export const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
@@ -26,16 +26,24 @@ export const DEFAULT_STYLE = "standard";
 
 // Templates used to build the image generation prompt sent to OpenAI, keyed by style.
 // The literal "[description]" placeholder is replaced with the user's creature
-// description at request time — see parsePrompt() in index.js.
+// description at request time. The "[[shadow]]...[[/shadow]]" span is the
+// battlemap-readability shadow instruction: when a shadow color is chosen it's
+// substituted in for "[shadow color]" and the markers are stripped; when "None"
+// is chosen the whole span (markers included) is removed so no shadow is
+// requested at all — see parsePrompt() in index.js.
 export const TOKEN_PROMPT_TEMPLATES = {
-  standard: `Create a highly detailed top-down fantasy RPG creature token in the style of official Dungeons & Dragons 5e artwork. Highly detailed hand-painted digital illustration with realistic anatomy, painterly textures, vibrant natural colors, and bright neutral daylight. Professional fantasy concept art quality matching official Dungeons & Dragons 5e artwork. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. Add a soft circular colored shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. Use a red shadow for hostile creatures. The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+  standard: `Create a highly detailed top-down fantasy RPG creature token. Highly detailed hand-painted digital illustration with realistic anatomy, painterly textures, vibrant natural colors, and bright neutral daylight. Professional fantasy concept art quality. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. The entire creature must be visible within the frame
+
+[[shadow]]Add a soft circular [shadow color] colored drop shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. This shadow is required and is not considered part of the ground, floor, base, environment, or scenery.[[/shadow]] The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
 
 Description: [description]
 Prioritize tabletop readability over anatomical realism. Slightly exaggerate the visibility of the head, shoulders, hands, weapons, and feet so the creature remains instantly recognizable from a true top-down perspective.
 
-Forgotten Realms aesthetic, colorful high fantasy adventure, whimsical but believable, vibrant natural colors, adventurous tone, official Dungeons & Dragons 5e artwork quality.
+Colorful high fantasy adventure, whimsical but believable, vibrant natural colors, adventurous tone.
 `,
-  grimdark: `Create a Highly detailed topdown hand-painted digital illustration with realistic anatomy, painterly textures, weathered materials, and professional fantasy concept art quality. Emphasize gritty, grounded realism, worn leather, tarnished metal, chipped weapons, frayed cloth, grime, and signs of age and wear where appropriate. Use muted, desaturated earth tones with deep blacks, cold grays, dirty browns, dark greens, and subdued crimson accents. Dramatic directional lighting with strong contrast, subtle rim lighting, and moody shadows. The creature should feel ancient, dangerous, and lived-in rather than heroic or pristine. It must be a top down view The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. Add a soft circular colored shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. Use a dark red shadow for hostile creatures. The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+  grimdark: `Create a Highly detailed topdown hand-painted digital illustration with realistic anatomy, painterly textures, weathered materials, and professional fantasy concept art quality. Emphasize gritty, grounded realism, worn leather, tarnished metal, chipped weapons, frayed cloth, grime, and signs of age and wear where appropriate. Use muted, desaturated earth tones with deep blacks, cold grays, dirty browns, dark greens, and subdued crimson accents. Dramatic directional lighting with strong contrast and subtle rim lighting, using moody shading across the creature's own form (not a cast shadow on the ground). The creature should feel ancient, dangerous, and lived-in rather than heroic or pristine. It must be a top down view. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides.
+
+[[shadow]]Add a soft circular [shadow color] colored drop shadow directly beneath the creature's feet to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. This shadow is required and is not considered part of the ground, floor, base, environment, or scenery.[[/shadow]] The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
 
 Description: [description]
 

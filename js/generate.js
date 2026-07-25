@@ -7,6 +7,8 @@ const skinField = document.getElementById("skin");
 const skinSwatchesEl = document.getElementById("skin-swatches");
 const hairField = document.getElementById("hair");
 const hairSwatchesEl = document.getElementById("hair-swatches");
+const shadowField = document.getElementById("shadow");
+const shadowSwatchesEl = document.getElementById("shadow-swatches");
 const classField = document.getElementById("class");
 const armorField = document.getElementById("armor");
 const helmField = document.getElementById("helm");
@@ -47,173 +49,16 @@ const COMBOBOX_OPTIONS = {
   offhand: OFFHAND_OPTIONS,
 };
 
-function initCombobox(fieldId, options) {
-  const wrapper = document.querySelector(`[data-combobox="${fieldId}"]`);
-  const searchInput = document.getElementById(`${fieldId}-search`);
-  const hiddenInput = document.getElementById(fieldId);
-  const list = document.getElementById(`${fieldId}-listbox`);
-
-  let filtered = options;
-  let activeIndex = -1;
-
-  function renderList() {
-    list.innerHTML = "";
-    filtered.forEach((option, index) => {
-      const item = document.createElement("li");
-      item.id = `${fieldId}-option-${index}`;
-      item.className = "combobox-option";
-      item.role = "option";
-      item.textContent = option;
-      item.setAttribute("aria-selected", String(index === activeIndex));
-      if (index === activeIndex) item.classList.add("active");
-      item.addEventListener("mousedown", (event) => {
-        event.preventDefault();
-        selectOption(option);
-      });
-      list.appendChild(item);
-    });
-    searchInput.setAttribute(
-      "aria-activedescendant",
-      activeIndex >= 0 ? `${fieldId}-option-${activeIndex}` : ""
-    );
-  }
-
-  function openList() {
-    list.hidden = false;
-    searchInput.setAttribute("aria-expanded", "true");
-  }
-
-  function closeList() {
-    list.hidden = true;
-    searchInput.setAttribute("aria-expanded", "false");
-    activeIndex = -1;
-  }
-
-  function selectOption(option) {
-    searchInput.value = option;
-    hiddenInput.value = option;
-    closeList();
-  }
-
-  function filterOptions() {
-    const query = searchInput.value.trim().toLowerCase();
-    filtered = options.filter((option) => option.toLowerCase().includes(query));
-    activeIndex = filtered.length ? 0 : -1;
-    renderList();
-    if (filtered.length) {
-      openList();
-    } else {
-      closeList();
-    }
-  }
-
-  function moveActiveIndex(delta) {
-    if (list.hidden) {
-      filtered = options;
-      renderList();
-      openList();
-      return;
-    }
-    if (!filtered.length) return;
-    activeIndex = Math.max(0, Math.min(activeIndex + delta, filtered.length - 1));
-    renderList();
-    const activeEl = list.children[activeIndex];
-    if (activeEl) activeEl.scrollIntoView({ block: "nearest" });
-  }
-
-  searchInput.addEventListener("input", () => {
-    hiddenInput.value = "";
-    filterOptions();
-  });
-
-  searchInput.addEventListener("focus", () => {
-    filtered = options.filter((option) =>
-      option.toLowerCase().includes(searchInput.value.trim().toLowerCase())
-    );
-    activeIndex = -1;
-    renderList();
-    openList();
-  });
-
-  searchInput.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      moveActiveIndex(1);
-    } else if (event.key === "ArrowUp") {
-      event.preventDefault();
-      moveActiveIndex(-1);
-    } else if (event.key === "Enter") {
-      if (activeIndex >= 0 && filtered[activeIndex]) {
-        event.preventDefault();
-        selectOption(filtered[activeIndex]);
-      }
-    } else if (event.key === "Escape") {
-      closeList();
-    }
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!wrapper.contains(event.target)) closeList();
-  });
-}
-
 Object.entries(COMBOBOX_OPTIONS).forEach(([fieldId, options]) => {
   initCombobox(fieldId, options);
 });
 
-function initSwatchPicker(options, swatchesEl, hiddenField) {
-  options.forEach((option, index) => {
-    const swatch = document.createElement("button");
-    swatch.type = "button";
-    swatch.className = "color-swatch";
-    if (option.hex) {
-      swatch.style.backgroundColor = option.hex;
-    } else {
-      swatch.classList.add("color-swatch-none");
-    }
-    swatch.setAttribute("role", "radio");
-    swatch.setAttribute("aria-label", option.label);
-    swatch.setAttribute("aria-checked", String(index === 0));
-    swatch.title = option.label;
-
-    if (index === 0) {
-      swatch.classList.add("selected");
-      hiddenField.value = option.label;
-    }
-
-    swatch.addEventListener("click", () => {
-      swatchesEl.querySelectorAll(".color-swatch").forEach((el) => {
-        el.classList.remove("selected");
-        el.setAttribute("aria-checked", "false");
-      });
-      swatch.classList.add("selected");
-      swatch.setAttribute("aria-checked", "true");
-      hiddenField.value = option.label;
-    });
-
-    swatchesEl.appendChild(swatch);
-  });
-}
-
 initSwatchPicker(SKIN_OPTIONS, skinSwatchesEl, skinField);
 initSwatchPicker(HAIR_OPTIONS, hairSwatchesEl, hairField);
+initSwatchPicker(SHADOW_OPTIONS, shadowSwatchesEl, shadowField);
 
 function buildGenderText(gender) {
   return gender.toLowerCase() === "other" ? "non gendered" : gender.toLowerCase();
-}
-
-function buildArmorText(armor, helm) {
-  return  helm !== "None" ? `${armor.toLowerCase()} armor and a helm` : armor.toLowerCase() + ' armor';
-}
-
-function buildWeaponText(mainhand, offhand) {
-  if (mainhand === "None" && offhand === "None") {
-    return "They do not wield any weapons.";
-  }
-  if (mainhand !== "None" && offhand === "None") {
-    return `They wield a ${mainhand.toLowerCase()} in their main hand, with their other hand free.`;
-  }
-  return `They wield a ${mainhand.toLowerCase()} in their main hand and a ${offhand.toLowerCase()} in the other.`;
 }
 
 function buildPrompt() {
@@ -227,6 +72,10 @@ function buildPrompt() {
 
   const description = descriptionField.value.trim();
   return description ? `${invisText} ${description}` : invisText;
+}
+
+function buildShadowColor() {
+  return shadowField.value.toLowerCase() === "none" ? "" : shadowField.value.toLowerCase();
 }
 
 form.addEventListener("submit", async (event) => {
@@ -261,7 +110,11 @@ form.addEventListener("submit", async (event) => {
     const res = await fetch(`${API_BASE}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description: prompt, style: styleField.value }),
+      body: JSON.stringify({
+        description: prompt,
+        style: styleField.value,
+        shadowColor: buildShadowColor(),
+      }),
     });
 
     const data = await res.json();
