@@ -205,8 +205,8 @@ async function handleGenerate(request, env, origin) {
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function sendFeedbackEmail(env, { message, name, email, page }) {
-  if (!env.RESEND_API_KEY || !env.ADMIN_EMAIL) return;
+async function sendResendEmail(env, { to, replyTo, subject, text }) {
+  if (!env.RESEND_API_KEY) return;
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -217,24 +217,45 @@ async function sendFeedbackEmail(env, { message, name, email, page }) {
       },
       body: JSON.stringify({
         from: env.FEEDBACK_FROM_EMAIL || "Token Vault <onboarding@resend.dev>",
-        to: env.ADMIN_EMAIL,
-        ...(email ? { reply_to: email } : {}),
-        subject: `Token Vault feedback${name ? ` from ${name}` : ""}`,
-        text: [
-          message,
-          "---",
-          `Name: ${name || "(not provided)"}`,
-          `Email: ${email || "(not provided)"}`,
-          `Page: ${page || "(not provided)"}`,
-        ].join("\n"),
+        to,
+        ...(replyTo ? { reply_to: replyTo } : {}),
+        subject,
+        text,
       }),
     });
     if (!res.ok) {
       console.error("Resend error", res.status, await res.text());
     }
   } catch (err) {
-    console.error("Failed to send feedback email", err);
+    console.error("Failed to send email via Resend", err);
   }
+}
+
+async function sendFeedbackEmail(env, { message, name, email, page }) {
+  if (!env.ADMIN_EMAIL) return;
+
+  await sendResendEmail(env, {
+    to: env.ADMIN_EMAIL,
+    replyTo: email || undefined,
+    subject: `Token Vault feedback${name ? ` from ${name}` : ""}`,
+    text: [
+      message,
+      "---",
+      `Name: ${name || "(not provided)"}`,
+      `Email: ${email || "(not provided)"}`,
+      `Page: ${page || "(not provided)"}`,
+    ].join("\n"),
+  });
+}
+
+async function sendFeedbackConfirmation(env, { name, email }) {
+  if (!email) return;
+
+  await sendResendEmail(env, {
+    to: email,
+    subject: "We got your feedback — Token Vault",
+    text: `Hi${name ? ` ${name}` : ""},\n\nThanks for reaching out — this confirms we received your feedback for Token Vault. No reply needed; we'll take it from here.\n\n— Token Vault`,
+  });
 }
 
 async function handleFeedback(request, env, ctx, origin) {
@@ -295,6 +316,7 @@ async function handleFeedback(request, env, ctx, origin) {
   );
 
   ctx.waitUntil(sendFeedbackEmail(env, { message, name, email: emailRaw, page }));
+  ctx.waitUntil(sendFeedbackConfirmation(env, { name, email: emailRaw }));
 
   return jsonResponse({ ok: true }, 200, origin);
 }

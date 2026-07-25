@@ -22,13 +22,11 @@ id = "c64eeed4623545708a89b10bb9a2315c"
 enabled = true
 
 [vars]
-# Where feedback notification emails are sent. Set the actual
-# admin inbox with `wrangler secret put ADMIN_EMAIL` if you'd
-# rather not commit it here.
-ADMIN_EMAIL = "you@example.com"
+# ADMIN_EMAIL (where feedback notification emails are sent) is set as a
+# secret instead of a var here, via `wrangler secret put ADMIN_EMAIL`.
 # Optional: sender identity. Defaults to Resend's shared test
 # domain if left unset; use a verified domain in production.
-# FEEDBACK_FROM_EMAIL = "Token Vault <feedback@grantpieterse.com>"
+FEEDBACK_FROM_EMAIL = "Token Vault <feedback@grantpieterse.com>"
 
 # RESEND_API_KEY must be set as a secret, not a var:
 #   wrangler secret put RESEND_API_KEY
