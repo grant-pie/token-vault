@@ -19,7 +19,7 @@ export const DEFAULT_QUALITY = "high";
 export const SEND_TO_OPENAI = true;
 
 // Art style values accepted from the client, each mapped to its own prompt template below.
-export const ALLOWED_STYLES = new Set(["standard", "grimdark"]);
+export const ALLOWED_STYLES = new Set(["standard", "grimdark", "pixelart"]);
 
 // Style used when the client doesn't specify one (or specifies an invalid value).
 export const DEFAULT_STYLE = "standard";
@@ -48,6 +48,15 @@ Colorful high fantasy adventure, whimsical but believable, vibrant natural color
 Description: [description]
 
 Dark fantasy aesthetic inspired by classic grimdark worlds, oppressive atmosphere, gothic horror, medieval realism, harsh survival, ancient decay, and grounded realism. Avoid bright colors, whimsical elements, exaggerated cartoon features, heroic poses, clean equipment, polished armor, or cheerful fantasy. The creature should appear intimidating, ancient, and realistically weathered while remaining visually striking, suitable for a broad fantasy audience, and easy to identify as a tabletop token.
+`,
+  pixelart: `Create a top-down fantasy RPG creature token in a retro 16-bit pixel art style, reminiscent of classic SNES-era tactics and JRPG sprite art. Crisp, hard-edged pixels with no anti-aliasing, no blur, and no soft gradients — every edge should be a clean stair-stepped pixel boundary. Use a deliberately limited, hand-picked color palette per shading region (flat color blocks with simple 2-3 step palette-swap shading for form and depth), and confident manual dithering only where a classic sprite artist would use it. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. The entire creature must be visible within the frame.
+
+[[shadow]]Place a small flat-colored [shadow color] pixel shadow directly beneath the creature's feet to improve readability on busy battlemaps, drawn as a solid or lightly dithered ellipse of pixels (no soft feathering or gradient blur, consistent with the pixel art style). The shadow should be approximately 15% larger than the creature's footprint and remain entirely beneath the creature without wrapping around the body. This shadow is required and is not considered part of the ground, floor, base, environment, or scenery.[[/shadow]] The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+
+Description: [description]
+Prioritize tabletop readability and instant silhouette recognition over fine detail. Slightly exaggerate the head, shoulders, hands, weapons, and feet so the creature reads clearly as a small sprite from a true top-down perspective.
+
+Charming retro video-game aesthetic, bold saturated colors, nostalgic 16-bit fantasy adventure tone.
 `,
 };
 
