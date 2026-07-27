@@ -110,6 +110,7 @@ const RACE_OPTIONS = [
 ];
 
 const CLASS_OPTIONS = [
+  "Artificer",
   "Barbarian",
   "Bard",
   "Cleric",
