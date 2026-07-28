@@ -1,31 +1,44 @@
-// Converts images/*.{png,jpg,jpeg} to WebP in images-optimized/.
+// Converts images/<Style>/*.{png,jpg,jpeg} to WebP in images-optimized/<Style>/, one
+// folder per art style (see ALLOWED_STYLES in worker/src/config.js). Styles without an
+// images/<Style>/ folder yet are skipped.
 // Run: npm run optimize
 
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
+const { getAllowedStyles, folderNameForStyle } = require("./lib/styles");
 
-const SRC_DIR = path.join(__dirname, "..", "images");
-const OUT_DIR = path.join(__dirname, "..", "images-optimized");
+const IMAGES_DIR = path.join(__dirname, "..", "images");
+const OPTIMIZED_DIR = path.join(__dirname, "..", "images-optimized");
 const QUALITY = 82;
 const EXT_RE = /\.(png|jpe?g)$/i;
 
-async function main() {
-  fs.mkdirSync(OUT_DIR, { recursive: true });
+async function optimizeStyle(style) {
+  const folder = folderNameForStyle(style);
+  const srcDir = path.join(IMAGES_DIR, folder);
 
-  const files = fs.readdirSync(SRC_DIR).filter((f) => EXT_RE.test(f));
-  if (files.length === 0) {
-    console.log("No PNG/JPEG files found in", SRC_DIR);
+  if (!fs.existsSync(srcDir)) {
+    console.log(`Skipping "${style}" — no images/${folder}/ folder yet`);
     return;
   }
 
+  const files = fs.readdirSync(srcDir).filter((f) => EXT_RE.test(f));
+  if (files.length === 0) {
+    console.log(`No PNG/JPEG files found in ${srcDir}`);
+    return;
+  }
+
+  const outDir = path.join(OPTIMIZED_DIR, folder);
+  fs.mkdirSync(outDir, { recursive: true });
+
+  console.log(`\n-- ${style} (${folder}/) --`);
   let totalBefore = 0;
   let totalAfter = 0;
 
   for (const file of files) {
-    const srcPath = path.join(SRC_DIR, file);
+    const srcPath = path.join(srcDir, file);
     const outName = file.replace(EXT_RE, ".webp");
-    const outPath = path.join(OUT_DIR, outName);
+    const outPath = path.join(outDir, outName);
 
     const before = fs.statSync(srcPath).size;
     await sharp(srcPath).webp({ quality: QUALITY }).toFile(outPath);
@@ -38,8 +51,14 @@ async function main() {
   }
 
   const savedPct = (100 * (1 - totalAfter / totalBefore)).toFixed(1);
-  console.log(`\nTotal: ${(totalBefore / 1024 / 1024).toFixed(1)}MB -> ${(totalAfter / 1024 / 1024).toFixed(1)}MB (${savedPct}% smaller)`);
-  console.log(`Optimized images written to ${OUT_DIR}`);
+  console.log(`Total: ${(totalBefore / 1024 / 1024).toFixed(1)}MB -> ${(totalAfter / 1024 / 1024).toFixed(1)}MB (${savedPct}% smaller)`);
+}
+
+async function main() {
+  for (const style of getAllowedStyles()) {
+    await optimizeStyle(style);
+  }
+  console.log(`\nOptimized images written to ${OPTIMIZED_DIR}`);
   console.log(`Next: npm run tokens`);
 }
 

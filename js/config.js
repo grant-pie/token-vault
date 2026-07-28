@@ -1,8 +1,5 @@
-// Base URL prepended to each token's image filename (see tokens.js).
-//
-// - Local / GitHub Pages: "images-optimized/" (run `npm run optimize` first to populate it)
-// - Once images are migrated to R2/B2/S3, point this at the bucket's public URL instead, e.g.
-//     const IMAGE_BASE_URL = "https://pub-xxxxxxxxxxxx.r2.dev/";
+// Base URL prepended to each token's image path (see tokens.js and imageUrl() in app.js).
+// Images live in the R2 bucket under vault/<style>/<file>, e.g. vault/standard/Aarakocra.webp.
 const IMAGE_BASE_URL = "https://grantpieterse.com/";
 
 // Base URL of the Cloudflare Worker that powers the AI token/monster generator.

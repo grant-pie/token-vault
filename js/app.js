@@ -1,8 +1,31 @@
 let currentPage = 1;
-let activeTokens = TOKENS;
 
-function imageUrl(file) {
-  return IMAGE_BASE_URL + encodeURIComponent(file);
+// TOKENS (see tokens.js) has one array per style from worker/src/config.js's
+// ALLOWED_STYLES, so the dropdown's options come straight from its keys — no need to
+// touch this file when a new style's art is added.
+const styleSelect = document.getElementById("style-select");
+const styleNames = Object.keys(TOKENS);
+let activeStyle = styleNames[0] || "standard";
+let activeTokens = [];
+
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+function populateStyleSelect() {
+  if (!styleSelect) return;
+  styleSelect.innerHTML = "";
+  styleNames.forEach((style) => {
+    const option = document.createElement("option");
+    option.value = style;
+    option.textContent = capitalize(style);
+    styleSelect.appendChild(option);
+  });
+  styleSelect.value = activeStyle;
+}
+
+function imageUrl(style, file) {
+  return IMAGE_BASE_URL + "vault/" + encodeURIComponent(style) + "/" + encodeURIComponent(file);
 }
 
 function renderTokens(tokens, emptyMessage) {
@@ -18,7 +41,7 @@ function renderTokens(tokens, emptyMessage) {
   }
 
   tokens.forEach((token) => {
-    const src = imageUrl(token.file);
+    const src = imageUrl(activeStyle, token.file);
 
     const card = document.createElement("button");
     card.type = "button";
@@ -139,15 +162,31 @@ function update() {
 
 const searchInput = document.getElementById("token-search");
 
+function refreshActiveTokens() {
+  const allTokens = TOKENS[activeStyle] || [];
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+  activeTokens = query
+    ? allTokens.filter((token) => token.name.toLowerCase().includes(query))
+    : allTokens;
+}
+
+populateStyleSelect();
+refreshActiveTokens();
 update();
+
+if (styleSelect) {
+  styleSelect.addEventListener("change", () => {
+    activeStyle = styleSelect.value;
+    currentPage = 1;
+    refreshActiveTokens();
+    update();
+  });
+}
 
 if (searchInput) {
   searchInput.addEventListener("input", () => {
-    const query = searchInput.value.trim().toLowerCase();
-    activeTokens = query
-      ? TOKENS.filter((token) => token.name.toLowerCase().includes(query))
-      : TOKENS;
     currentPage = 1;
+    refreshActiveTokens();
     update();
   });
 }
