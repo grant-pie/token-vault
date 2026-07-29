@@ -37,7 +37,17 @@ function isAllowedOrigin(origin) {
   }
 }
 
-// Substitutes the description into the "[description]" placeholder. The
+// Facing directions the "[direction]" placeholder is randomly filled in
+// with, so generated tokens aren't all facing the model's default forward
+// orientation.
+const FACING_DIRECTIONS = ["right", "left", "forward"];
+
+function randomFacingDirection() {
+  return FACING_DIRECTIONS[Math.floor(Math.random() * FACING_DIRECTIONS.length)];
+}
+
+// Substitutes the description into the "[description]" placeholder and a
+// randomly chosen facing direction into "[direction]". The
 // "[[shadow]]...[[/shadow]]" span is the battlemap-readability shadow
 // instruction: when a shadow color was picked, the span's "[shadow color]"
 // placeholder is filled in and the markers are stripped; when none was
@@ -53,7 +63,7 @@ function parsePrompt(template, description, shadowColor) {
     }
     return `${shadowSentence.replace("[shadow color]", shadowColor)} `;
   });
-  return withShadow.replace("[description]", description);
+  return withShadow.replace("[description]", description).replace("[direction]", randomFacingDirection());
 }
 
 function buildTokenPrompt(description, style, shadowColor) {
