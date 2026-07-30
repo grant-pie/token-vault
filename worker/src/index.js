@@ -9,7 +9,11 @@ import {
   DEFAULT_STYLE,
   DEFAULT_FACING_DIRECTION,
   RANDOMIZE_FACING_DIRECTION,
+  FACING_DIRECTIONS,
   SEND_TO_OPENAI,
+  OPENAI_IMAGE_MODEL,
+  OPENAI_IMAGE_SIZE,
+  OPENAI_IMAGE_OUTPUT_FORMAT,
   MAX_FEEDBACK_LENGTH,
   FEEDBACK_RATE_LIMIT_MAX,
   FEEDBACK_RATE_LIMIT_WINDOW_SECONDS,
@@ -22,6 +26,12 @@ import {
   RESTORE_TOKEN_TTL_SECONDS,
   RESTORE_REQUEST_RATE_LIMIT_MAX,
   RESTORE_REQUEST_RATE_LIMIT_WINDOW_SECONDS,
+  EMAIL_SHAPE,
+  PRODUCTION_ORIGINS,
+  LOCAL_DEV_HOSTNAME,
+  GENERATED_IMAGE_KEY_PREFIX,
+  RECENT_GENERATIONS_KV_KEY,
+  RECENT_GENERATIONS_MAX,
 } from "./config.js";
 import {
   signCreditToken,
@@ -36,21 +46,6 @@ import {
   spendCredits,
 } from "./credits.js";
 
-const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// The site is currently served from GitHub Pages; grantpieterse.com is the
-// custom domain used for image URLs but isn't wired up as the Pages host
-// (no CNAME file in the repo), so both need to be allowed here.
-const PRODUCTION_ORIGINS = new Set([
-  "https://grant-pie.github.io",
-  "https://grantpieterse.com",
-]);
-
-// Local dev can come from any port and, with tools like VS Code's Live
-// Server, from a LAN IP rather than localhost — so match those host
-// shapes generally instead of listing individual origins.
-const LOCAL_DEV_HOSTNAME = /^(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$/;
-
 function isAllowedOrigin(origin) {
   if (!origin) return false;
   if (PRODUCTION_ORIGINS.has(origin)) return true;
@@ -61,11 +56,6 @@ function isAllowedOrigin(origin) {
     return false;
   }
 }
-
-// Facing directions the "[direction]" placeholder is randomly filled in
-// with, so generated tokens aren't all facing the model's default forward
-// orientation.
-const FACING_DIRECTIONS = ["right", "left", "forward"];
 
 function randomFacingDirection() {
   return FACING_DIRECTIONS[Math.floor(Math.random() * FACING_DIRECTIONS.length)];
@@ -142,7 +132,31 @@ async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
   return { allowed: true };
 }
 
-async function handleGenerate(request, env, origin) {
+// Best-effort — same non-atomic tradeoff as handleVisit's counter (see its
+// comment). A missed or duplicated entry under concurrent generations just
+// leaves the recent feed briefly a token off, which isn't worth a stronger
+// primitive for this.
+async function recordRecentGeneration(env, entry) {
+  try {
+    const raw = await env.ANALYTICS.get(RECENT_GENERATIONS_KV_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(entry);
+    await env.ANALYTICS.put(
+      RECENT_GENERATIONS_KV_KEY,
+      JSON.stringify(list.slice(0, RECENT_GENERATIONS_MAX))
+    );
+  } catch (err) {
+    console.error("Failed to record recent generation", err);
+  }
+}
+
+async function handleRecentGenerations(env, origin) {
+  const raw = await env.ANALYTICS.get(RECENT_GENERATIONS_KV_KEY);
+  const tokens = raw ? JSON.parse(raw) : [];
+  return jsonResponse({ tokens }, 200, origin);
+}
+
+async function handleGenerate(request, env, ctx, origin) {
   let body;
   try {
     body = await request.json();
@@ -272,12 +286,12 @@ async function handleGenerate(request, env, origin) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-image-1",
+        model: OPENAI_IMAGE_MODEL,
         prompt,
-        size: "1024x1024",
+        size: OPENAI_IMAGE_SIZE,
         quality,
         background: "transparent",
-        output_format: "png",
+        output_format: OPENAI_IMAGE_OUTPUT_FORMAT,
         n: 1,
       }),
     });
@@ -306,7 +320,8 @@ async function handleGenerate(request, env, origin) {
 
   const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
   const id = crypto.randomUUID();
-  const key = `generated/${id}.png`;
+  const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+  const url = `/${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
 
   try {
     await env.TOKEN_BUCKET.put(key, bytes, {
@@ -318,10 +333,12 @@ async function handleGenerate(request, env, origin) {
     return jsonResponse({ error: "Couldn't save the generated image — try again." }, 502, origin);
   }
 
+  ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt: Date.now() }));
+
   return jsonResponse(
     {
       id,
-      url: `/generated/${id}.png`,
+      url,
       ...(credit ? { creditsRemaining: credit.balance } : {}),
     },
     200,
@@ -681,7 +698,11 @@ export default {
     }
 
     if (url.pathname === "/api/generate" && request.method === "POST") {
-      return handleGenerate(request, env, origin);
+      return handleGenerate(request, env, ctx, origin);
+    }
+
+    if (url.pathname === "/api/recent-generations" && request.method === "GET") {
+      return handleRecentGenerations(env, origin);
     }
 
     if (url.pathname === "/api/checkout" && request.method === "POST") {
@@ -716,7 +737,7 @@ export default {
       return handleVisit(env, origin);
     }
 
-    if (url.pathname.startsWith("/generated/") && request.method === "GET") {
+    if (url.pathname.startsWith(`/${GENERATED_IMAGE_KEY_PREFIX}`) && request.method === "GET") {
       return handleServeImage(env, url.pathname, origin);
     }
 

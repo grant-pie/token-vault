@@ -14,6 +14,36 @@ export const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
 // Longest description the worker will accept for a generate request.
 export const MAX_PROMPT_LENGTH = 2000;
 
+// Shape used to validate any email address submitted to the worker
+// (checkout, feedback, restore-link requests).
+export const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Origins allowed to call this worker directly (no wildcard "Access-Control-Allow-Origin").
+// The site is currently served from GitHub Pages; grantpieterse.com is the
+// custom domain used for image URLs but isn't wired up as the Pages host
+// (no CNAME file in the repo), so both need to be allowed here.
+export const PRODUCTION_ORIGINS = new Set([
+  "https://grant-pie.github.io",
+  "https://grantpieterse.com",
+]);
+
+// Local dev can come from any port and, with tools like VS Code's Live
+// Server, from a LAN IP rather than localhost — so match those host
+// shapes generally instead of listing individual origins.
+export const LOCAL_DEV_HOSTNAME = /^(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$/;
+
+// R2 key prefix generated images are stored/served under. Shared between the
+// write path (handleGenerate) and the read path (handleServeImage) — keep
+// them in sync or served image URLs will 404.
+export const GENERATED_IMAGE_KEY_PREFIX = "generated/";
+
+// KV key (under the ANALYTICS namespace) the recent-generations feed is
+// stored at, as a single JSON array — newest first — rather than one row
+// per image. Cheap to read for a feed that only ever needs to show a
+// screenful of tokens. RECENT_GENERATIONS_MAX caps how many it keeps.
+export const RECENT_GENERATIONS_KV_KEY = "recent_generations";
+export const RECENT_GENERATIONS_MAX = 24;
+
 // Image quality values accepted from the client.
 export const ALLOWED_QUALITIES = new Set(["low", "medium", "high"]);
 
@@ -24,6 +54,11 @@ export const DEFAULT_QUALITY = "high";
 // the console, and returns without calling OpenAI or spending any credits.
 // Flip back to false to resume real generation.
 export const SEND_TO_OPENAI = true;
+
+// OpenAI Images API request parameters for token generation.
+export const OPENAI_IMAGE_MODEL = "gpt-image-1";
+export const OPENAI_IMAGE_SIZE = "1024x1024";
+export const OPENAI_IMAGE_OUTPUT_FORMAT = "png";
 
 // Art style values accepted from the client, each mapped to its own prompt template below.
 export const ALLOWED_STYLES = new Set(["standard", "grimdark", "pixelart"]);
@@ -38,6 +73,9 @@ export const DEFAULT_FACING_DIRECTION = "forward";
 // When true, "[direction]" is filled in with a randomly chosen facing
 // direction per request. When false, DEFAULT_FACING_DIRECTION is used every time.
 export const RANDOMIZE_FACING_DIRECTION = true;
+
+// Facing directions randomly chosen from when RANDOMIZE_FACING_DIRECTION is true.
+export const FACING_DIRECTIONS = ["right", "left", "forward"];
 
 // Templates used to build the image generation prompt sent to OpenAI, keyed by style.
 // The literal "[description]" placeholder is replaced with the user's creature
@@ -124,6 +162,9 @@ export const CREDIT_PACKS = {
   medium: { credits: 50, amountSubunits: 15000 }, // R150.00
   large: { credits: 150, amountSubunits: 35000 }, // R350.00
 };
+
+// Currency CREDIT_PACKS' amountSubunits are denominated in, passed through to Paystack.
+export const CREDIT_PACK_CURRENCY = "ZAR";
 
 // How long a claimed bearer token stays valid. Long-lived and unrefreshable
 // by design for now — there's no login flow to renew it with yet (see

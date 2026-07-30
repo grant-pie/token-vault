@@ -1,6 +1,8 @@
 // Credit ledger (D1) and bearer-token helpers for the paid-generation system.
 // See CREDIT_SYSTEM_PLAN.md for the design this implements.
 
+import { CREDIT_PACK_CURRENCY } from "./config.js";
+
 function bytesToBase64Url(bytes) {
   let binary = "";
   bytes.forEach((b) => {
@@ -135,7 +137,7 @@ export async function initializeTransaction(env, { email, amountSubunits, pack, 
     body: JSON.stringify({
       email,
       amount: amountSubunits,
-      currency: "ZAR",
+      currency: CREDIT_PACK_CURRENCY,
       callback_url: callbackUrl,
       metadata: { pack, credits },
     }),
