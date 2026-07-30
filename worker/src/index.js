@@ -18,10 +18,15 @@ import {
   CREDIT_TOKEN_TTL_SECONDS,
   CREDIT_TOKEN_RATE_LIMIT_MAX,
   CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS,
+  RESTORE_TOKEN_TTL_SECONDS,
+  RESTORE_REQUEST_RATE_LIMIT_MAX,
+  RESTORE_REQUEST_RATE_LIMIT_WINDOW_SECONDS,
 } from "./config.js";
 import {
   signCreditToken,
   verifyCreditToken,
+  signRestoreToken,
+  verifyRestoreToken,
   initializeTransaction,
   verifyTransaction,
   verifyPaystackWebhookSignature,
@@ -423,6 +428,84 @@ async function handleClaimSession(request, env, origin) {
   return jsonResponse({ token, email, balance }, 200, origin);
 }
 
+async function sendRestoreLinkIfEligible(env, email) {
+  // Only emails a link when there's an actual balance to restore — both to
+  // avoid confirming to an outside observer that an email has money on it
+  // (the endpoint's response is identical either way, see below) and
+  // because a restore token for a zero balance wouldn't do anything useful.
+  const balance = await getBalance(env.CREDITS_DB, email);
+  if (balance <= 0) return;
+
+  const token = await signRestoreToken(env.TOKEN_SIGNING_SECRET, email, RESTORE_TOKEN_TTL_SECONDS);
+  const link = `${env.CHECKOUT_RETURN_URL}?restore=${encodeURIComponent(token)}`;
+
+  await sendResendEmail(env, {
+    to: email,
+    subject: "Restore your Token Vault credits",
+    text: `Here's your link to restore access to your credit balance:\n\n${link}\n\nThis link expires in 15 minutes and can only be used once. If you didn't request this, you can safely ignore this email.\n\n— Token Vault`,
+  });
+}
+
+async function handleRequestRestoreLink(request, env, ctx, origin) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid request." }, 400, origin);
+  }
+
+  const email = typeof body.email === "string" ? body.email.trim().slice(0, 200) : "";
+  if (!EMAIL_SHAPE.test(email)) {
+    return jsonResponse({ error: "Enter a valid email first." }, 400, origin);
+  }
+
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const rateLimit = await checkAndConsumeRateLimit(
+    env.RATE_LIMIT,
+    "rrl:",
+    ip,
+    RESTORE_REQUEST_RATE_LIMIT_MAX,
+    RESTORE_REQUEST_RATE_LIMIT_WINDOW_SECONDS
+  );
+  if (!rateLimit.allowed) {
+    return jsonResponse({ error: "You've hit the hourly limit — try again in a bit." }, 429, origin);
+  }
+
+  // Response is identical whether or not this email has any credits — see
+  // sendRestoreLinkIfEligible. Sending happens after the response so a slow
+  // outbound email call doesn't make the fetch appear to hang.
+  ctx.waitUntil(sendRestoreLinkIfEligible(env, email));
+
+  return jsonResponse(
+    { ok: true, message: "If that email has a credit balance, we've sent a restore link." },
+    200,
+    origin
+  );
+}
+
+async function handleClaimRestore(request, env, origin) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid request." }, 400, origin);
+  }
+
+  const restoreToken = typeof body.token === "string" ? body.token : "";
+  const claims = await verifyRestoreToken(env.TOKEN_SIGNING_SECRET, restoreToken);
+  if (!claims) {
+    return jsonResponse(
+      { error: "That restore link is invalid or has expired — request a new one." },
+      400,
+      origin
+    );
+  }
+
+  const token = await signCreditToken(env.TOKEN_SIGNING_SECRET, claims.email, CREDIT_TOKEN_TTL_SECONDS);
+  const balance = await getBalance(env.CREDITS_DB, claims.email);
+  return jsonResponse({ token, email: claims.email, balance }, 200, origin);
+}
+
 async function handleBalance(request, env, origin) {
   const authHeader = request.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
@@ -599,6 +682,14 @@ export default {
 
     if (url.pathname === "/api/claim-session" && request.method === "POST") {
       return handleClaimSession(request, env, origin);
+    }
+
+    if (url.pathname === "/api/request-restore-link" && request.method === "POST") {
+      return handleRequestRestoreLink(request, env, ctx, origin);
+    }
+
+    if (url.pathname === "/api/claim-restore" && request.method === "POST") {
+      return handleClaimRestore(request, env, origin);
     }
 
     if (url.pathname === "/api/balance" && request.method === "GET") {

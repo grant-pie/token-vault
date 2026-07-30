@@ -57,15 +57,24 @@ async function hmacVerify(secret, message, hexSig, hash = "SHA-256") {
 // --- Bearer tokens -----------------------------------------------------
 // Format: "<base64url(json payload)>.<hex hmac signature>". No server-side
 // session state — verification is just recomputing the signature.
+//
+// Two purposes share this format: a long-lived "credit" token (the one
+// generate.js/monster.js send as Authorization: Bearer to spend a balance)
+// and a short-lived "restore" token (emailed as a recovery link, see
+// request-restore-link in index.js). The `purpose` claim keeps them from
+// being interchangeable — a restore link that leaks can't be replayed as a
+// long-lived spend credential, and vice versa.
 
-export async function signCreditToken(secret, email, ttlSeconds) {
+async function signPurposeToken(secret, purpose, email, ttlSeconds) {
   const exp = Math.floor(Date.now() / 1000) + ttlSeconds;
-  const payloadB64 = bytesToBase64Url(new TextEncoder().encode(JSON.stringify({ email, exp })));
+  const payloadB64 = bytesToBase64Url(
+    new TextEncoder().encode(JSON.stringify({ email, purpose, exp }))
+  );
   const sig = await hmacHex(secret, payloadB64);
   return `${payloadB64}.${sig}`;
 }
 
-export async function verifyCreditToken(secret, token) {
+async function verifyPurposeToken(secret, purpose, token) {
   if (typeof token !== "string") return null;
   const dot = token.indexOf(".");
   if (dot === -1) return null;
@@ -82,8 +91,25 @@ export async function verifyCreditToken(secret, token) {
     return null;
   }
   if (!payload || typeof payload.email !== "string" || typeof payload.exp !== "number") return null;
+  if (payload.purpose !== purpose) return null;
   if (payload.exp < Math.floor(Date.now() / 1000)) return null;
   return { email: payload.email };
+}
+
+export async function signCreditToken(secret, email, ttlSeconds) {
+  return signPurposeToken(secret, "credit", email, ttlSeconds);
+}
+
+export async function verifyCreditToken(secret, token) {
+  return verifyPurposeToken(secret, "credit", token);
+}
+
+export async function signRestoreToken(secret, email, ttlSeconds) {
+  return signPurposeToken(secret, "restore", email, ttlSeconds);
+}
+
+export async function verifyRestoreToken(secret, token) {
+  return verifyPurposeToken(secret, "restore", token);
 }
 
 // --- Paystack REST helpers -------------------------------------------------

@@ -47,6 +47,18 @@ const creditModal = document.getElementById("credit-modal");
 const creditModalStatus = document.getElementById("credit-modal-status");
 const packButtonsEl = document.getElementById("credit-pack-buttons");
 const emailInput = document.getElementById("credit-email");
+const restoreToggleBtn = document.getElementById("restore-credits-toggle");
+const restoreFormEl = document.getElementById("restore-credits-form");
+const restoreEmailInput = document.getElementById("restore-email");
+const restoreBtn = document.getElementById("restore-credits-btn");
+
+// Opens the buy modal if it isn't already open, so a status message from a
+// page-load flow (Paystack redirect, restore link) is actually visible
+// instead of being written into a hidden dialog.
+function showModalStatus(message) {
+  if (creditModalStatus) creditModalStatus.textContent = message;
+  if (creditModal && !creditModal.open) creditModal.showModal();
+}
 
 function renderBalance(balance) {
   if (!balanceEl) return;
@@ -94,7 +106,7 @@ async function claimSession(reference) {
     });
     const data = await res.json();
     if (!res.ok) {
-      if (statusElForModal()) statusElForModal().textContent = data.error || "Couldn't confirm that purchase.";
+      showModalStatus(data.error || "Couldn't confirm that purchase.");
       return;
     }
 
@@ -108,12 +120,55 @@ async function claimSession(reference) {
       }
     }
   } catch {
-    if (statusElForModal()) statusElForModal().textContent = "Couldn't confirm that purchase — check your balance in a minute.";
+    showModalStatus("Couldn't confirm that purchase — check your balance in a minute.");
   }
 }
 
-function statusElForModal() {
-  return creditModalStatus;
+// Exchanges an emailed restore-link token for a fresh long-lived credit
+// token. Mirrors claimSession's response shape ({ token, email, balance })
+// since both ultimately just need to store a credit token and show a balance.
+async function claimRestore(restoreToken) {
+  try {
+    const res = await fetch(`${API_BASE}/api/claim-restore`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: restoreToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showModalStatus(data.error || "That restore link didn't work — request a new one.");
+      return;
+    }
+
+    setCreditToken(data.token);
+    renderBalance(data.balance);
+    showModalStatus(`Restored — you have ${data.balance} credit${data.balance === 1 ? "" : "s"}.`);
+  } catch {
+    showModalStatus("Couldn't reach the server to restore your credits — try again.");
+  }
+}
+
+async function requestRestoreLink(email, triggerBtn) {
+  if (triggerBtn) triggerBtn.disabled = true;
+  if (creditModalStatus) creditModalStatus.textContent = "Sending…";
+
+  try {
+    const res = await fetch(`${API_BASE}/api/request-restore-link`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (creditModalStatus) {
+      creditModalStatus.textContent = res.ok
+        ? data.message || "If that email has a credit balance, we've sent a restore link."
+        : data.error || "Couldn't send a restore link.";
+    }
+  } catch {
+    if (creditModalStatus) creditModalStatus.textContent = "Couldn't reach the server — check your connection.";
+  } finally {
+    if (triggerBtn) triggerBtn.disabled = false;
+  }
 }
 
 function renderPackButtons() {
@@ -167,14 +222,42 @@ if (buyBtn && creditModal) {
   });
 }
 
-// Entry point: resume a Paystack redirect (it appends both ?reference=...
-// and ?trxref=... to the callback URL — they're the same value) if present,
-// otherwise just show the balance for whatever token this browser already has.
+if (restoreToggleBtn && restoreFormEl) {
+  restoreToggleBtn.addEventListener("click", () => {
+    restoreFormEl.hidden = !restoreFormEl.hidden;
+    if (!restoreFormEl.hidden && restoreEmailInput) restoreEmailInput.focus();
+  });
+}
+
+if (restoreBtn) {
+  restoreBtn.addEventListener("click", () => {
+    const email = restoreEmailInput ? restoreEmailInput.value.trim() : "";
+    if (!EMAIL_SHAPE.test(email)) {
+      if (creditModalStatus) creditModalStatus.textContent = "Enter a valid email first.";
+      if (restoreEmailInput) restoreEmailInput.focus();
+      return;
+    }
+    requestRestoreLink(email, restoreBtn);
+  });
+}
+
+// Entry point. Two things can bring a visitor back with state in the URL:
+// - A Paystack redirect, which appends ?reference=...&trxref=... (same value)
+// - A clicked restore-link email, which appends ?restore=<token>
+// Neither can both be present, so check restore first and fall through to
+// the existing-token balance check if neither is there.
 (async function initCredits() {
   const params = new URLSearchParams(window.location.search);
   const reference = params.get("reference");
+  const restoreToken = params.get("restore");
 
-  if (reference) {
+  if (restoreToken) {
+    params.delete("restore");
+    const newSearch = params.toString();
+    const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash;
+    window.history.replaceState({}, document.title, newUrl);
+    await claimRestore(restoreToken);
+  } else if (reference) {
     params.delete("reference");
     params.delete("trxref");
     const newSearch = params.toString();

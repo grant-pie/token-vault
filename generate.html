@@ -188,6 +188,14 @@
     <input type="email" id="credit-email" class="generator-select" placeholder="you@example.com" autocomplete="email">
     <div id="credit-pack-buttons" class="credit-pack-buttons"></div>
     <p id="credit-modal-status" class="generator-status" aria-live="polite"></p>
+
+    <div class="credit-restore">
+      <button type="button" id="restore-credits-toggle" class="credit-restore-toggle">Already paid on another device?</button>
+      <div id="restore-credits-form" class="credit-restore-form" hidden>
+        <input type="email" id="restore-email" class="generator-select" placeholder="you@example.com" autocomplete="email">
+        <button type="button" id="restore-credits-btn" class="page-btn">Email me a restore link</button>
+      </div>
+    </div>
   </form>
 </dialog>
 

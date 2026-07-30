@@ -128,3 +128,15 @@ export const CREDIT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 400;
 // leaked token could be drained before the balance itself would run out.
 export const CREDIT_TOKEN_RATE_LIMIT_MAX = 50;
 export const CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
+
+// How long an emailed "restore my credits" link stays valid. Short and
+// single-purpose by design — unlike the long-lived credit token, this one
+// only exists to be exchanged once for a fresh credit token (see
+// /api/claim-restore), so there's no reason for it to outlive an inbox check.
+export const RESTORE_TOKEN_TTL_SECONDS = 60 * 15;
+
+// Rate limit on requesting a restore link, per IP — this endpoint sends an
+// email on every valid-looking request, so it needs its own cap to keep it
+// from being used to spam an inbox.
+export const RESTORE_REQUEST_RATE_LIMIT_MAX = 5;
+export const RESTORE_REQUEST_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;

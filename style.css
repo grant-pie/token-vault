@@ -946,6 +946,31 @@ footer {
   width: 100%;
 }
 
+.credit-restore {
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--gold);
+  padding-top: 0.8rem;
+  text-align: center;
+}
+
+.credit-restore-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ink);
+  font-family: 'EB Garamond', serif;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.credit-restore-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
 .generator-result {
   display: flex;
   flex-direction: column;
