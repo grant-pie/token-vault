@@ -29,6 +29,9 @@ async function optimizeStyle(style) {
   }
 
   const outDir = path.join(OPTIMIZED_DIR, folder);
+  // Wipe and recreate so renamed/removed source images don't leave stale
+  // orphaned .webp files behind in the output folder.
+  fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir, { recursive: true });
 
   console.log(`\n-- ${style} (${folder}/) --`);

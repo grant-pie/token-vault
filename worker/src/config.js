@@ -24,6 +24,14 @@ export const ALLOWED_STYLES = new Set(["standard", "grimdark", "pixelart"]);
 // Style used when the client doesn't specify one (or specifies an invalid value).
 export const DEFAULT_STYLE = "standard";
 
+// Facing direction substituted into the "[direction]" placeholder when
+// RANDOMIZE_FACING_DIRECTION is false.
+export const DEFAULT_FACING_DIRECTION = "forward";
+
+// When true, "[direction]" is filled in with a randomly chosen facing
+// direction per request. When false, DEFAULT_FACING_DIRECTION is used every time.
+export const RANDOMIZE_FACING_DIRECTION = true;
+
 // Templates used to build the image generation prompt sent to OpenAI, keyed by style.
 // The literal "[description]" placeholder is replaced with the user's creature
 // description at request time. The "[[shadow]]...[[/shadow]]" span is the

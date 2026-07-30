@@ -6,6 +6,8 @@ import {
   DEFAULT_QUALITY,
   ALLOWED_STYLES,
   DEFAULT_STYLE,
+  DEFAULT_FACING_DIRECTION,
+  RANDOMIZE_FACING_DIRECTION,
   SEND_TO_OPENAI,
   MAX_FEEDBACK_LENGTH,
   FEEDBACK_RATE_LIMIT_MAX,
@@ -46,6 +48,10 @@ function randomFacingDirection() {
   return FACING_DIRECTIONS[Math.floor(Math.random() * FACING_DIRECTIONS.length)];
 }
 
+function pickFacingDirection() {
+  return RANDOMIZE_FACING_DIRECTION ? randomFacingDirection() : DEFAULT_FACING_DIRECTION;
+}
+
 // Substitutes the description into the "[description]" placeholder and a
 // randomly chosen facing direction into "[direction]". The
 // "[[shadow]]...[[/shadow]]" span is the battlemap-readability shadow
@@ -63,7 +69,7 @@ function parsePrompt(template, description, shadowColor) {
     }
     return `${shadowSentence.replace("[shadow color]", shadowColor)} `;
   });
-  return withShadow.replace("[description]", description).replace("[direction]", randomFacingDirection());
+  return withShadow.replace("[description]", description).replace("[direction]", pickFacingDirection());
 }
 
 function buildTokenPrompt(description, style, shadowColor) {

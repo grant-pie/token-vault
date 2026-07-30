@@ -12,6 +12,7 @@ const ROOT_DIR = path.join(__dirname, "..");
 const OPTIMIZED_DIR = path.join(ROOT_DIR, "images-optimized");
 const FALLBACK_DIR = path.join(ROOT_DIR, "images");
 const OUT_FILE = path.join(ROOT_DIR, "js", "tokens.js");
+const MONSTERS_FILE = path.join(ROOT_DIR, "js", "monsters.json");
 const IMG_RE = /\.(webp|png|jpe?g)$/i;
 
 function tokensForStyle(style) {
@@ -30,6 +31,42 @@ function tokensForStyle(style) {
     .sort((a, b) => a.localeCompare(b));
 
   return { style, files, source: path.relative(ROOT_DIR, dir) };
+}
+
+// Compares each style folder that actually exists in images-optimized/ against
+// monsters.json (the master monster list), so a monster added to one style but
+// forgotten in another gets caught instead of silently shipping a broken token.
+// Warn-only: never fails the build, since art is produced incrementally.
+function checkMonsterCoverage(results) {
+  const monsters = JSON.parse(fs.readFileSync(MONSTERS_FILE, "utf8"));
+  const monsterSet = new Set(monsters);
+  const presentStyles = results.filter((r) => r.source);
+
+  if (presentStyles.length === 0) return;
+
+  console.log(`\nChecking ${monsters.length} monsters from ${path.relative(ROOT_DIR, MONSTERS_FILE)} against image folders...`);
+
+  let anyIssues = false;
+  for (const { style, files, source } of presentStyles) {
+    const names = new Set(files.map((f) => f.replace(IMG_RE, "")));
+    const missing = monsters.filter((m) => !names.has(m)).sort((a, b) => a.localeCompare(b));
+    const extra = [...names].filter((n) => !monsterSet.has(n)).sort((a, b) => a.localeCompare(b));
+
+    if (missing.length === 0 && extra.length === 0) continue;
+    anyIssues = true;
+
+    console.log(`\n  ${style} (${source}/):`);
+    if (missing.length > 0) {
+      console.log(`    Missing ${missing.length} monster(s):`);
+      missing.forEach((m) => console.log(`      - ${m}`));
+    }
+    if (extra.length > 0) {
+      console.log(`    ${extra.length} file(s) not in monsters.json (typo, rename, or removed monster?):`);
+      extra.forEach((n) => console.log(`      - ${n}`));
+    }
+  }
+
+  console.log(anyIssues ? "\nCoverage check found mismatches (see above)." : "\nAll checked style folders match monsters.json.");
 }
 
 function main() {
@@ -63,6 +100,8 @@ ${styleArrays}
     console.log(`${style}: wrote ${files.length} tokens (${sourceNote})`);
   });
   console.log(`\nWrote ${OUT_FILE}`);
+
+  checkMonsterCoverage(results);
 }
 
 main();
