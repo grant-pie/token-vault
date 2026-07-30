@@ -24,6 +24,16 @@ body {
 }
 
 /* Banner */
+.ai-disclaimer-form {
+  padding: 1.6rem 1.8rem 1.8rem;
+  text-align: center;
+}
+
+.ai-disclaimer-actions {
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
 .banner {
   text-align: center;
   padding: 3rem 1rem 2rem;
