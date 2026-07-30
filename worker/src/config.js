@@ -96,3 +96,35 @@ export const FEEDBACK_RATE_LIMIT_MAX = 5;
 
 // Length of the feedback rate-limit window, in seconds.
 export const FEEDBACK_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
+
+// Credits spent per generation, by quality. Roughly mirrors OpenAI's own
+// cost ratio between tiers (see CREDIT_SYSTEM_PLAN.md) so a "high" request
+// isn't quietly subsidized by credits sold assuming "low" usage.
+export const CREDIT_COST_BY_QUALITY = {
+  low: 1,
+  medium: 3,
+  high: 10,
+};
+
+// Credit packs sold via Paystack. Unlike Stripe, Paystack doesn't need a
+// pre-created Product/Price for a one-off charge — the amount is passed
+// directly on each transaction — so the price lives here rather than behind
+// an external ID. `amountSubunits` is in cents (ZAR's smallest unit, same
+// idea as Stripe's "amount in cents"). These are draft prices — check them
+// against a current USD/ZAR rate and comparable local products before launch.
+export const CREDIT_PACKS = {
+  small: { credits: 15, amountSubunits: 5500 }, // R55.00
+  medium: { credits: 50, amountSubunits: 15000 }, // R150.00
+  large: { credits: 150, amountSubunits: 35000 }, // R350.00
+};
+
+// How long a claimed bearer token stays valid. Long-lived and unrefreshable
+// by design for now — there's no login flow to renew it with yet (see
+// "Restore my credits" in CREDIT_SYSTEM_PLAN.md's Deferred section).
+export const CREDIT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 400;
+
+// Backstop rate limit applied to bearer-token holders even when they have
+// credits available — not a revenue control, just a cap on how fast a
+// leaked token could be drained before the balance itself would run out.
+export const CREDIT_TOKEN_RATE_LIMIT_MAX = 50;
+export const CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;

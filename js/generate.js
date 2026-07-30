@@ -109,7 +109,10 @@ form.addEventListener("submit", async (event) => {
   try {
     const res = await fetch(`${API_BASE}/api/generate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(window.getCreditAuthHeaders ? window.getCreditAuthHeaders() : {}),
+      },
       body: JSON.stringify({
         description: prompt,
         style: styleField.value,
@@ -124,6 +127,10 @@ form.addEventListener("submit", async (event) => {
       resultFrame.classList.remove("is-loading");
       resultSection.hidden = true;
       return;
+    }
+
+    if (typeof data.creditsRemaining === "number" && window.renderCreditBalance) {
+      window.renderCreditBalance(data.creditsRemaining);
     }
 
     const imageUrl = `${API_BASE}${data.url}`;

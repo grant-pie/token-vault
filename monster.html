@@ -30,6 +30,11 @@
 </div>
 
 <main class="generator-main">
+  <div class="credit-bar">
+    <span id="credit-balance" class="credit-balance" hidden></span>
+    <button type="button" id="buy-credits-btn" class="page-btn credit-buy-btn">Buy Credits</button>
+  </div>
+
   <form id="summon-form" class="generator-form">
     <div class="generator-options-grid">
       <div class="generator-field">
@@ -124,6 +129,18 @@
     </div>
   </section>
 </main>
+
+<dialog id="credit-modal" class="token-modal credit-modal">
+  <form method="dialog" class="token-modal-form">
+    <button type="submit" class="token-modal-close" aria-label="Close">&times;</button>
+    <h2 class="token-modal-title">Buy Generation Credits</h2>
+    <p class="generator-label">Skip the free hourly limit — credits never expire and work here and on the hero forge.</p>
+    <label for="credit-email" class="generator-label">Email (for your receipt, and to restore credits on a new device)</label>
+    <input type="email" id="credit-email" class="generator-select" placeholder="you@example.com" autocomplete="email">
+    <div id="credit-pack-buttons" class="credit-pack-buttons"></div>
+    <p id="credit-modal-status" class="generator-status" aria-live="polite"></p>
+  </form>
+</dialog>
 
 <dialog id="token-modal" class="token-modal">
   <form method="dialog" class="token-modal-form">
@@ -221,6 +238,7 @@
 
 <script src="js/config.js"></script>
 <script src="js/visit-count.js"></script>
+<script src="js/credits.js"></script>
 <script src="js/generator-options.js"></script>
 <script src="js/monster.js"></script>
 <script src="js/token-customize.js"></script>

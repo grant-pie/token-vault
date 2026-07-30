@@ -900,6 +900,52 @@ footer {
   margin: 0;
 }
 
+/* Credit balance + purchase */
+.credit-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+.credit-balance {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 0.95rem;
+  color: var(--gold-bright);
+}
+
+.credit-buy-btn {
+  font-size: 0.9rem;
+  padding: 0.35rem 0.8rem;
+}
+
+.credit-modal {
+  max-width: min(420px, 92vw);
+}
+
+.credit-modal .token-modal-title {
+  padding-right: 0;
+}
+
+.credit-modal input[type="email"] {
+  display: block;
+  width: 100%;
+  margin: 0.4rem 0 0.2rem;
+  box-sizing: border-box;
+}
+
+.credit-pack-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.credit-pack-btn {
+  width: 100%;
+}
+
 .generator-result {
   display: flex;
   flex-direction: column;

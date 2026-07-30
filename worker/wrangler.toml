@@ -18,6 +18,13 @@ id = "f38ecc82f4774b15a48bdb38bbb19398"
 binding = "ANALYTICS"
 id = "c64eeed4623545708a89b10bb9a2315c"
 
+# Credit ledger for the paid-generation system (see CREDIT_SYSTEM_PLAN.md).
+# Already created; database_id below is real, not a placeholder.
+[[d1_databases]]
+binding = "CREDITS_DB"
+database_name = "token-vault-credits"
+database_id = "de07e400-f506-4980-8fad-5e59e084cd0b"
+
 [observability]
 enabled = true
 
@@ -30,3 +37,13 @@ FEEDBACK_FROM_EMAIL = "Token Vault <feedback@grantpieterse.com>"
 
 # RESEND_API_KEY must be set as a secret, not a var:
 #   wrangler secret put RESEND_API_KEY
+
+# Where Paystack redirects after a purchase; claim-session runs client-side
+# there, reading the ?reference=... Paystack appends automatically.
+CHECKOUT_RETURN_URL = "https://grant-pie.github.io/token-vault/generate.html"
+
+# PAYSTACK_SECRET_KEY and TOKEN_SIGNING_SECRET must be set as secrets, not
+# vars. Unlike Stripe, Paystack has no separate webhook-signing secret — the
+# same secret key both authorizes API calls and signs webhook payloads:
+#   wrangler secret put PAYSTACK_SECRET_KEY
+#   wrangler secret put TOKEN_SIGNING_SECRET   (already set)

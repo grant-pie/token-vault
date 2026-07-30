@@ -13,7 +13,24 @@ import {
   FEEDBACK_RATE_LIMIT_MAX,
   FEEDBACK_RATE_LIMIT_WINDOW_SECONDS,
   TOKEN_PROMPT_TEMPLATES,
+  CREDIT_COST_BY_QUALITY,
+  CREDIT_PACKS,
+  CREDIT_TOKEN_TTL_SECONDS,
+  CREDIT_TOKEN_RATE_LIMIT_MAX,
+  CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS,
 } from "./config.js";
+import {
+  signCreditToken,
+  verifyCreditToken,
+  initializeTransaction,
+  verifyTransaction,
+  verifyPaystackWebhookSignature,
+  getBalance,
+  grantCredits,
+  spendCredits,
+} from "./credits.js";
+
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // The site is currently served from GitHub Pages; grantpieterse.com is the
 // custom domain used for image URLs but isn't wired up as the Pages host
@@ -154,20 +171,79 @@ async function handleGenerate(request, env, origin) {
     );
   }
 
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const rateLimit = await checkAndConsumeRateLimit(
-    env.RATE_LIMIT,
-    "rl:",
-    ip,
-    RATE_LIMIT_MAX,
-    RATE_LIMIT_WINDOW_SECONDS
-  );
-  if (!rateLimit.allowed) {
-    return jsonResponse(
-      { error: "You've hit the hourly limit — try again in a bit." },
-      429,
-      origin
+  // A bearer token identifies a paid balance (see CREDIT_SYSTEM_PLAN.md). An
+  // invalid or expired token isn't an error by itself — it just falls
+  // through to the same free, anonymous IP rate limit as no token at all.
+  const authHeader = request.headers.get("Authorization") || "";
+  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  let credit = null; // { email, cost, balance } once credits have been spent for this request
+
+  if (bearerToken) {
+    const claims = await verifyCreditToken(env.TOKEN_SIGNING_SECRET, bearerToken);
+    if (claims) {
+      // Backstop only — caps how fast a leaked token could be drained, not a
+      // revenue control (the credit balance itself already does that).
+      const tokenRate = await checkAndConsumeRateLimit(
+        env.RATE_LIMIT,
+        "crl:",
+        claims.email,
+        CREDIT_TOKEN_RATE_LIMIT_MAX,
+        CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS
+      );
+      if (!tokenRate.allowed) {
+        return jsonResponse(
+          { error: "You've hit the hourly limit for paid generations — try again in a bit." },
+          429,
+          origin
+        );
+      }
+
+      const cost = CREDIT_COST_BY_QUALITY[quality] ?? CREDIT_COST_BY_QUALITY[DEFAULT_QUALITY];
+      const balanceAfterSpend = await spendCredits(env.CREDITS_DB, {
+        email: claims.email,
+        cost,
+        reason: `spend:generate:${quality}`,
+      });
+      if (balanceAfterSpend === null) {
+        return jsonResponse(
+          {
+            error: "You're out of credits — buy more, or use the free hourly limit instead.",
+            outOfCredits: true,
+          },
+          402,
+          origin
+        );
+      }
+      credit = { email: claims.email, cost, balance: balanceAfterSpend };
+    }
+  }
+
+  if (!credit) {
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const rateLimit = await checkAndConsumeRateLimit(
+      env.RATE_LIMIT,
+      "rl:",
+      ip,
+      RATE_LIMIT_MAX,
+      RATE_LIMIT_WINDOW_SECONDS
     );
+    if (!rateLimit.allowed) {
+      return jsonResponse(
+        { error: "You've hit the hourly limit — try again in a bit." },
+        429,
+        origin
+      );
+    }
+  }
+
+  // Credits are spent before the OpenAI call (so a request with an empty
+  // balance never reaches OpenAI and never costs us money), then refunded
+  // here if generation doesn't actually produce an image — a paying user
+  // shouldn't lose credits to a content-policy rejection or a flaky upstream.
+  async function refundSpentCredit(reason) {
+    if (credit) {
+      await grantCredits(env.CREDITS_DB, { email: credit.email, delta: credit.cost, reason });
+    }
   }
 
   let openaiRes;
@@ -189,12 +265,14 @@ async function handleGenerate(request, env, origin) {
       }),
     });
   } catch {
+    await refundSpentCredit("refund:generate_unreachable");
     return jsonResponse({ error: "The generator is unreachable right now." }, 502, origin);
   }
 
   if (!openaiRes.ok) {
     const errText = await openaiRes.text();
     console.error("OpenAI error", openaiRes.status, errText);
+    await refundSpentCredit("refund:generate_rejected");
     return jsonResponse(
       { error: "That prompt couldn't be generated — try rephrasing it." },
       openaiRes.status === 400 ? 400 : 502,
@@ -205,6 +283,7 @@ async function handleGenerate(request, env, origin) {
   const data = await openaiRes.json();
   const b64 = data?.data?.[0]?.b64_json;
   if (!b64) {
+    await refundSpentCredit("refund:generate_empty_response");
     return jsonResponse({ error: "No image came back — try again." }, 502, origin);
   }
 
@@ -212,14 +291,148 @@ async function handleGenerate(request, env, origin) {
   const id = crypto.randomUUID();
   const key = `generated/${id}.png`;
 
-  await env.TOKEN_BUCKET.put(key, bytes, {
-    httpMetadata: { contentType: "image/png" },
-  });
+  try {
+    await env.TOKEN_BUCKET.put(key, bytes, {
+      httpMetadata: { contentType: "image/png" },
+    });
+  } catch (err) {
+    console.error("R2 put failed", err);
+    await refundSpentCredit("refund:storage_failed");
+    return jsonResponse({ error: "Couldn't save the generated image — try again." }, 502, origin);
+  }
 
-  return jsonResponse({ id, url: `/generated/${id}.png` }, 200, origin);
+  return jsonResponse(
+    {
+      id,
+      url: `/generated/${id}.png`,
+      ...(credit ? { creditsRemaining: credit.balance } : {}),
+    },
+    200,
+    origin
+  );
 }
 
-const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+async function handleCheckout(request, env, origin) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid request." }, 400, origin);
+  }
+
+  const packId = typeof body.pack === "string" ? body.pack : "";
+  const pack = CREDIT_PACKS[packId];
+  if (!pack) {
+    return jsonResponse({ error: "Unknown credit pack." }, 400, origin);
+  }
+
+  // Paystack requires the email up front (unlike Stripe's hosted checkout,
+  // which collects it for you), so the buy modal on the client asks for it.
+  const email = typeof body.email === "string" ? body.email.trim().slice(0, 200) : "";
+  if (!EMAIL_SHAPE.test(email)) {
+    return jsonResponse({ error: "Enter a valid email first." }, 400, origin);
+  }
+
+  try {
+    const transaction = await initializeTransaction(env, {
+      email,
+      amountSubunits: pack.amountSubunits,
+      pack: packId,
+      credits: pack.credits,
+      callbackUrl: env.CHECKOUT_RETURN_URL,
+    });
+    return jsonResponse({ url: transaction.authorization_url }, 200, origin);
+  } catch (err) {
+    console.error("Paystack checkout error", err);
+    return jsonResponse({ error: "Couldn't start checkout — try again in a bit." }, 502, origin);
+  }
+}
+
+// No CORS handling here deliberately — Paystack calls this server-to-server,
+// never from a browser, so there's no Origin header to reflect.
+async function handlePaystackWebhook(request, env) {
+  const payload = await request.text();
+  const signature = request.headers.get("x-paystack-signature");
+
+  const valid = await verifyPaystackWebhookSignature(payload, signature, env.PAYSTACK_SECRET_KEY);
+  if (!valid) {
+    return new Response("Invalid signature", { status: 400 });
+  }
+
+  let event;
+  try {
+    event = JSON.parse(payload);
+  } catch {
+    return new Response("Invalid payload", { status: 400 });
+  }
+
+  if (event.event === "charge.success") {
+    const data = event.data;
+    const email = data.customer?.email;
+    const credits = parseInt(data.metadata?.credits, 10);
+    const pack = data.metadata?.pack || "unknown";
+
+    if (data.status === "success" && email && Number.isFinite(credits) && credits > 0) {
+      await grantCredits(env.CREDITS_DB, {
+        email,
+        delta: credits,
+        reason: `purchase:${pack}`,
+        providerEventId: data.reference,
+      });
+    } else {
+      console.error("Paystack webhook: not crediting, missing/invalid data", {
+        email,
+        credits,
+        pack,
+        status: data.status,
+      });
+    }
+  }
+
+  return new Response(null, { status: 200 });
+}
+
+async function handleClaimSession(request, env, origin) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid request." }, 400, origin);
+  }
+
+  const reference = typeof body.reference === "string" ? body.reference : "";
+  if (!reference) {
+    return jsonResponse({ error: "Missing transaction reference." }, 400, origin);
+  }
+
+  const transaction = await verifyTransaction(env, reference);
+  if (!transaction || transaction.status !== "success") {
+    return jsonResponse({ error: "That payment isn't confirmed yet." }, 400, origin);
+  }
+
+  const email = transaction.customer?.email;
+  if (!email) {
+    return jsonResponse({ error: "Couldn't find an email on that transaction." }, 400, origin);
+  }
+
+  const token = await signCreditToken(env.TOKEN_SIGNING_SECRET, email, CREDIT_TOKEN_TTL_SECONDS);
+  // The webhook that actually grants credits can lag a few seconds behind
+  // this redirect, so a balance of 0 here doesn't necessarily mean the
+  // purchase failed — see js/credits.js, which retries the balance fetch.
+  const balance = await getBalance(env.CREDITS_DB, email);
+  return jsonResponse({ token, email, balance }, 200, origin);
+}
+
+async function handleBalance(request, env, origin) {
+  const authHeader = request.headers.get("Authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  const claims = await verifyCreditToken(env.TOKEN_SIGNING_SECRET, token);
+  if (!claims) {
+    return jsonResponse({ error: "Invalid or expired token." }, 401, origin);
+  }
+  const balance = await getBalance(env.CREDITS_DB, claims.email);
+  return jsonResponse({ email: claims.email, balance }, 200, origin);
+}
 
 async function sendResendEmail(env, { to, replyTo, subject, text }) {
   if (!env.RESEND_API_KEY) return;
@@ -374,6 +587,22 @@ export default {
 
     if (url.pathname === "/api/generate" && request.method === "POST") {
       return handleGenerate(request, env, origin);
+    }
+
+    if (url.pathname === "/api/checkout" && request.method === "POST") {
+      return handleCheckout(request, env, origin);
+    }
+
+    if (url.pathname === "/api/paystack-webhook" && request.method === "POST") {
+      return handlePaystackWebhook(request, env);
+    }
+
+    if (url.pathname === "/api/claim-session" && request.method === "POST") {
+      return handleClaimSession(request, env, origin);
+    }
+
+    if (url.pathname === "/api/balance" && request.method === "GET") {
+      return handleBalance(request, env, origin);
     }
 
     if (url.pathname === "/api/feedback" && request.method === "POST") {
