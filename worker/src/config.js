@@ -39,10 +39,22 @@ export const GENERATED_IMAGE_KEY_PREFIX = "generated/";
 
 // KV key (under the ANALYTICS namespace) the recent-generations feed is
 // stored at, as a single JSON array — newest first — rather than one row
-// per image. Cheap to read for a feed that only ever needs to show a
-// screenful of tokens. RECENT_GENERATIONS_MAX caps how many it keeps.
+// per image.
 export const RECENT_GENERATIONS_KV_KEY = "recent_generations";
-export const RECENT_GENERATIONS_MAX = 24;
+
+// Primary cutoff: entries older than this are dropped from the feed.
+// Deliberately matches the R2 bucket's "generated-30-day-expiry" lifecycle
+// rule (set via `wrangler r2 bucket lifecycle`, not in code — see
+// CREDIT_SYSTEM_PLAN.md) so the feed can never point at a file R2 has
+// already deleted. These two 30-day values live in different systems and
+// nothing keeps them in sync automatically — if the R2 rule's expiry ever
+// changes, update this to match.
+export const RECENT_GENERATIONS_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+// Secondary safety cap, independent of age: even within the 30-day window,
+// never keep more than this many entries in the single KV blob, so a big
+// traffic spike can't balloon it unboundedly.
+export const RECENT_GENERATIONS_MAX = 200;
 
 // Image quality values accepted from the client.
 export const ALLOWED_QUALITIES = new Set(["low", "medium", "high"]);

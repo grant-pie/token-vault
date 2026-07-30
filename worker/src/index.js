@@ -31,6 +31,7 @@ import {
   LOCAL_DEV_HOSTNAME,
   GENERATED_IMAGE_KEY_PREFIX,
   RECENT_GENERATIONS_KV_KEY,
+  RECENT_GENERATIONS_MAX_AGE_MS,
   RECENT_GENERATIONS_MAX,
 } from "./config.js";
 import {
@@ -132,6 +133,15 @@ async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
   return { allowed: true };
 }
 
+// Drops anything older than RECENT_GENERATIONS_MAX_AGE_MS (so the feed can
+// never reference a file the R2 lifecycle rule has already deleted — see
+// that constant's comment in config.js), then applies the count-based
+// safety cap on top. List is assumed newest-first already.
+function pruneStaleGenerations(list) {
+  const cutoff = Date.now() - RECENT_GENERATIONS_MAX_AGE_MS;
+  return list.filter((entry) => entry.createdAt >= cutoff).slice(0, RECENT_GENERATIONS_MAX);
+}
+
 // Best-effort — same non-atomic tradeoff as handleVisit's counter (see its
 // comment). A missed or duplicated entry under concurrent generations just
 // leaves the recent feed briefly a token off, which isn't worth a stronger
@@ -141,10 +151,7 @@ async function recordRecentGeneration(env, entry) {
     const raw = await env.ANALYTICS.get(RECENT_GENERATIONS_KV_KEY);
     const list = raw ? JSON.parse(raw) : [];
     list.unshift(entry);
-    await env.ANALYTICS.put(
-      RECENT_GENERATIONS_KV_KEY,
-      JSON.stringify(list.slice(0, RECENT_GENERATIONS_MAX))
-    );
+    await env.ANALYTICS.put(RECENT_GENERATIONS_KV_KEY, JSON.stringify(pruneStaleGenerations(list)));
   } catch (err) {
     console.error("Failed to record recent generation", err);
   }
@@ -152,8 +159,11 @@ async function recordRecentGeneration(env, entry) {
 
 async function handleRecentGenerations(env, origin) {
   const raw = await env.ANALYTICS.get(RECENT_GENERATIONS_KV_KEY);
-  const tokens = raw ? JSON.parse(raw) : [];
-  return jsonResponse({ tokens }, 200, origin);
+  const list = raw ? JSON.parse(raw) : [];
+  // Filtered again at read time (not just on write) so a stale entry never
+  // shows up even if it hasn't been pruned from storage yet — e.g. between
+  // an object aging past 30 days and the next generation triggering a write.
+  return jsonResponse({ tokens: pruneStaleGenerations(list) }, 200, origin);
 }
 
 async function handleGenerate(request, env, ctx, origin) {
