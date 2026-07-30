@@ -95,6 +95,13 @@ function corsHeaders(origin) {
   const headers = {
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    // The Access-Control-Allow-Origin value below varies per request (it
+    // reflects whichever origin asked), so any cache sitting in front of
+    // this response — browser HTTP cache, a CDN — must key on Origin too.
+    // Without this, a response cached for one origin (e.g. the live GitHub
+    // Pages site) could get served back to a completely different one (e.g.
+    // a local dev server) with the wrong ACAO value baked in.
+    Vary: "Origin",
   };
   if (isAllowedOrigin(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
