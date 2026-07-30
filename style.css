@@ -946,6 +946,14 @@ footer {
   width: 100%;
 }
 
+.credit-fx-note {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #5a4425;
+  text-align: center;
+  margin: 0.6rem 0 0;
+}
+
 .credit-restore {
   margin-top: 1.2rem;
   border-top: 1px solid var(--gold);

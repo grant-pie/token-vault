@@ -6,16 +6,49 @@
 
 const CREDIT_TOKEN_STORAGE_KEY = "tokenvault_credit_token";
 
-// Display-only labels — the actual charge amount lives in
+// Display-only amounts (in Rand) — the actual charge amount lives in
 // worker/src/config.js's CREDIT_PACKS (amountSubunits). Keep these in sync
 // by hand if that ever changes.
 const CREDIT_PACK_DISPLAY = [
-  { id: "small", credits: 15, price: "R55" },
-  { id: "medium", credits: 50, price: "R150" },
-  { id: "large", credits: 150, price: "R350" },
+  { id: "small", credits: 15, amountZar: 55 },
+  { id: "medium", credits: 50, amountZar: 150 },
+  { id: "large", credits: 150, amountZar: 350 },
 ];
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Everything actually charges in ZAR through Paystack (South African seller
+// accounts can't natively settle in other currencies) — this is purely a
+// cosmetic USD estimate so a foreign visitor has some sense of what "R55"
+// means before clicking through. A card's own network/issuing bank does the
+// real conversion at checkout, at whatever rate and fee it uses, which will
+// differ slightly from this estimate.
+const FX_CACHE_KEY = "tokenvault_zar_usd_rate";
+const FX_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // matches the rate source's own daily refresh
+const FALLBACK_ZAR_TO_USD_RATE = 0.055; // rough safety net if the live rate can't be fetched — update occasionally
+
+async function getZarToUsdRate() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(FX_CACHE_KEY) || "null");
+    if (cached && typeof cached.rate === "number" && Date.now() - cached.fetchedAt < FX_CACHE_TTL_MS) {
+      return cached.rate;
+    }
+  } catch {
+    // corrupt cache entry — fall through to a fresh fetch
+  }
+
+  try {
+    const res = await fetch("https://api.frankfurter.dev/v1/latest?from=ZAR&to=USD");
+    if (!res.ok) throw new Error("fx fetch failed");
+    const data = await res.json();
+    const rate = data?.rates?.USD;
+    if (typeof rate !== "number") throw new Error("unexpected fx response shape");
+    localStorage.setItem(FX_CACHE_KEY, JSON.stringify({ rate, fetchedAt: Date.now() }));
+    return rate;
+  } catch {
+    return FALLBACK_ZAR_TO_USD_RATE;
+  }
+}
 
 function getCreditToken() {
   return localStorage.getItem(CREDIT_TOKEN_STORAGE_KEY) || "";
@@ -171,14 +204,16 @@ async function requestRestoreLink(email, triggerBtn) {
   }
 }
 
-function renderPackButtons() {
+async function renderPackButtons() {
   if (!packButtonsEl) return;
   packButtonsEl.innerHTML = "";
+  const usdRate = await getZarToUsdRate();
   CREDIT_PACK_DISPLAY.forEach((pack) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "page-btn credit-pack-btn";
-    btn.textContent = `${pack.credits} credits — ${pack.price}`;
+    const usdEstimate = (pack.amountZar * usdRate).toFixed(2);
+    btn.textContent = `${pack.credits} credits — R${pack.amountZar} (~$${usdEstimate} USD)`;
     btn.addEventListener("click", () => startCheckout(pack.id, btn));
     packButtonsEl.appendChild(btn);
   });
