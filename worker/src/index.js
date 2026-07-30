@@ -162,7 +162,7 @@ async function handleRecentGenerations(env, origin) {
   const list = raw ? JSON.parse(raw) : [];
   // Filtered again at read time (not just on write) so a stale entry never
   // shows up even if it hasn't been pruned from storage yet — e.g. between
-  // an object aging past 30 days and the next generation triggering a write.
+  // an object aging past 90 days and the next generation triggering a write.
   return jsonResponse({ tokens: pruneStaleGenerations(list) }, 200, origin);
 }
 

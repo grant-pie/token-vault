@@ -43,15 +43,15 @@ export const GENERATED_IMAGE_KEY_PREFIX = "generated/";
 export const RECENT_GENERATIONS_KV_KEY = "recent_generations";
 
 // Primary cutoff: entries older than this are dropped from the feed.
-// Deliberately matches the R2 bucket's "generated-30-day-expiry" lifecycle
+// Deliberately matches the R2 bucket's "generated-90-day-expiry" lifecycle
 // rule (set via `wrangler r2 bucket lifecycle`, not in code — see
 // CREDIT_SYSTEM_PLAN.md) so the feed can never point at a file R2 has
-// already deleted. These two 30-day values live in different systems and
+// already deleted. These two 90-day values live in different systems and
 // nothing keeps them in sync automatically — if the R2 rule's expiry ever
 // changes, update this to match.
-export const RECENT_GENERATIONS_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+export const RECENT_GENERATIONS_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 
-// Secondary safety cap, independent of age: even within the 30-day window,
+// Secondary safety cap, independent of age: even within the 90-day window,
 // never keep more than this many entries in the single KV blob, so a big
 // traffic spike can't balloon it unboundedly.
 export const RECENT_GENERATIONS_MAX = 200;
