@@ -97,7 +97,7 @@ function buildTokenPrompt(description, style, shadowColor) {
 function corsHeaders(origin) {
   const headers = {
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
   if (isAllowedOrigin(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
