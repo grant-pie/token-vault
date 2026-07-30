@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://grant-pie.github.io/token-vault/sitemap.xml
