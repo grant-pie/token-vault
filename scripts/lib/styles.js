@@ -1,5 +1,5 @@
 // Reads the set of allowed art styles straight out of the worker's config so the
-// image pipeline scripts (optimize-images.js, generate-tokens.js) stay in sync with
+// image pipeline scripts (optimize-images.js, generate-vault-data.js) stay in sync with
 // whatever styles the generator actually supports, instead of duplicating the list.
 
 const fs = require("fs");

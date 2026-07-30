@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "optimize": "node scripts/optimize-images.js",
-    "tokens": "node scripts/generate-tokens.js",
-    "build": "npm run optimize && npm run tokens"
+    "vault-data": "node scripts/generate-vault-data.js",
+    "build": "npm run optimize && npm run vault-data"
   },
   "devDependencies": {
     "sharp": "^0.33.5"

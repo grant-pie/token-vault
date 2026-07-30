@@ -1,12 +1,40 @@
 let currentPage = 1;
 
-// TOKENS (see tokens.js) has one array per style from worker/src/config.js's
-// ALLOWED_STYLES, so the dropdown's options come straight from its keys — no need to
-// touch this file when a new style's art is added.
+// VAULT_STYLES/VAULT_DATA (see vault-data.js) come from worker/src/config.js's
+// ALLOWED_STYLES, so the dropdown's options come straight from that list — no need to
+// touch this file when a new style's art is added. VAULT_DATA is monster-primary: one
+// entry per monster with a `filenames` object holding the art file per style (or null
+// if that style doesn't have art for this monster yet).
 const styleSelect = document.getElementById("style-select");
-const styleNames = Object.keys(TOKENS);
+const categorySelect = document.getElementById("category-select");
+const styleNames = VAULT_STYLES;
 let activeStyle = styleNames[0] || "standard";
+let activeCategory = "";
 let activeTokens = [];
+
+// Categories come from the monster data itself (see generate-vault-data.js), not a
+// hardcoded list, so a new creature type in the registry shows up automatically. Category
+// is style-independent, so this only needs to look at VAULT_DATA once, not per style.
+function populateCategorySelect() {
+  if (!categorySelect) return;
+  const categories = new Set();
+  VAULT_DATA.forEach((monster) => {
+    if (monster.category) categories.add(monster.category);
+  });
+
+  categorySelect.innerHTML = "";
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = "All Categories";
+  categorySelect.appendChild(allOption);
+
+  [...categories].sort((a, b) => a.localeCompare(b)).forEach((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categorySelect.appendChild(option);
+  });
+}
 
 function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
@@ -67,13 +95,21 @@ function renderTokens(tokens, emptyMessage) {
     name.className = "token-name";
     name.textContent = token.name;
 
+    card.appendChild(frame);
+    card.appendChild(name);
+
+    if (token.tags && token.tags.length > 0) {
+      const tags = document.createElement("span");
+      tags.className = "token-tags";
+      tags.textContent = token.tags.join(" · ");
+      card.appendChild(tags);
+    }
+
     const hint = document.createElement("span");
     hint.className = "token-hint";
     hint.textContent = "click to customize & download";
-
-    card.appendChild(frame);
-    card.appendChild(name);
     card.appendChild(hint);
+
     grid.appendChild(card);
   });
 }
@@ -162,21 +198,42 @@ function update() {
 
 const searchInput = document.getElementById("token-search");
 
+// A query matches on the monster's name OR any of its search tags, so typing "fire"
+// finds fire-tagged monsters even if "fire" isn't in the name. Only monsters that have
+// art for the active style are shown; each match is given a `file` prop (pulled from
+// its filenames[activeStyle]) so the rest of the rendering code doesn't need to know
+// about the per-style nesting.
 function refreshActiveTokens() {
-  const allTokens = TOKENS[activeStyle] || [];
   const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
-  activeTokens = query
-    ? allTokens.filter((token) => token.name.toLowerCase().includes(query))
-    : allTokens;
+
+  activeTokens = VAULT_DATA
+    .filter((monster) => {
+      if (!monster.filenames[activeStyle]) return false;
+      if (activeCategory && monster.category !== activeCategory) return false;
+      if (!query) return true;
+      if (monster.name.toLowerCase().includes(query)) return true;
+      return (monster.tags || []).some((tag) => tag.toLowerCase().includes(query));
+    })
+    .map((monster) => ({ ...monster, file: monster.filenames[activeStyle] }));
 }
 
 populateStyleSelect();
+populateCategorySelect();
 refreshActiveTokens();
 update();
 
 if (styleSelect) {
   styleSelect.addEventListener("change", () => {
     activeStyle = styleSelect.value;
+    currentPage = 1;
+    refreshActiveTokens();
+    update();
+  });
+}
+
+if (categorySelect) {
+  categorySelect.addEventListener("change", () => {
+    activeCategory = categorySelect.value;
     currentPage = 1;
     refreshActiveTokens();
     update();
