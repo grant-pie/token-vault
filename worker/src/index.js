@@ -1,4 +1,5 @@
 import {
+  FREE_TIER_ENABLED,
   RATE_LIMIT_MAX,
   RATE_LIMIT_WINDOW_SECONDS,
   MAX_PROMPT_LENGTH,
@@ -224,6 +225,17 @@ async function handleGenerate(request, env, origin) {
   }
 
   if (!credit) {
+    if (!FREE_TIER_ENABLED) {
+      return jsonResponse(
+        {
+          error: "Free generation is turned off right now — buy credits to generate a token.",
+          requiresCredits: true,
+        },
+        402,
+        origin
+      );
+    }
+
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
     const rateLimit = await checkAndConsumeRateLimit(
       env.RATE_LIMIT,

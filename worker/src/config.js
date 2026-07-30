@@ -1,4 +1,11 @@
+// TEMPORARY TOGGLE: when false, the free anonymous per-IP path is turned
+// off entirely — every generate request must come from a bearer token with
+// a funded credit balance. Flip back to true and redeploy to restore free
+// generation; nothing else about the anonymous path changes when it's back on.
+export const FREE_TIER_ENABLED = false;
+
 // Max generate requests allowed per IP within the rate-limit window.
+// Only relevant while FREE_TIER_ENABLED is true.
 export const RATE_LIMIT_MAX = 15;
 
 // Length of the rate-limit window, in seconds.
