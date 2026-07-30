@@ -47,3 +47,8 @@ CHECKOUT_RETURN_URL = "https://grant-pie.github.io/token-vault/generate.html"
 # same secret key both authorizes API calls and signs webhook payloads:
 #   wrangler secret put PAYSTACK_SECRET_KEY
 #   wrangler secret put TOKEN_SIGNING_SECRET   (already set)
+
+# ADMIN_API_KEY gates GET /api/admin/generation-log (the prompt-inclusive
+# admin log behind admin.html). Pick a long random string, not a memorable
+# password — it's compared as a bearer token, not typed at a login prompt:
+#   wrangler secret put ADMIN_API_KEY

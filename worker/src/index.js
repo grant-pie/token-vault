@@ -33,6 +33,8 @@ import {
   RECENT_GENERATIONS_KV_KEY,
   RECENT_GENERATIONS_MAX_AGE_MS,
   RECENT_GENERATIONS_MAX,
+  ADMIN_GENERATION_LOG_KV_KEY,
+  ADMIN_GENERATION_LOG_MAX,
 } from "./config.js";
 import {
   signCreditToken,
@@ -140,13 +142,15 @@ async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
   return { allowed: true };
 }
 
-// Drops anything older than RECENT_GENERATIONS_MAX_AGE_MS (so the feed can
+// Drops anything older than RECENT_GENERATIONS_MAX_AGE_MS (so a feed can
 // never reference a file the R2 lifecycle rule has already deleted — see
-// that constant's comment in config.js), then applies the count-based
-// safety cap on top. List is assumed newest-first already.
-function pruneStaleGenerations(list) {
+// that constant's comment in config.js), then applies a count-based safety
+// cap on top. List is assumed newest-first already. Shared by the public
+// recent-generations feed and the admin generation log, which differ only
+// in their count cap.
+function pruneStaleGenerations(list, max) {
   const cutoff = Date.now() - RECENT_GENERATIONS_MAX_AGE_MS;
-  return list.filter((entry) => entry.createdAt >= cutoff).slice(0, RECENT_GENERATIONS_MAX);
+  return list.filter((entry) => entry.createdAt >= cutoff).slice(0, max);
 }
 
 // Best-effort — same non-atomic tradeoff as handleVisit's counter (see its
@@ -158,7 +162,10 @@ async function recordRecentGeneration(env, entry) {
     const raw = await env.ANALYTICS.get(RECENT_GENERATIONS_KV_KEY);
     const list = raw ? JSON.parse(raw) : [];
     list.unshift(entry);
-    await env.ANALYTICS.put(RECENT_GENERATIONS_KV_KEY, JSON.stringify(pruneStaleGenerations(list)));
+    await env.ANALYTICS.put(
+      RECENT_GENERATIONS_KV_KEY,
+      JSON.stringify(pruneStaleGenerations(list, RECENT_GENERATIONS_MAX))
+    );
   } catch (err) {
     console.error("Failed to record recent generation", err);
   }
@@ -170,7 +177,52 @@ async function handleRecentGenerations(env, origin) {
   // Filtered again at read time (not just on write) so a stale entry never
   // shows up even if it hasn't been pruned from storage yet — e.g. between
   // an object aging past 90 days and the next generation triggering a write.
-  return jsonResponse({ tokens: pruneStaleGenerations(list) }, 200, origin);
+  return jsonResponse({ tokens: pruneStaleGenerations(list, RECENT_GENERATIONS_MAX) }, 200, origin);
+}
+
+// Same storage shape as recordRecentGeneration, but keyed separately and
+// including the prompt behind each image — this feed is for the admin log,
+// never exposed to anonymous visitors.
+async function recordGenerationLog(env, entry) {
+  try {
+    const raw = await env.ANALYTICS.get(ADMIN_GENERATION_LOG_KV_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(entry);
+    await env.ANALYTICS.put(
+      ADMIN_GENERATION_LOG_KV_KEY,
+      JSON.stringify(pruneStaleGenerations(list, ADMIN_GENERATION_LOG_MAX))
+    );
+  } catch (err) {
+    console.error("Failed to record generation log entry", err);
+  }
+}
+
+// Compares the Authorization header's bearer token against env.ADMIN_API_KEY
+// by hashing both sides first (rather than comparing the raw strings), so a
+// timing attack can't learn anything about the secret from how long the
+// comparison takes.
+async function isAdminAuthorized(request, env) {
+  const authHeader = request.headers.get("Authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  if (!token || !env.ADMIN_API_KEY) return false;
+
+  const [tokenDigest, keyDigest] = await Promise.all(
+    [token, env.ADMIN_API_KEY].map((value) => crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)))
+  );
+  const a = new Uint8Array(tokenDigest);
+  const b = new Uint8Array(keyDigest);
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+async function handleAdminGenerationLog(request, env, origin) {
+  if (!(await isAdminAuthorized(request, env))) {
+    return jsonResponse({ error: "Unauthorized." }, 401, origin);
+  }
+  const raw = await env.ANALYTICS.get(ADMIN_GENERATION_LOG_KV_KEY);
+  const list = raw ? JSON.parse(raw) : [];
+  return jsonResponse({ entries: pruneStaleGenerations(list, ADMIN_GENERATION_LOG_MAX) }, 200, origin);
 }
 
 async function handleGenerate(request, env, ctx, origin) {
@@ -350,7 +402,9 @@ async function handleGenerate(request, env, ctx, origin) {
     return jsonResponse({ error: "Couldn't save the generated image — try again." }, 502, origin);
   }
 
-  ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt: Date.now() }));
+  const createdAt = Date.now();
+  ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
+  ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
 
   return jsonResponse(
     {
@@ -720,6 +774,10 @@ export default {
 
     if (url.pathname === "/api/recent-generations" && request.method === "GET") {
       return handleRecentGenerations(env, origin);
+    }
+
+    if (url.pathname === "/api/admin/generation-log" && request.method === "GET") {
+      return handleAdminGenerationLog(request, env, origin);
     }
 
     if (url.pathname === "/api/checkout" && request.method === "POST") {

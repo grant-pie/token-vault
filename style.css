@@ -1001,3 +1001,58 @@ footer {
   flex-wrap: wrap;
   justify-content: center;
 }
+
+.recent-link {
+  text-align: center;
+}
+
+/* Admin generation log */
+.admin-log {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.admin-log-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: linear-gradient(var(--parchment), var(--parchment-dark));
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--wood-mid), 0 6px 14px rgba(0,0,0,0.5);
+  padding: 1rem;
+}
+
+.admin-log-thumb {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--wood-mid);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  background: #111;
+  flex-shrink: 0;
+}
+
+.admin-log-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.admin-log-meta {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 0.85rem;
+  color: var(--gold-bright);
+  margin: 0;
+}
+
+.admin-log-description {
+  margin: 0;
+  color: var(--ink);
+  word-break: break-word;
+}

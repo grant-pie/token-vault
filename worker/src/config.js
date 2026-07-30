@@ -56,6 +56,16 @@ export const RECENT_GENERATIONS_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 // traffic spike can't balloon it unboundedly.
 export const RECENT_GENERATIONS_MAX = 200;
 
+// KV key (under ANALYTICS) the admin-only generation log is stored at — same
+// shape and pruning rules as the public recent-generations feed above
+// (reuses RECENT_GENERATIONS_MAX_AGE_MS, since it's tied to the same R2
+// lifecycle rule), but kept separate because it includes the prompt behind
+// each image and isn't meant for anonymous visitors. Read via
+// GET /api/admin/generation-log, gated by the ADMIN_API_KEY secret (set via
+// `wrangler secret put ADMIN_API_KEY`).
+export const ADMIN_GENERATION_LOG_KV_KEY = "generation_log";
+export const ADMIN_GENERATION_LOG_MAX = 500;
+
 // Image quality values accepted from the client.
 export const ALLOWED_QUALITIES = new Set(["low", "medium", "high"]);
 
