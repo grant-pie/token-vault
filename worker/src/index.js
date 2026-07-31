@@ -35,6 +35,8 @@ import {
   RECENT_GENERATIONS_MAX,
   ADMIN_GENERATION_LOG_KV_KEY,
   ADMIN_GENERATION_LOG_MAX,
+  PROMPT_LOG_KEY_PREFIX,
+  PROMPT_LOG_TTL_SECONDS,
 } from "./config.js";
 import {
   signCreditToken,
@@ -214,6 +216,20 @@ async function isAdminAuthorized(request, env) {
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
   return diff === 0;
+}
+
+// One KV row per generated image: key is the R2 object key (e.g.
+// "generated/<uuid>.png"), value is the exact prompt sent to OpenAI for it.
+// Separate from recordGenerationLog's single JSON blob so a given file's
+// prompt can be looked up directly by filename instead of scanning a list.
+async function recordPromptForFile(env, fileKey, prompt) {
+  try {
+    await env.ANALYTICS.put(`${PROMPT_LOG_KEY_PREFIX}${fileKey}`, prompt, {
+      expirationTtl: PROMPT_LOG_TTL_SECONDS,
+    });
+  } catch (err) {
+    console.error("Failed to record prompt for file", err);
+  }
 }
 
 async function handleAdminGenerationLog(request, env, origin) {
@@ -405,6 +421,7 @@ async function handleGenerate(request, env, ctx, origin) {
   const createdAt = Date.now();
   ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
   ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
+  ctx.waitUntil(recordPromptForFile(env, key, prompt));
 
   return jsonResponse(
     {

@@ -66,6 +66,15 @@ export const RECENT_GENERATIONS_MAX = 200;
 export const ADMIN_GENERATION_LOG_KV_KEY = "generation_log";
 export const ADMIN_GENERATION_LOG_MAX = 500;
 
+// KV key prefix (under ANALYTICS) for the one-row-per-image filename->prompt
+// record, as opposed to the two JSON-blob feeds above. Key is the R2 object
+// key (e.g. "generated/<uuid>.png"), value is the full prompt text sent to
+// OpenAI. TTL matches the R2 bucket's 90-day lifecycle rule (see
+// RECENT_GENERATIONS_MAX_AGE_MS above) so an entry never outlives the file
+// it describes.
+export const PROMPT_LOG_KEY_PREFIX = "prompt:";
+export const PROMPT_LOG_TTL_SECONDS = 90 * 24 * 60 * 60;
+
 // Image quality values accepted from the client.
 export const ALLOWED_QUALITIES = new Set(["low", "medium", "high"]);
 
