@@ -24,10 +24,7 @@ const IMG_RE = /\.(webp|png|jpe?g)$/i;
 function loadRegistry() {
   const registry = JSON.parse(fs.readFileSync(MONSTERS_FILE, "utf8"));
   if (Array.isArray(registry)) {
-    throw new Error(
-      `${path.relative(ROOT_DIR, MONSTERS_FILE)} is still the old flat name array — ` +
-      `run scripts/migrate-to-registry.js first.`
-    );
+    throw new Error(`${path.relative(ROOT_DIR, MONSTERS_FILE)} should be an id-keyed object, not an array.`);
   }
   return registry;
 }
