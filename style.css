@@ -12,6 +12,16 @@
   box-sizing: border-box;
 }
 
+/* Author rules elsewhere set `display: flex/grid/block` on several elements
+   that also toggle visibility via the `hidden` attribute (e.g. .generator-edit,
+   .generator-result, .credit-restore-form). Per the cascade, an author-origin
+   `display` declaration always wins over the browser's built-in
+   `[hidden] { display: none }` rule regardless of specificity, so without this
+   override those elements stay visible even while `hidden` is set. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
