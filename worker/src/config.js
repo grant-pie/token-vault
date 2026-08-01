@@ -110,15 +110,20 @@ export const FACING_DIRECTIONS = ["right", "left", "forward"];
 
 // Templates used to build the image generation prompt sent to OpenAI, keyed by style.
 // The literal "[description]" placeholder is replaced with the user's creature
-// description at request time. The "[[shadow]]...[[/shadow]]" span is the
-// battlemap-readability shadow instruction: when a shadow color is chosen it's
-// substituted in for "[shadow color]" and the markers are stripped; when "None"
-// is chosen the whole span (markers included) is removed so no shadow is
-// requested at all — see parsePrompt() in index.js.
+// description at request time. Each "[[shadow]]...[[/shadow]]" span (there are
+// two per template — the main instruction, kept in its own paragraph away from
+// the "No ground/floor/scenery..." negation list, plus a short reinforcing
+// reminder near the end, since a single mid-prompt mention is easy for the
+// image model to deprioritize) is the battlemap-readability shadow instruction:
+// when a shadow color is chosen it's substituted in for "[shadow color]" and
+// the markers are stripped; when "None" is chosen every span is replaced with
+// an explicit "no shadow" instruction instead — see parsePrompt() in index.js.
 export const TOKEN_PROMPT_TEMPLATES = {
   standard: `Create a highly detailed top-down fantasy RPG creature token. Highly detailed hand-painted digital illustration with realistic anatomy, painterly textures, vibrant natural colors, and bright neutral daylight. Professional fantasy concept art quality. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. The entire creature must be visible within the frame
 
-[[shadow]]Add a soft circular [shadow color] colored drop shadow directly beneath the creature to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. This shadow is required and is not considered part of the ground, floor, base, environment, or scenery.[[/shadow]] The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+
+[[shadow]]The one exception to the rules above: add a soft circular [shadow color] drop shadow directly beneath the creature's feet, to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, moderately feathered, medium opacity (35–45%), and remain entirely beneath the creature without wrapping around the body. This drop shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
 
 Description: [description]
 
@@ -130,11 +135,13 @@ The head, shoulders, chest, hips, legs, and feet must all be oriented toward the
 
 Prioritize tabletop readability over anatomical realism. Slightly exaggerate the visibility of the head, shoulders, hands, weapons, and feet so the creature remains instantly recognizable from a true top-down perspective.
 
-Colorful high fantasy adventure, whimsical but believable, vibrant natural colors, adventurous tone.
+[[shadow]]Before finishing, double-check the image includes the required [shadow color] grounding shadow beneath the creature's feet.[[/shadow]] Colorful high fantasy adventure, whimsical but believable, vibrant natural colors, adventurous tone.
 `,
   grimdark: `Create a Highly detailed topdown hand-painted digital illustration with realistic anatomy, painterly textures, weathered materials, and professional fantasy concept art quality. Emphasize gritty, grounded realism, worn leather, tarnished metal, chipped weapons, frayed cloth, grime, and signs of age and wear where appropriate. Use muted, desaturated earth tones with deep blacks, cold grays, dirty browns, dark greens, and subdued crimson accents. Dramatic directional lighting with strong contrast and subtle rim lighting, using moody shading across the creature's own form (not a cast shadow on the ground). The creature should feel ancient, dangerous, and lived-in rather than heroic or pristine. It must be a top down view. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides.
 
-[[shadow]]Add a soft circular [shadow color] colored drop shadow directly beneath the creature to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, heavily feathered, low opacity (25–35%), and remain entirely beneath the creature without wrapping around the body. This shadow is required and is not considered part of the ground, floor, base, environment, or scenery.[[/shadow]] The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+
+[[shadow]]The one exception to the rules above: add a soft circular [shadow color] drop shadow directly beneath the creature's feet, to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, moderately feathered, medium opacity (35–45%), and remain entirely beneath the creature without wrapping around the body. This drop shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
 
 Description: [description]
 
@@ -144,11 +151,13 @@ It is facing [direction]
 
 The head, shoulders, chest, hips, legs, and feet must all be oriented toward the chosen edge of the image. Maintain the same 60° downward viewing angle while rotating the creature around its vertical axis. This is a composition requirement, not a pose suggestion. Do not revert to the model's default forward-facing orientation.
 
-Dark fantasy aesthetic inspired by classic grimdark worlds, oppressive atmosphere, gothic horror, medieval realism, harsh survival, ancient decay, and grounded realism. Avoid bright colors, whimsical elements, exaggerated cartoon features, heroic poses, clean equipment, polished armor, or cheerful fantasy. The creature should appear intimidating, ancient, and realistically weathered while remaining visually striking, suitable for a broad fantasy audience, and easy to identify as a tabletop token.
+[[shadow]]Before finishing, double-check the image includes the required [shadow color] grounding shadow beneath the creature's feet.[[/shadow]] Dark fantasy aesthetic inspired by classic grimdark worlds, oppressive atmosphere, gothic horror, medieval realism, harsh survival, ancient decay, and grounded realism. Avoid bright colors, whimsical elements, exaggerated cartoon features, heroic poses, clean equipment, polished armor, or cheerful fantasy. The creature should appear intimidating, ancient, and realistically weathered while remaining visually striking, suitable for a broad fantasy audience, and easy to identify as a tabletop token.
 `,
   retro: `Create a top-down fantasy RPG creature token in a retro 16-bit pixel art style, reminiscent of classic SNES-era tactics and JRPG sprite art. Crisp, hard-edged pixels with no anti-aliasing, no blur, and no soft gradients — every edge should be a clean stair-stepped pixel boundary. Use a deliberately limited, hand-picked color palette per shading region (flat color blocks with simple 2-3 step palette-swap shading for form and depth), and confident manual dithering only where a classic sprite artist would use it. The creature should occupy approximately 80% of the image while leaving a small transparent margin around all sides. The entire creature must be visible within the frame.
 
-[[shadow]]Place a small [shadow color] pixel shadow directly beneath the creature to improve readability on busy battlemaps, drawn as a solid or lightly dithered ellipse of pixels (no soft feathering or gradient blur, consistent with the pixel art style). The shadow should be approximately 15% larger than the creature's footprint and remain entirely beneath the creature without wrapping around the body. This shadow is required and is not considered part of the ground, floor, base, environment, or scenery.[[/shadow]] The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
+
+[[shadow]]The one exception to the rules above: place a small [shadow color] pixel shadow directly beneath the creature's feet, to improve readability on busy battlemaps, drawn as a solid or lightly dithered ellipse of pixels in a clearly opaque, clearly visible shade (no soft feathering, no gradient blur, and no near-invisible opacity — consistent with the pixel art style). The shadow should be approximately 15% larger than the creature's footprint and remain entirely beneath the creature without wrapping around the body. This pixel shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
 
 Description: [description]
 
@@ -158,7 +167,7 @@ It is facing [direction]
 
 The head, shoulders, chest, hips, legs, and feet must all be oriented toward the chosen edge of the image. Maintain the same 60° downward viewing angle while rotating the creature around its vertical axis. This is a composition requirement, not a pose suggestion. Do not revert to the model's default forward-facing orientation.
 
-Prioritize tabletop readability and instant silhouette recognition over fine detail. Slightly exaggerate the head, shoulders, hands, weapons, and feet so the creature reads clearly as a small sprite from a true top-down perspective.
+[[shadow]]Before finishing, double-check the image includes the required [shadow color] pixel shadow beneath the creature's feet.[[/shadow]] Prioritize tabletop readability and instant silhouette recognition over fine detail. Slightly exaggerate the head, shoulders, hands, weapons, and feet so the creature reads clearly as a small sprite from a true top-down perspective.
 
 Charming retro video-game aesthetic, bold saturated colors, nostalgic 16-bit fantasy adventure tone.
 `,

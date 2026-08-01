@@ -73,21 +73,23 @@ function pickFacingDirection() {
 }
 
 // Substitutes the description into the "[description]" placeholder and a
-// randomly chosen facing direction into "[direction]". The
-// "[[shadow]]...[[/shadow]]" span is the battlemap-readability shadow
-// instruction: when a shadow color was picked, the span's "[shadow color]"
-// placeholder is filled in and the markers are stripped; when none was
-// picked, the span is swapped for an explicit "no shadow" instruction —
-// image models default to adding a soft grounding shadow as a stylistic
-// habit, so simply omitting the request isn't enough to suppress one.
-// Letting the boilerplate wording live in config.js instead of being
-// hardcoded here.
+// randomly chosen facing direction into "[direction]". Every
+// "[[shadow]]...[[/shadow]]" span (a template may use more than one — e.g.
+// the main instruction plus a reinforcing reminder later on, since a single
+// mid-prompt mention is easy for the image model to deprioritize) is the
+// battlemap-readability shadow instruction: when a shadow color was picked,
+// each span's "[shadow color]" placeholder is filled in and the markers are
+// stripped; when none was picked, every span is swapped for the same
+// explicit "no shadow" instruction — image models default to adding a soft
+// grounding shadow as a stylistic habit, so simply omitting the request
+// isn't enough to suppress one. Letting the boilerplate wording live in
+// config.js instead of being hardcoded here.
 function parsePrompt(template, description, shadowColor) {
-  const withShadow = template.replace(/\[\[shadow\]\]([\s\S]*?)\[\[\/shadow\]\]\s*/, (_match, shadowSentence) => {
+  const withShadow = template.replace(/\[\[shadow\]\]([\s\S]*?)\[\[\/shadow\]\]/g, (_match, shadowSentence) => {
     if (!shadowColor) {
-      return "Do not add any shadow, glow, halo, or highlight beneath or around the creature. ";
+      return "Do not add any shadow, glow, halo, or highlight beneath or around the creature.";
     }
-    return `${shadowSentence.replace("[shadow color]", shadowColor)} `;
+    return shadowSentence.replace("[shadow color]", shadowColor);
   });
   return withShadow.replace("[description]", description).replace("[direction]", pickFacingDirection());
 }
