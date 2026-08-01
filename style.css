@@ -1089,3 +1089,21 @@ footer {
   color: var(--ink);
   word-break: break-word;
 }
+
+.admin-log-prompt-toggle {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.8rem;
+}
+
+.admin-log-prompt {
+  margin: 0;
+  padding: 0.6rem;
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+}

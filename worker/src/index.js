@@ -292,6 +292,31 @@ async function handleAdminGenerationLog(request, env, origin) {
   return jsonResponse({ entries: pruneStaleGenerations(list, ADMIN_GENERATION_LOG_MAX) }, 200, origin);
 }
 
+// Full prompts are looked up one at a time on demand (see js/admin.js's
+// "Show full prompt" button) rather than bulk-joined into
+// handleAdminGenerationLog's response — that log can hold up to
+// ADMIN_GENERATION_LOG_MAX entries, and eagerly fetching a KV row per entry
+// on every log load risks tripping the Worker's per-request subrequest limit
+// for no benefit, since admins only ever want to inspect a handful at a time.
+async function handleAdminPrompt(request, env, origin) {
+  if (!(await isAdminAuthorized(request, env))) {
+    return jsonResponse({ error: "Unauthorized." }, 401, origin);
+  }
+
+  const id = new URL(request.url).searchParams.get("id") || "";
+  if (!GENERATED_ID_SHAPE.test(id)) {
+    return jsonResponse({ error: "Invalid id." }, 400, origin);
+  }
+
+  const fileKey = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+  const prompt = await env.ANALYTICS.get(`${PROMPT_LOG_KEY_PREFIX}${fileKey}`);
+  if (prompt === null) {
+    return jsonResponse({ error: "No prompt on file for that token — it may have expired." }, 404, origin);
+  }
+
+  return jsonResponse({ prompt }, 200, origin);
+}
+
 // Shared by handleGenerate and handleEditToken: figures out whether this
 // request is paid (bearer token with a funded balance, credits spent
 // up-front) or falls back to the free per-IP rate limit, and returns either
@@ -1034,6 +1059,10 @@ export default {
 
     if (url.pathname === "/api/admin/generation-log" && request.method === "GET") {
       return handleAdminGenerationLog(request, env, origin);
+    }
+
+    if (url.pathname === "/api/admin/prompt" && request.method === "GET") {
+      return handleAdminPrompt(request, env, origin);
     }
 
     if (url.pathname === "/api/checkout" && request.method === "POST") {

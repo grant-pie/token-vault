@@ -10,7 +10,37 @@ function formatDate(ms) {
   return new Date(ms).toLocaleString();
 }
 
-function renderEntries(entries) {
+// Fetched lazily per row (see handleAdminPrompt in the worker) rather than
+// bulk-loaded with the rest of the log, so opening the log doesn't fire one
+// KV read per entry for prompts nobody asked to see.
+async function loadFullPrompt(id, adminKey, promptEl, toggleBtn) {
+  toggleBtn.disabled = true;
+  toggleBtn.textContent = "Loading…";
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/prompt?id=${encodeURIComponent(id)}`, {
+      headers: { Authorization: `Bearer ${adminKey}` },
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      promptEl.textContent = data.error || "Couldn't load the full prompt.";
+      promptEl.hidden = false;
+      toggleBtn.hidden = true;
+      return;
+    }
+
+    promptEl.textContent = data.prompt;
+    promptEl.hidden = false;
+    toggleBtn.hidden = true;
+  } catch {
+    promptEl.textContent = "Couldn't reach the worker. Check your connection and try again.";
+    promptEl.hidden = false;
+    toggleBtn.hidden = true;
+  }
+}
+
+function renderEntries(entries, adminKey) {
   logEl.innerHTML = "";
 
   if (!entries || entries.length === 0) {
@@ -42,8 +72,21 @@ function renderEntries(entries) {
     description.className = "admin-log-description";
     description.textContent = entry.description;
 
+    const promptToggle = document.createElement("button");
+    promptToggle.type = "button";
+    promptToggle.className = "page-btn admin-log-prompt-toggle";
+    promptToggle.textContent = "Show full prompt";
+
+    const promptEl = document.createElement("p");
+    promptEl.className = "admin-log-prompt";
+    promptEl.hidden = true;
+
+    promptToggle.addEventListener("click", () => loadFullPrompt(entry.id, adminKey, promptEl, promptToggle));
+
     details.appendChild(meta);
     details.appendChild(description);
+    details.appendChild(promptToggle);
+    details.appendChild(promptEl);
 
     row.appendChild(img);
     row.appendChild(details);
@@ -75,7 +118,7 @@ async function loadLog(key) {
     const data = await res.json();
     sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
     statusEl.textContent = "";
-    renderEntries(data.entries);
+    renderEntries(data.entries, key);
   } catch {
     statusEl.textContent = "Couldn't reach the worker. Check your connection and try again.";
   } finally {
