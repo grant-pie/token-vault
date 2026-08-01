@@ -14,13 +14,13 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
   - `IMAGE_BASE_URL` — the prefix used to build each token's image URL. Points at a custom domain backed by Cloudflare R2 by default; swap it for `images-optimized/` to serve images locally, or any other public URL/bucket.
   - `API_BASE` — the deployed Worker URL that `js/generate.js` and `js/monster.js` POST to.
   - `PAGE_SIZE` — tokens shown per page in the vault grid (used by `js/app.js`).
-- **`index.html`** — landing page with nav links to the vault and the generator.
-- **`vault.html`** / **`style.css`** — the token vault page shell and the parchment/dungeon styling.
-- **`js/app.js`** — renders the token grid, live search-as-you-type filtering by name or tag, a category filter, and pagination. Clicking a token card opens the customizer modal (below) instead of downloading directly.
+- **`index.html`** — landing page with nav links to the generator; a public browsing page for the vault doesn't exist yet (see below).
+- **`style.css`** — the shared parchment/dungeon styling for every page.
+- **`admin-vault.html`** / **`js/admin-vault.js`** — the full token index, gated behind the same admin key as `admin.html` (see "The admin tools" below). Renders the token grid, live search-as-you-type filtering by name or tag, a category filter, and pagination. Clicking a token card opens the customizer modal (below) instead of downloading directly. This used to be the public `vault.html`; it moved behind the admin gate because the whole catalog shouldn't be publicly browsable yet. A new, public-facing vault page (likely showing a curated subset) still needs to be built.
 
 ### The customizer
 
-- **`js/token-customize.js`** — a shared modal, opened via `window.openTokenCustomizer(token, imageSrc)`, that lets a user apply a border shape (circle/square/hexagon), border color/width, and a background tint to a token before downloading it. Renders to an off-screen `<canvas>` (1024px) supporting drag-to-reposition and scroll/slider zoom, and exports the result as a PNG. Settings persist across tokens via `localStorage`. Wired up from both `vault.html` (customizing a vault token) and `generate.html` (customizing a freshly generated one); each page just needs the `#token-modal` dialog markup and controls (see either HTML file) plus the `<script src="js/token-customize.js">` include.
+- **`js/token-customize.js`** — a shared modal, opened via `window.openTokenCustomizer(token, imageSrc)`, that lets a user apply a border shape (circle/square/hexagon), border color/width, and a background tint to a token before downloading it. Renders to an off-screen `<canvas>` (1024px) supporting drag-to-reposition and scroll/slider zoom, and exports the result as a PNG. Settings persist across tokens via `localStorage`. Wired up from both `admin-vault.html` (customizing a vault token) and `generate.html` (customizing a freshly generated one); each page just needs the `#token-modal` dialog markup and controls (see either HTML file) plus the `<script src="js/token-customize.js">` include.
 
 ### The generator
 

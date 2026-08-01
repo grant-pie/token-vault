@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Recently Generated Tokens &mdash; Token Vault</title>
-<meta name="description" content="Browse the newest AI-generated D&amp;D character and monster tokens, free to download and customize for your tabletop.">
-<link rel="canonical" href="https://grant-pie.github.io/token-vault/recent.html">
+<title>Full Vault Index &mdash; Token Vault Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,29 +12,63 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="manifest" href="site.webmanifest">
 </head>
 <body>
 
-<div class="construction-banner" role="status">🚧 <strong>Under construction</strong> &mdash; Token Vault is in active development. Some features may be incomplete or change without notice.</div>
-
 <div class="banner">
-  <h1>Recently Generated Tokens</h1>
-  <p class="subtitle">Fresh from the AI generator &mdash; free to download and customize</p>
+  <h1>Full Vault Index</h1>
+  <p class="subtitle">Admin only &mdash; every token in the catalog, across every style</p>
   <div class="divider" aria-hidden="true">&#10038;</div>
   <nav class="site-nav">
-    <a href="index.html">&laquo; Back to the Vault</a>
-    <a href="generate.html">Forge a Hero</a>
-    <a href="monster.html">Summon a Monster</a>
-    <a href="feedback.html">Feedback</a>
+    <a href="admin.html">&laquo; Back to Admin</a>
   </nav>
 </div>
 
 <main>
-  <section id="token-grid" class="token-grid" aria-label="Recently generated tokens">
-    <!-- Token cards are rendered here by recent.js -->
+  <section id="admin-vault-gate">
+    <form id="admin-vault-auth-form" class="generator-form">
+      <div class="generator-field">
+        <label for="admin-vault-key" class="generator-label">Admin key</label>
+        <input
+          type="password"
+          id="admin-vault-key"
+          class="generator-select"
+          autocomplete="off"
+          placeholder="Paste the admin API key"
+        >
+      </div>
+      <button type="submit" class="page-btn generator-submit" id="admin-vault-unlock-btn">Unlock</button>
+    </form>
+
+    <p id="admin-vault-status" class="generator-status" aria-live="polite"></p>
   </section>
-  <p id="recent-status" class="generator-status" aria-live="polite"></p>
+
+  <div id="admin-vault-content" hidden>
+    <div class="search-wrap">
+      <select id="style-select" class="style-select" aria-label="Token art style">
+        <!-- Style options are rendered here by admin-vault.js -->
+      </select>
+      <select id="category-select" class="style-select" aria-label="Monster category">
+        <!-- Category options are rendered here by admin-vault.js -->
+      </select>
+      <input
+        type="search"
+        id="token-search"
+        class="token-search"
+        placeholder="Search tokens by name or tag..."
+        aria-label="Search tokens by name or tag"
+        autocomplete="off"
+      >
+    </div>
+
+    <section id="token-grid" class="token-grid" aria-label="Available tokens">
+      <!-- Token cards are rendered here by admin-vault.js -->
+    </section>
+
+    <nav id="pagination" class="pagination" aria-label="Token page navigation">
+      <!-- Pagination controls are rendered here by admin-vault.js -->
+    </nav>
+  </div>
 </main>
 
 <dialog id="token-modal" class="token-modal">
@@ -112,31 +144,9 @@
   </form>
 </dialog>
 
-<footer>
-  <p>Want something specific instead? <a href="generate.html">Forge a hero</a> or <a href="monster.html">summon a monster</a>.</p>
-  <p>May your rolls be ever in your favor.</p>
-  <a class="coffee-link" href="https://buymeacoffee.com/grantpie" target="_blank" rel="noopener">&#9749; Buy me a coffee</a>
-  <div class="share-row" aria-label="Share this page">
-    <span class="share-label">Share:</span>
-    <a class="share-link" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fgrant-pie.github.io%2Ftoken-vault%2Frecent.html&text=Check%20out%20these%20AI-generated%20D%26D%20tokens%20-%20Token%20Vault" target="_blank" rel="noopener noreferrer">Share on X</a>
-    <a class="share-link" href="https://www.reddit.com/submit?url=https%3A%2F%2Fgrant-pie.github.io%2Ftoken-vault%2Frecent.html&title=Check%20out%20these%20AI-generated%20D%26D%20tokens%20-%20Token%20Vault" target="_blank" rel="noopener noreferrer">Share on Reddit</a>
-    <a class="share-link" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgrant-pie.github.io%2Ftoken-vault%2Frecent.html" target="_blank" rel="noopener noreferrer">Share on Facebook</a>
-  </div>
-  <p class="footer-disclaimer">
-    Tokens are generated by AI from what you type &mdash; you are responsible for the descriptions you submit.
-  </p>
-  <p class="footer-disclaimer">
-    We briefly log IP addresses to prevent abuse of the generator and feedback form. These logs expire automatically within about an hour and aren't stored alongside anything you submit.
-  </p>
-  <p class="footer-disclaimer">
-    This is an unofficial fan site and is not associated with, endorsed, or sponsored by Wizards of the Coast or Hasbro, Inc.
-  </p>
-</footer>
-
 <script src="js/config.js"></script>
-<script src="js/visit-count.js"></script>
-<script src="js/recent.js"></script>
+<script src="js/vault-data.js"></script>
+<script src="js/admin-vault.js"></script>
 <script src="js/token-customize.js"></script>
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1620a70c88d54fb2b28d390f12d3938b"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

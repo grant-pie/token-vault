@@ -1,3 +1,5 @@
+const ADMIN_KEY_STORAGE = "tokenVaultAdminKey";
+
 let currentPage = 1;
 
 // VAULT_STYLES/VAULT_DATA (see vault-data.js) come from worker/src/config.js's
@@ -217,33 +219,95 @@ function refreshActiveTokens() {
     .map((monster) => ({ ...monster, file: monster.filenames[activeStyle] }));
 }
 
-populateStyleSelect();
-populateCategorySelect();
-refreshActiveTokens();
-update();
+// Deferred until the admin key is verified (see the gate below), so the grid
+// only renders once someone is actually authorized to see the full index.
+function initGrid() {
+  populateStyleSelect();
+  populateCategorySelect();
+  refreshActiveTokens();
+  update();
 
-if (styleSelect) {
-  styleSelect.addEventListener("change", () => {
-    activeStyle = styleSelect.value;
-    currentPage = 1;
-    refreshActiveTokens();
-    update();
-  });
+  if (styleSelect) {
+    styleSelect.addEventListener("change", () => {
+      activeStyle = styleSelect.value;
+      currentPage = 1;
+      refreshActiveTokens();
+      update();
+    });
+  }
+
+  if (categorySelect) {
+    categorySelect.addEventListener("change", () => {
+      activeCategory = categorySelect.value;
+      currentPage = 1;
+      refreshActiveTokens();
+      update();
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      currentPage = 1;
+      refreshActiveTokens();
+      update();
+    });
+  }
 }
 
-if (categorySelect) {
-  categorySelect.addEventListener("change", () => {
-    activeCategory = categorySelect.value;
-    currentPage = 1;
-    refreshActiveTokens();
-    update();
-  });
+const gateSection = document.getElementById("admin-vault-gate");
+const contentSection = document.getElementById("admin-vault-content");
+const authForm = document.getElementById("admin-vault-auth-form");
+const adminKeyField = document.getElementById("admin-vault-key");
+const unlockBtn = document.getElementById("admin-vault-unlock-btn");
+const gateStatusEl = document.getElementById("admin-vault-status");
+
+// There's no dedicated "verify key" endpoint, so this reuses the same
+// admin-gated route admin.html already calls purely to check the key
+// server-side — the log data in the response body is discarded.
+async function unlock(key) {
+  gateStatusEl.textContent = "Checking key…";
+  unlockBtn.disabled = true;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/generation-log`, {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+
+    if (res.status === 401) {
+      sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+      gateStatusEl.textContent = "That admin key was rejected.";
+      return;
+    }
+
+    if (!res.ok) {
+      gateStatusEl.textContent = "Couldn't verify the key — try again.";
+      return;
+    }
+
+    sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
+    gateStatusEl.textContent = "";
+    gateSection.hidden = true;
+    contentSection.hidden = false;
+    initGrid();
+  } catch {
+    gateStatusEl.textContent = "Couldn't reach the worker. Check your connection and try again.";
+  } finally {
+    unlockBtn.disabled = false;
+  }
 }
 
-if (searchInput) {
-  searchInput.addEventListener("input", () => {
-    currentPage = 1;
-    refreshActiveTokens();
-    update();
-  });
+authForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const key = adminKeyField.value.trim();
+  if (!key) {
+    gateStatusEl.textContent = "Enter the admin key first.";
+    return;
+  }
+  unlock(key);
+});
+
+const storedAdminKey = sessionStorage.getItem(ADMIN_KEY_STORAGE);
+if (storedAdminKey) {
+  adminKeyField.value = storedAdminKey;
+  unlock(storedAdminKey);
 }
