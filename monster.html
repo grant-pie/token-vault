@@ -131,6 +131,18 @@
       <a id="download-link" class="page-btn" download="token.png" hidden>Download</a>
       <button type="button" id="customize-btn" class="page-btn" hidden>Add Border</button>
     </div>
+    <div class="generator-edit" id="edit-section" hidden>
+      <label for="edit-description" class="generator-label">Want something changed? Describe it and re-generate.</label>
+      <textarea
+        id="edit-description"
+        class="generator-description"
+        maxlength="600"
+        rows="2"
+        placeholder="Give it a second head, make the hide mossy green, add battle scars..."
+      ></textarea>
+      <button type="button" class="page-btn" id="edit-btn">Apply Edit</button>
+      <p id="edit-status" class="generator-status" aria-live="polite"></p>
+    </div>
   </section>
 
   <p class="recent-link"><a href="recent.html">See what others just made &raquo;</a></p>
@@ -255,6 +267,7 @@
 <script src="js/visit-count.js"></script>
 <script src="js/credits.js"></script>
 <script src="js/generator-options.js"></script>
+<script src="js/token-edit.js"></script>
 <script src="js/monster.js"></script>
 <script src="js/token-customize.js"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1620a70c88d54fb2b28d390f12d3938b"}'></script><!-- End Cloudflare Web Analytics -->

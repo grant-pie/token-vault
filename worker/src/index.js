@@ -53,6 +53,12 @@ import {
   spendCredits,
 } from "./credits.js";
 
+// Shape of a generated token's id (crypto.randomUUID()). Validated before
+// ever being interpolated into an R2 key, both against malformed input and
+// against a key that could otherwise be steered outside the generated/
+// prefix.
+const GENERATED_ID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function isAllowedOrigin(origin) {
   if (!origin) return false;
   if (PRODUCTION_ORIGINS.has(origin)) return true;
@@ -286,6 +292,131 @@ async function handleAdminGenerationLog(request, env, origin) {
   return jsonResponse({ entries: pruneStaleGenerations(list, ADMIN_GENERATION_LOG_MAX) }, 200, origin);
 }
 
+// Shared by handleGenerate and handleEditToken: figures out whether this
+// request is paid (bearer token with a funded balance, credits spent
+// up-front) or falls back to the free per-IP rate limit, and returns either
+// an error Response to send back immediately or the resulting credit info
+// (null when the free tier was used). reasonPrefix keeps the two callers'
+// ledger entries ("spend:generate:..." vs "spend:edit:...") distinguishable.
+async function chargeForGeneration(request, env, origin, quality, reasonPrefix) {
+  const authHeader = request.headers.get("Authorization") || "";
+  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+
+  if (bearerToken) {
+    const claims = await verifyCreditToken(env.TOKEN_SIGNING_SECRET, bearerToken);
+    if (claims) {
+      // Backstop only — caps how fast a leaked token could be drained, not a
+      // revenue control (the credit balance itself already does that).
+      const tokenRate = await checkAndConsumeRateLimit(
+        env.RATE_LIMIT,
+        "crl:",
+        claims.email,
+        CREDIT_TOKEN_RATE_LIMIT_MAX,
+        CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS
+      );
+      if (!tokenRate.allowed) {
+        return {
+          error: jsonResponse(
+            { error: "You've hit the hourly limit for paid generations — try again in a bit." },
+            429,
+            origin
+          ),
+        };
+      }
+
+      const cost = CREDIT_COST_BY_QUALITY[quality] ?? CREDIT_COST_BY_QUALITY[DEFAULT_QUALITY];
+      const balanceAfterSpend = await spendCredits(env.CREDITS_DB, {
+        email: claims.email,
+        cost,
+        reason: `spend:${reasonPrefix}:${quality}`,
+      });
+      if (balanceAfterSpend === null) {
+        return {
+          error: jsonResponse(
+            {
+              error: "You're out of credits — buy more, or use the free hourly limit instead.",
+              outOfCredits: true,
+            },
+            402,
+            origin
+          ),
+        };
+      }
+      return { credit: { email: claims.email, cost, balance: balanceAfterSpend } };
+    }
+  }
+
+  if (!FREE_TIER_ENABLED) {
+    return {
+      error: jsonResponse(
+        {
+          error: "Free generation is turned off right now — buy credits to generate a token.",
+          requiresCredits: true,
+        },
+        402,
+        origin
+      ),
+    };
+  }
+
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const rateLimit = await checkAndConsumeRateLimit(
+    env.RATE_LIMIT,
+    "rl:",
+    ip,
+    RATE_LIMIT_MAX,
+    RATE_LIMIT_WINDOW_SECONDS
+  );
+  if (!rateLimit.allowed) {
+    return { error: jsonResponse({ error: "You've hit the hourly limit — try again in a bit." }, 429, origin) };
+  }
+
+  return { credit: null };
+}
+
+// Shared by handleGenerate and handleEditToken: decodes the base64 image
+// OpenAI returned, saves it to R2 under a fresh id, records it in the
+// various analytics feeds, and builds the success response. Any failure here
+// refunds the credit already spent (see refundSpentCredit in each caller).
+async function finalizeGeneratedImage({ b64, env, ctx, origin, credit, description, style, quality, prompt, refundSpentCredit }) {
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const id = crypto.randomUUID();
+  const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+  const url = `/${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+
+  try {
+    await env.TOKEN_BUCKET.put(key, bytes, {
+      httpMetadata: { contentType: "image/png" },
+    });
+  } catch (err) {
+    console.error("R2 put failed", err);
+    await refundSpentCredit("refund:storage_failed");
+    return jsonResponse({ error: "Couldn't save the generated image — try again." }, 502, origin);
+  }
+
+  const createdAt = Date.now();
+  ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
+  ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
+  ctx.waitUntil(recordPromptForFile(env, key, prompt));
+
+  return jsonResponse(
+    {
+      id,
+      url,
+      ...(credit ? { creditsRemaining: credit.balance } : {}),
+    },
+    200,
+    origin
+  );
+}
+
+// The edit request only ever carries a description of the change plus the id
+// of a token this site already generated — never an uploaded image — so the
+// instruction just needs to call out what must be preserved.
+function buildEditPrompt(instruction) {
+  return `Apply the following change to this fantasy RPG creature token image. Keep the existing art style, camera angle, pose, proportions, and the fully transparent background exactly as they are — change only what's described below.\n\nRequested change: ${instruction}`;
+}
+
 async function handleGenerate(request, env, ctx, origin) {
   let body;
   try {
@@ -324,78 +455,8 @@ async function handleGenerate(request, env, ctx, origin) {
   // A bearer token identifies a paid balance (see CREDIT_SYSTEM_PLAN.md). An
   // invalid or expired token isn't an error by itself — it just falls
   // through to the same free, anonymous IP rate limit as no token at all.
-  const authHeader = request.headers.get("Authorization") || "";
-  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
-  let credit = null; // { email, cost, balance } once credits have been spent for this request
-
-  if (bearerToken) {
-    const claims = await verifyCreditToken(env.TOKEN_SIGNING_SECRET, bearerToken);
-    if (claims) {
-      // Backstop only — caps how fast a leaked token could be drained, not a
-      // revenue control (the credit balance itself already does that).
-      const tokenRate = await checkAndConsumeRateLimit(
-        env.RATE_LIMIT,
-        "crl:",
-        claims.email,
-        CREDIT_TOKEN_RATE_LIMIT_MAX,
-        CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS
-      );
-      if (!tokenRate.allowed) {
-        return jsonResponse(
-          { error: "You've hit the hourly limit for paid generations — try again in a bit." },
-          429,
-          origin
-        );
-      }
-
-      const cost = CREDIT_COST_BY_QUALITY[quality] ?? CREDIT_COST_BY_QUALITY[DEFAULT_QUALITY];
-      const balanceAfterSpend = await spendCredits(env.CREDITS_DB, {
-        email: claims.email,
-        cost,
-        reason: `spend:generate:${quality}`,
-      });
-      if (balanceAfterSpend === null) {
-        return jsonResponse(
-          {
-            error: "You're out of credits — buy more, or use the free hourly limit instead.",
-            outOfCredits: true,
-          },
-          402,
-          origin
-        );
-      }
-      credit = { email: claims.email, cost, balance: balanceAfterSpend };
-    }
-  }
-
-  if (!credit) {
-    if (!FREE_TIER_ENABLED) {
-      return jsonResponse(
-        {
-          error: "Free generation is turned off right now — buy credits to generate a token.",
-          requiresCredits: true,
-        },
-        402,
-        origin
-      );
-    }
-
-    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    const rateLimit = await checkAndConsumeRateLimit(
-      env.RATE_LIMIT,
-      "rl:",
-      ip,
-      RATE_LIMIT_MAX,
-      RATE_LIMIT_WINDOW_SECONDS
-    );
-    if (!rateLimit.allowed) {
-      return jsonResponse(
-        { error: "You've hit the hourly limit — try again in a bit." },
-        429,
-        origin
-      );
-    }
-  }
+  const { error: chargeError, credit } = await chargeForGeneration(request, env, origin, quality, "generate");
+  if (chargeError) return chargeError;
 
   // Credits are spent before the OpenAI call (so a request with an empty
   // balance never reaches OpenAI and never costs us money), then refunded
@@ -462,35 +523,147 @@ async function handleGenerate(request, env, ctx, origin) {
       return jsonResponse({ error: "No image came back — try again." }, 502, origin);
     }
 
-    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-    const id = crypto.randomUUID();
-    const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
-    const url = `/${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+    return await finalizeGeneratedImage({
+      b64,
+      env,
+      ctx,
+      origin,
+      credit,
+      description,
+      style,
+      quality,
+      prompt,
+      refundSpentCredit,
+    });
+  } finally {
+    await releaseGenerationSlot(env.RATE_LIMIT);
+  }
+}
 
-    try {
-      await env.TOKEN_BUCKET.put(key, bytes, {
-        httpMetadata: { contentType: "image/png" },
-      });
-    } catch (err) {
-      console.error("R2 put failed", err);
-      await refundSpentCredit("refund:storage_failed");
-      return jsonResponse({ error: "Couldn't save the generated image — try again." }, 502, origin);
-    }
+// Edits an existing token's image via OpenAI's images/edits endpoint, given
+// the id of a token this site generated and a text description of the
+// change. Deliberately never accepts an uploaded image from the client —
+// the source is always fetched server-side from R2 by id, so editing only
+// ever works against something this site actually generated (and hasn't
+// aged out of the bucket yet), never an arbitrary image.
+async function handleEditToken(request, env, ctx, origin) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid request." }, 400, origin);
+  }
 
-    const createdAt = Date.now();
-    ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
-    ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
-    ctx.waitUntil(recordPromptForFile(env, key, prompt));
+  const id = typeof body.id === "string" ? body.id.trim() : "";
+  if (!GENERATED_ID_SHAPE.test(id)) {
+    return jsonResponse({ error: "Unknown token." }, 400, origin);
+  }
 
+  const instruction = typeof body.description === "string" ? body.description.trim() : "";
+  if (!instruction) {
+    return jsonResponse({ error: "Describe the change you want first." }, 400, origin);
+  }
+  if (instruction.length > MAX_PROMPT_LENGTH) {
     return jsonResponse(
-      {
-        id,
-        url,
-        ...(credit ? { creditsRemaining: credit.balance } : {}),
-      },
-      200,
+      { error: `Keep the description under ${MAX_PROMPT_LENGTH} characters.` },
+      400,
       origin
     );
+  }
+
+  const quality = ALLOWED_QUALITIES.has(body.quality) ? body.quality : DEFAULT_QUALITY;
+
+  if (!SEND_TO_OPENAI) {
+    return jsonResponse(
+      { error: "Debug mode: edits are disabled while generation is disabled." },
+      503,
+      origin
+    );
+  }
+
+  const sourceKey = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+  const sourceObject = await env.TOKEN_BUCKET.get(sourceKey);
+  if (!sourceObject) {
+    return jsonResponse({ error: "That token couldn't be found — it may have expired." }, 404, origin);
+  }
+
+  const { error: chargeError, credit } = await chargeForGeneration(request, env, origin, quality, "edit");
+  if (chargeError) return chargeError;
+
+  async function refundSpentCredit(reason) {
+    if (credit) {
+      await grantCredits(env.CREDITS_DB, { email: credit.email, delta: credit.cost, reason });
+    }
+  }
+
+  const slotAcquired = await acquireGenerationSlot(env.RATE_LIMIT);
+  if (!slotAcquired) {
+    await refundSpentCredit("refund:edit_at_capacity");
+    return jsonResponse(
+      { error: "We're at capacity right now — try again in a minute." },
+      429,
+      origin
+    );
+  }
+
+  try {
+    const sourceBytes = await sourceObject.arrayBuffer();
+    const prompt = buildEditPrompt(instruction);
+
+    const formData = new FormData();
+    formData.append("model", OPENAI_IMAGE_MODEL);
+    formData.append("image", new Blob([sourceBytes], { type: "image/png" }), "token.png");
+    formData.append("prompt", prompt);
+    formData.append("size", OPENAI_IMAGE_SIZE);
+    formData.append("quality", quality);
+    formData.append("background", "transparent");
+    formData.append("output_format", OPENAI_IMAGE_OUTPUT_FORMAT);
+    formData.append("n", "1");
+
+    let openaiRes;
+    try {
+      openaiRes = await fetch("https://api.openai.com/v1/images/edits", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        },
+        body: formData,
+      });
+    } catch {
+      await refundSpentCredit("refund:edit_unreachable");
+      return jsonResponse({ error: "The generator is unreachable right now." }, 502, origin);
+    }
+
+    if (!openaiRes.ok) {
+      const errText = await openaiRes.text();
+      console.error("OpenAI edit error", openaiRes.status, errText);
+      await refundSpentCredit("refund:edit_rejected");
+      return jsonResponse(
+        { error: "That edit couldn't be made — try rephrasing it." },
+        openaiRes.status === 400 ? 400 : 502,
+        origin
+      );
+    }
+
+    const data = await openaiRes.json();
+    const b64 = data?.data?.[0]?.b64_json;
+    if (!b64) {
+      await refundSpentCredit("refund:edit_empty_response");
+      return jsonResponse({ error: "No image came back — try again." }, 502, origin);
+    }
+
+    return await finalizeGeneratedImage({
+      b64,
+      env,
+      ctx,
+      origin,
+      credit,
+      description: instruction,
+      style: "edit",
+      quality,
+      prompt,
+      refundSpentCredit,
+    });
   } finally {
     await releaseGenerationSlot(env.RATE_LIMIT);
   }
@@ -849,6 +1022,10 @@ export default {
 
     if (url.pathname === "/api/generate" && request.method === "POST") {
       return handleGenerate(request, env, ctx, origin);
+    }
+
+    if (url.pathname === "/api/edit" && request.method === "POST") {
+      return handleEditToken(request, env, ctx, origin);
     }
 
     if (url.pathname === "/api/recent-generations" && request.method === "GET") {

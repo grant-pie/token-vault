@@ -102,6 +102,7 @@ form.addEventListener("submit", async (event) => {
   statusEl.textContent = "";
   downloadLink.hidden = true;
   customizeBtn.hidden = true;
+  if (window.hideTokenEditor) window.hideTokenEditor();
   resultFrame.classList.add("is-loading");
   resultSection.hidden = false;
   console.log("Prompt:", prompt);
@@ -147,6 +148,7 @@ form.addEventListener("submit", async (event) => {
         window.openTokenCustomizer({ name: tokenName }, imageUrl);
       }
     };
+    if (window.showEditableToken) window.showEditableToken(data.id, tokenName);
   } catch {
     statusEl.textContent = "Couldn't reach the generator. Check your connection and try again.";
     resultFrame.classList.remove("is-loading");
