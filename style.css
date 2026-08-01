@@ -169,6 +169,84 @@ main {
   cursor: pointer;
 }
 
+/* Vault search autocomplete (vault.html) */
+.vault-search-field {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+.vault-search-field .token-search {
+  max-width: none;
+}
+
+.vault-suggestions {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
+  background: linear-gradient(var(--parchment), var(--parchment-dark));
+  border: 3px solid var(--gold);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0 2px var(--wood-mid),
+    0 10px 24px rgba(0,0,0,0.55);
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+}
+
+.vault-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.vault-suggestion[aria-selected="true"] {
+  background: rgba(201, 162, 39, 0.25);
+}
+
+.vault-suggestion-thumb {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--wood-mid);
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+  overflow: hidden;
+  background: #111;
+}
+
+.vault-suggestion-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vault-suggestion-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+.vault-suggestion-name {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 1rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Token card */
 .token-card {
   display: flex;

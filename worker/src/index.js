@@ -359,7 +359,7 @@ async function chargeForGeneration(request, env, origin, quality, reasonPrefix) 
         return {
           error: jsonResponse(
             {
-              error: "You're out of credits — buy more, or use the free hourly limit instead.",
+              error: "You're out of credits — buy more to keep generating.",
               outOfCredits: true,
             },
             402,

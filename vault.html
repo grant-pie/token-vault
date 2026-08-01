@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Vault &mdash; Coming Soon &mdash; Token Vault</title>
+<title>Search the Vault &mdash; Token Vault</title>
+<meta name="description" content="Search the Token Vault's library of ready-made D&amp;D tokens by name, category, or tag, then customize and download.">
+<link rel="canonical" href="https://grant-pie.github.io/token-vault/vault.html">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +22,7 @@
 
 <div class="banner">
   <h1>The Vault</h1>
-  <p class="subtitle">Public browsing is coming soon &mdash; in the meantime, forge or summon a token</p>
+  <p class="subtitle">Search the collection by name, category, or tag</p>
   <div class="divider" aria-hidden="true">&#10038;</div>
   <nav class="site-nav">
     <a href="index.html">&laquo; Back Home</a>
@@ -31,15 +33,122 @@
 </div>
 
 <main>
-  <p>We're rebuilding the vault's browsing page. Check back soon, or use the AI generator in the meantime.</p>
+  <div class="search-wrap">
+    <select id="style-select" class="style-select" aria-label="Token art style">
+      <!-- Style options are rendered here by vault.js -->
+    </select>
+    <div class="vault-search-field">
+      <input
+        type="search"
+        id="vault-search"
+        class="token-search"
+        placeholder="Search tokens by name, category, or tag..."
+        aria-label="Search the vault by name, category, or tag"
+        autocomplete="off"
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="vault-suggestions"
+        aria-autocomplete="list"
+      >
+      <ul id="vault-suggestions" class="vault-suggestions" role="listbox" aria-label="Matching tokens" hidden></ul>
+    </div>
+  </div>
+
+  <p id="vault-status" class="generator-status" aria-live="polite"></p>
 </main>
 
+<dialog id="token-modal" class="token-modal">
+  <form method="dialog" class="token-modal-form">
+    <button type="submit" class="token-modal-close" aria-label="Close">&times;</button>
+    <h2 id="token-modal-title" class="token-modal-title">Token Name</h2>
+
+    <div class="token-modal-body">
+      <div class="token-preview-col">
+        <div class="token-preview-wrap">
+          <canvas id="token-preview-canvas" width="1024" height="1024"></canvas>
+        </div>
+        <p class="token-position-hint">Drag the token to reposition it</p>
+      </div>
+
+      <div class="token-modal-controls">
+        <fieldset class="token-control-group">
+          <legend class="generator-label">Position &amp; Zoom</legend>
+          <div class="token-subcontrol">
+            <label for="zoom-range" class="token-subcontrol-label">Zoom</label>
+            <input type="range" id="zoom-range" min="50" max="300" step="5" value="100">
+          </div>
+          <div class="token-modal-actions">
+            <button type="button" id="reset-position-btn" class="page-btn">Reset Position</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">
+            <label class="token-toggle">
+              <input type="checkbox" id="border-toggle">
+              Add border
+            </label>
+          </legend>
+          <div class="token-subcontrol">
+            <label for="border-color" class="token-subcontrol-label">Color</label>
+            <input type="color" id="border-color" value="#c9a227">
+          </div>
+          <div class="token-subcontrol">
+            <label for="border-width" class="token-subcontrol-label">Width</label>
+            <input type="range" id="border-width" min="1" max="12" step="1" value="5">
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">Shape</legend>
+          <div class="shape-options" id="shape-options" role="radiogroup" aria-label="Border shape">
+            <button type="button" class="shape-btn" data-shape="circle">Circle</button>
+            <button type="button" class="shape-btn" data-shape="square">Square</button>
+            <button type="button" class="shape-btn" data-shape="hexagon">Hexagon</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">
+            <label class="token-toggle">
+              <input type="checkbox" id="tint-toggle">
+              Add background tint
+            </label>
+          </legend>
+          <div class="token-subcontrol">
+            <label for="tint-color" class="token-subcontrol-label">Color</label>
+            <input type="color" id="tint-color" value="#241609">
+          </div>
+        </fieldset>
+
+        <div class="token-modal-actions">
+          <button type="button" id="token-download-btn" class="page-btn">Download</button>
+        </div>
+        <p id="token-modal-status" class="generator-status" aria-live="polite"></p>
+      </div>
+    </div>
+  </form>
+</dialog>
+
 <footer>
+  <p>Can't find what you're after? <a href="generate.html">Forge a hero</a> or <a href="monster.html">summon a monster</a> instead.</p>
   <p>May your rolls be ever in your favor.</p>
+  <div class="share-row" aria-label="Share this page">
+    <span class="share-label">Share:</span>
+    <a class="share-link" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fgrant-pie.github.io%2Ftoken-vault%2Fvault.html&text=Free%20D%26D%20character%20tokens%20-%20Token%20Vault" target="_blank" rel="noopener noreferrer">Share on X</a>
+    <a class="share-link" href="https://www.reddit.com/submit?url=https%3A%2F%2Fgrant-pie.github.io%2Ftoken-vault%2Fvault.html&title=Free%20D%26D%20character%20tokens%20-%20Token%20Vault" target="_blank" rel="noopener noreferrer">Share on Reddit</a>
+    <a class="share-link" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgrant-pie.github.io%2Ftoken-vault%2Fvault.html" target="_blank" rel="noopener noreferrer">Share on Facebook</a>
+  </div>
   <p class="footer-disclaimer">
-    This is an unofficial fan site and is not associated with, endorsed, or sponsored by Wizards of the Coast or Hasbro, Inc.
+    This is an unofficial fan site and is not associated with, endorsed, or sponsored by Wizards of the Coast, Hasbro, Inc., or Paizo Inc.
   </p>
 </footer>
 
+<script src="js/config.js"></script>
+<script src="js/visit-count.js"></script>
+<script src="js/vault-data.js"></script>
+<script src="js/vault.js"></script>
+<script src="js/token-customize.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1620a70c88d54fb2b28d390f12d3938b"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
