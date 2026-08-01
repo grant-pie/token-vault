@@ -1,4 +1,3 @@
+# Site is still under active development — re-enable indexing at launch.
 User-agent: *
-Allow: /
-
-Sitemap: https://grant-pie.github.io/token-vault/sitemap.xml
+Disallow: /

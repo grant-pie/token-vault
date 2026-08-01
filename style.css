@@ -57,6 +57,19 @@ body {
   font-size: 1.1rem;
 }
 
+.construction-banner {
+  text-align: center;
+  padding: 0.6rem 1rem;
+  background: #4a1f1f;
+  color: var(--gold-bright);
+  font-size: 0.95rem;
+  border-bottom: 2px solid var(--gold);
+}
+
+.construction-banner strong {
+  color: var(--gold-bright);
+}
+
 .divider {
   color: var(--gold);
   margin-top: 1rem;
