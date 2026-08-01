@@ -576,28 +576,6 @@ footer {
   opacity: 0.75;
 }
 
-.coffee-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 1rem;
-  padding: 0.4rem 0.9rem;
-  font-style: normal;
-  font-size: 0.9rem;
-  color: var(--parchment);
-  background: linear-gradient(var(--wood-mid), var(--wood-dark));
-  border: 2px solid var(--gold);
-  border-radius: 6px;
-  text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-.coffee-link:hover {
-  border-color: var(--gold-bright);
-  box-shadow: 0 0 10px rgba(240, 216, 120, 0.35);
-  transform: translateY(-2px);
-}
-
 .share-row {
   display: flex;
   align-items: center;
