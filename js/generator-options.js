@@ -178,6 +178,7 @@ const WEAPON_OPTIONS = [
   "Druidic Focus",
   "Holy Symbol",
   "Arrow",
+  "Pipe",
   //Musical Instruments
   "Bagpipes",
   "Drum",
