@@ -1,5 +1,6 @@
 // Lets a user apply a border shape, border color/width, and background tint
-// to a vault token before downloading it. Wired up from app.js, which calls
+// to a vault token before downloading it. Wired up from vault.js/admin-vault.js
+// (and recent.js/generate.js/monster.js), which call
 // window.openTokenCustomizer(token, imageSrc) when a token card is clicked.
 
 const TOKEN_CUSTOMIZE_STORAGE_KEY = "tokenVaultCustomizeSettings";

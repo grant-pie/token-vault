@@ -1,5 +1,5 @@
 // Credit ledger (D1) and bearer-token helpers for the paid-generation system.
-// See CREDIT_SYSTEM_PLAN.md for the design this implements.
+// See the README's "Credits & payments" section for the design this implements.
 
 import { CREDIT_PACK_CURRENCY } from "./config.js";
 
@@ -181,57 +181,85 @@ export async function getBalance(db, email) {
 // unique index on provider_event_id makes this idempotent against Paystack
 // retrying a webhook delivery: a second delivery for the same event inserts
 // zero ledger rows and grants nothing.
+//
+// The ledger insert and the balance update run in a single db.batch() call
+// (one atomic transaction) rather than as two independent statements — with
+// two independent statements, a failure between them could leave the ledger
+// row present (so a webhook retry would see the event as already processed
+// and skip crediting) while the balance was never actually incremented,
+// permanently losing a paid-for credit grant. Since INSERT OR IGNORE means
+// our freshly generated ledgerId simply won't exist in the table when the
+// event was a duplicate, the balance update is conditioned on that row's
+// presence so a duplicate delivery still can't double-credit.
 export async function grantCredits(db, { email, delta, reason, providerEventId }) {
   const now = new Date().toISOString();
   const ledgerId = crypto.randomUUID();
 
   if (providerEventId) {
-    const inserted = await db
-      .prepare(
-        "INSERT OR IGNORE INTO ledger (id, email, delta, reason, provider_event_id, created_at) VALUES (?, ?, ?, ?, ?, ?)"
-      )
-      .bind(ledgerId, email, delta, reason, providerEventId, now)
-      .run();
-    if (inserted.meta.changes === 0) return; // already processed this event
-  } else {
-    await db
+    await db.batch([
+      db
+        .prepare(
+          "INSERT OR IGNORE INTO ledger (id, email, delta, reason, provider_event_id, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+        )
+        .bind(ledgerId, email, delta, reason, providerEventId, now),
+      db
+        .prepare(
+          `INSERT INTO credits (email, balance, updated_at)
+           SELECT ?, ?, ?
+           WHERE EXISTS (SELECT 1 FROM ledger WHERE id = ?)
+           ON CONFLICT(email) DO UPDATE SET balance = credits.balance + ?, updated_at = ?`
+        )
+        .bind(email, delta, now, ledgerId, delta, now),
+    ]);
+    return;
+  }
+
+  await db.batch([
+    db
       .prepare(
         "INSERT INTO ledger (id, email, delta, reason, provider_event_id, created_at) VALUES (?, ?, ?, ?, NULL, ?)"
       )
-      .bind(ledgerId, email, delta, reason, now)
-      .run();
-  }
-
-  await db
-    .prepare(
-      `INSERT INTO credits (email, balance, updated_at) VALUES (?, ?, ?)
-       ON CONFLICT(email) DO UPDATE SET balance = balance + excluded.balance, updated_at = excluded.updated_at`
-    )
-    .bind(email, delta, now)
-    .run();
+      .bind(ledgerId, email, delta, reason, now),
+    db
+      .prepare(
+        `INSERT INTO credits (email, balance, updated_at) VALUES (?, ?, ?)
+         ON CONFLICT(email) DO UPDATE SET balance = balance + excluded.balance, updated_at = excluded.updated_at`
+      )
+      .bind(email, delta, now),
+  ]);
 }
 
-// Spends credits (positive cost). The WHERE balance >= cost guard makes this
-// a single atomic check-and-decrement — SQLite serializes writes per
-// database, so two concurrent spend attempts can't both succeed against a
-// balance that only covers one of them. Returns the new balance, or null if
-// the balance was insufficient.
+// Spends credits (positive cost). The WHERE balance >= cost guard makes the
+// decrement itself a single atomic check-and-decrement — SQLite serializes
+// writes per database, so two concurrent spend attempts can't both succeed
+// against a balance that only covers one of them. The decrement and its
+// ledger entry run together in one db.batch() transaction (rather than as
+// two independent statements) so a failure writing the ledger row can never
+// leave a balance silently decremented with nothing accounting for where the
+// credits went. The ledger insert is conditioned on the UPDATE having
+// actually applied (its WHERE clause matches this call's own fresh `now`
+// timestamp) so an insufficient-balance attempt — where the UPDATE is a
+// no-op — never leaves a stray ledger row behind either. Returns the new
+// balance, or null if the balance was insufficient.
 export async function spendCredits(db, { email, cost, reason }) {
   const now = new Date().toISOString();
-  const result = await db
-    .prepare(
-      "UPDATE credits SET balance = balance - ?, updated_at = ? WHERE email = ? AND balance >= ? RETURNING balance"
-    )
-    .bind(cost, now, email, cost)
-    .first();
-  if (!result) return null;
+  const ledgerId = crypto.randomUUID();
 
-  await db
-    .prepare(
-      "INSERT INTO ledger (id, email, delta, reason, provider_event_id, created_at) VALUES (?, ?, ?, ?, NULL, ?)"
-    )
-    .bind(crypto.randomUUID(), email, -cost, reason, now)
-    .run();
+  const [updateResult] = await db.batch([
+    db
+      .prepare(
+        "UPDATE credits SET balance = balance - ?, updated_at = ? WHERE email = ? AND balance >= ? RETURNING balance"
+      )
+      .bind(cost, now, email, cost),
+    db
+      .prepare(
+        `INSERT INTO ledger (id, email, delta, reason, provider_event_id, created_at)
+         SELECT ?, ?, ?, ?, NULL, ?
+         WHERE EXISTS (SELECT 1 FROM credits WHERE email = ? AND updated_at = ?)`
+      )
+      .bind(ledgerId, email, -cost, reason, now, email, now),
+  ]);
 
-  return result.balance;
+  const row = updateResult.results?.[0];
+  return row ? row.balance : null;
 }

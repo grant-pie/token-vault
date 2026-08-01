@@ -12,12 +12,21 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
 - **`js/vault-data.js`** — auto-generated from `js/monsters.json` plus whichever image folders are available. One entry per monster: `{ id, name, category, tags, filenames }`, where `filenames` maps each style in `VAULT_STYLES` to that monster's art file for the style, or `null` if it hasn't been generated for that style yet. Do not edit by hand.
 - **`js/config.js`** — shared site config, loaded before any page-specific script:
   - `IMAGE_BASE_URL` — the prefix used to build each token's image URL. Points at a custom domain backed by Cloudflare R2 by default; swap it for `images-optimized/` to serve images locally, or any other public URL/bucket.
-  - `API_BASE` — the deployed Worker URL that `js/generate.js` and `js/monster.js` POST to.
-  - `PAGE_SIZE` — tokens shown per page in the vault grid (used by `js/app.js`).
+  - `API_BASE` — the deployed Worker URL that `js/generate.js`, `js/monster.js`, `js/credits.js`, and the admin pages POST/GET against.
+  - `PAGE_SIZE` — tokens shown per page in the vault grid (used by `js/admin-vault.js`).
 - **`index.html`** — landing page with nav links to the generator and the vault.
 - **`style.css`** — the shared parchment/dungeon styling for every page.
 - **`vault.html`** / **`js/vault.js`** — the public vault page: a single searchbar that autocompletes by name, category, or tag as you type (top 8 matches, ranked name-first), with a style switcher (Standard/Grimdark/Retro). There's no browsable grid here — picking a suggestion (click, or Enter/arrow keys) opens the customizer modal directly for that one token. This is the lightweight, public counterpart to `admin-vault.html`.
-- **`admin-vault.html`** / **`js/admin-vault.js`** — the full token index, gated behind the same admin key as `admin.html` (see "The admin tools" below). Renders the token grid, live search-as-you-type filtering by name or tag, a category filter, and pagination. Clicking a token card opens the customizer modal (below) instead of downloading directly. This used to be the public `vault.html`; the whole catalog isn't meant to be publicly browsable, which is why the public `vault.html` is search-only rather than a grid dump.
+- **`admin-vault.html`** / **`js/admin-vault.js`** — the full token index, gated behind the admin key (see "The admin tools" below). Renders the token grid, live search-as-you-type filtering by name or tag, a category filter, and pagination. Clicking a token card opens the customizer modal (below) instead of downloading directly. This used to be the public `vault.html`; the whole catalog isn't meant to be publicly browsable, which is why the public `vault.html` is search-only rather than a grid dump.
+- **`recent.html`** / **`js/recent.js`** — a public feed of the most recently AI-generated tokens (site-wide, not per-visitor), pulled from `GET /api/recent-generations`. Clicking a card opens the same customizer modal as the vault pages.
+- **`legal.html`** — privacy policy, refund policy, terms of use, and the fan-content disclaimer; linked from every page's nav.
+
+### The admin tools
+
+Both admin pages are gated by the same `ADMIN_API_KEY` secret (see "The generator" below), entered once and cached in `sessionStorage` (`tokenVaultAdminKey`) so it isn't re-typed on every reload of that tab.
+
+- **`admin.html`** / **`js/admin.js`** — the generation log: every AI generation site-wide (free or paid), including the description, style, quality, and a lazily-fetched full prompt per entry (`GET /api/admin/prompt`, to avoid one KV read per row on page load). Reads `GET /api/admin/generation-log`.
+- **`admin-vault.html`** / **`js/admin-vault.js`** — see "The vault" above; reuses the same admin-gated endpoint purely to verify the key, discarding the log data in the response.
 
 ### The customizer
 
@@ -29,19 +38,28 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
 - **`js/generator-options.js`** — the option lists and swatch colors (`RACE_OPTIONS`, `CLASS_OPTIONS`, `SKIN_OPTIONS`, weapon lists, etc.) that populate the form. Edit this to add/remove races, classes, or gear.
 - **`js/generate.js`** — wires up the form (combobox search/keyboard nav, swatch pickers), assembles the character description into a prompt string from the selected fields, and POSTs it to the Worker's `/api/generate` endpoint. Renders the returned image, enables its direct download link and a "Customize" button (opens the border/tint modal from `js/token-customize.js`), or surfaces an inline error (rate limit, content rejection, network failure).
 - **`monster.html`** / **`js/monster.js`** — the "Summon a Monster" page: a stripped-down variant of the generator with just a single free-text description field. Same result panel, loading animation, download link, and border/tint customize modal as `generate.html`, reusing `js/token-customize.js`. `js/monster.js` wraps the textarea input with light monster framing before POSTing it to the same `/api/generate` endpoint.
-- **`worker/`** — a standalone Cloudflare Worker project (own `package.json`, deployed separately from the static site) that proxies OpenAI's Images API:
-  - Wraps the incoming description in a fixed template (`worker/src/index.js`) tuned for top-down, transparent-background D&D token art, using `gpt-image-1` so it can return a real alpha cutout.
-  - `worker/src/config.js` holds the Worker's tuning constants, imported into `worker/src/index.js`:
-    - `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_SECONDS` — requests allowed per IP (Workers KV-backed), per window (default 5/hour).
-    - `MAX_PROMPT_LENGTH` — longest description accepted.
-    - `ALLOWED_QUALITIES` — image quality values accepted from the client.
-    - `DEFAULT_QUALITY` — quality used when the client omits `quality` or sends a value not in `ALLOWED_QUALITIES`.
+- **`worker/`** — a standalone Cloudflare Worker project (own `package.json`, deployed separately from the static site) that proxies OpenAI's Images API and runs the credit/payment system below:
+  - Wraps the incoming description in one of three fixed prompt templates — `standard` / `grimdark` / `retro`, per `ALLOWED_STYLES` (`worker/src/index.js`, templates in `worker/src/config.js`) — tuned for top-down, transparent-background D&D token art, using `gpt-image-1` so it can return a real alpha cutout. `/api/edit` re-renders an existing generated token with `input_fidelity: "high"` given a text instruction, never an uploaded image.
+  - `worker/src/config.js` holds the Worker's tuning constants, imported into `worker/src/index.js` — see the comment above each constant there for the current value and rationale; the notable ones:
+    - `FREE_TIER_ENABLED` — master switch for the free anonymous path; when `false`, every generation must come from a funded credit balance.
+    - `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_SECONDS` — free-tier requests allowed per IP (Workers KV-backed), per window.
+    - `MAX_CONCURRENT_OPENAI_REQUESTS` — global cap on OpenAI requests in flight at once, across every user, independent of the per-IP/per-token limits.
+    - `MAX_PROMPT_LENGTH` / `ALLOWED_QUALITIES` / `DEFAULT_QUALITY` — request validation for `/api/generate` and `/api/edit`.
     - `SEND_TO_OPENAI` — debug toggle; when `false`, the worker logs the built prompt and returns without calling OpenAI or spending credits.
-    - `MAX_FEEDBACK_LENGTH` — longest feedback message accepted.
-    - `FEEDBACK_RATE_LIMIT_MAX` / `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` — feedback submissions allowed per IP (Workers KV-backed), per window (default 5/hour).
-  - Stores each result in the same R2 bucket the vault serves images from, under a separate `generated/` prefix — generated art never enters `js/vault-data.js` or the curated vault.
+    - `MAX_FEEDBACK_LENGTH`, `FEEDBACK_RATE_LIMIT_MAX` / `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` — feedback form limits (Workers KV-backed).
+  - Stores each result in the same R2 bucket the vault serves images from, under a separate `generated/` prefix — generated art never enters `js/vault-data.js` or the curated vault. `RECENT_GENERATIONS_MAX_AGE_MS` mirrors the R2 bucket's 90-day lifecycle rule so the public recent-generations feed (`recent.html`) can never point at a file R2 has already deleted.
   - Restricts CORS to the production origin plus local-dev hosts (`localhost`, LAN IPs) via `PRODUCTION_ORIGINS`/`isAllowedOrigin` in `worker/src/index.js`.
   - Needs an `OPENAI_API_KEY` secret set via `wrangler secret put` (never committed; see `worker/.gitignore`).
+
+### Credits & payments
+
+Generation is metered by a credit balance rather than a login: a purchase or "restore my credits" email exchanges for a long-lived signed bearer token (~400 days, no refresh flow yet), stored in `localStorage` and identified only by email — there's no password or account system.
+
+- **`js/credits.js`** — the buy/restore modal shared by `generate.html` and `monster.html`: renders credit-pack buttons (with a cosmetic USD estimate fetched from `frankfurter.dev` and cached a day), starts Paystack Checkout, and handles the two ways a visitor can land back on the page with state in the URL (`?reference=...` from a Paystack redirect, `?restore=...` from an emailed restore link). Exposes `window.getCreditAuthHeaders()`, used by `js/generate.js`/`js/monster.js`/`js/token-edit.js` to attach `Authorization: Bearer <token>` to generate/edit requests so they spend from the balance instead of the free per-IP limit.
+- **`worker/src/credits.js`** — D1 ledger (`credits` table = current balance per email, `ledger` table = an append-only audit trail, not consulted for balance math) plus the signed-token helpers. Ledger writes and their corresponding balance change always run inside a single `db.batch()` call so a mid-write failure can't grant, spend, or lose credits inconsistently with the ledger. Also home to the Paystack REST helpers (initialize/verify transaction, webhook signature verification) — Paystack rather than Stripe because Stripe doesn't support South Africa as a seller country.
+- **`worker/src/index.js`** endpoints: `POST /api/checkout` (starts a Paystack transaction for a pack from `CREDIT_PACKS`), `POST /api/paystack-webhook` (grants credits on `charge.success`, idempotent per Paystack event id), `POST /api/claim-session` (exchanges a confirmed `?reference=` for a bearer token), `POST /api/request-restore-link` / `POST /api/claim-restore` (email a short-lived link that exchanges for a fresh bearer token, for using a purchase on a new device), `GET /api/balance`.
+- `worker/src/config.js`: `CREDIT_PACKS` (Paystack is charged in ZAR — draft prices, not yet checked against a live rate), `CREDIT_COST_BY_QUALITY` (credits spent per generation, roughly mirroring OpenAI's own per-quality cost ratio), `CREDIT_TOKEN_TTL_SECONDS` / `RESTORE_TOKEN_TTL_SECONDS`.
+- Needs the `CREDITS_DB` D1 database (schema in `worker/migrations/`, apply with `wrangler d1 migrations apply`) plus the `PAYSTACK_SECRET_KEY`, `TOKEN_SIGNING_SECRET`, and `RESEND_API_KEY` secrets (transactional emails — receipts aren't sent yet, but restore links are) — see "Deploying" below.
 
 ### The feedback page
 
@@ -49,8 +67,6 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
 - **`js/feedback.js`** — validates the message client-side, then POSTs `{ message, name, email, page }` to the Worker's `/api/feedback` endpoint and shows an inline status message.
 - Worker-side, `handleFeedback` (`worker/src/index.js`) rate-limits by IP (`FEEDBACK_RATE_LIMIT_MAX` / `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` in `worker/src/config.js`, default 5/hour) and writes each submission to a dedicated `FEEDBACK` KV namespace, keyed by timestamp + UUID. The submitter's IP is only ever used for the rate-limit counter (which auto-expires); it is not stored on the feedback record itself.
 - Every page's footer discloses this: IP addresses are logged briefly to prevent abuse of the generator and feedback form, and those logs expire automatically within about an hour.
-
-See `IMAGE_GENERATOR_PLAN.md` for the fuller design rationale (architecture choice, cost estimates, abuse controls).
 
 ## Scripts
 
@@ -92,4 +108,7 @@ npm run dev
 ## Deploying
 
 - **Site**: GitHub Pages (or any static host) with images served from `images-optimized/`, or from a remote bucket (Cloudflare R2, S3, B2, etc.) by pointing `IMAGE_BASE_URL` in `js/config.js` at the bucket's public URL.
-- **Worker**: `cd worker && npm run deploy` (Wrangler). Requires the R2 bucket and both KV namespaces (`RATE_LIMIT`, `FEEDBACK`) declared in `worker/wrangler.toml` to already exist in the Cloudflare account, and the `OPENAI_API_KEY` secret to be set (`wrangler secret put OPENAI_API_KEY`).
+- **Worker**: `cd worker && npm run deploy` (Wrangler). Requires:
+  - The R2 bucket and all three KV namespaces (`RATE_LIMIT`, `FEEDBACK`, `ANALYTICS`) declared in `worker/wrangler.toml` to already exist in the Cloudflare account.
+  - The `CREDITS_DB` D1 database to exist, with migrations applied: `cd worker && npx wrangler d1 migrations apply token-vault-credits --remote`.
+  - Secrets set via `wrangler secret put <NAME>`: `OPENAI_API_KEY`, `PAYSTACK_SECRET_KEY`, `TOKEN_SIGNING_SECRET`, `ADMIN_API_KEY` (gates `admin.html`/`admin-vault.html`), `RESEND_API_KEY` (transactional email), and `ADMIN_EMAIL` (where feedback notifications land).

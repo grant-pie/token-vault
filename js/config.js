@@ -1,4 +1,4 @@
-// Base URL prepended to each token's image path (see vault-data.js and imageUrl() in app.js).
+// Base URL prepended to each token's image path (see vault-data.js and imageUrl() in vault.js/admin-vault.js).
 // Images live in the R2 bucket under vault/<style>/<file>, e.g. vault/standard/Aarakocra.webp.
 const IMAGE_BASE_URL = "https://grantpieterse.com/";
 

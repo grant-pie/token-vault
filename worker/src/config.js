@@ -44,11 +44,10 @@ export const RECENT_GENERATIONS_KV_KEY = "recent_generations";
 
 // Primary cutoff: entries older than this are dropped from the feed.
 // Deliberately matches the R2 bucket's "generated-90-day-expiry" lifecycle
-// rule (set via `wrangler r2 bucket lifecycle`, not in code — see
-// CREDIT_SYSTEM_PLAN.md) so the feed can never point at a file R2 has
-// already deleted. These two 90-day values live in different systems and
-// nothing keeps them in sync automatically — if the R2 rule's expiry ever
-// changes, update this to match.
+// rule (set via `wrangler r2 bucket lifecycle`, not in code) so the feed can
+// never point at a file R2 has already deleted. These two 90-day values live
+// in different systems and nothing keeps them in sync automatically — if the
+// R2 rule's expiry ever changes, update this to match.
 export const RECENT_GENERATIONS_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 
 // Secondary safety cap, independent of age: even within the 90-day window,
@@ -183,8 +182,8 @@ export const FEEDBACK_RATE_LIMIT_MAX = 5;
 export const FEEDBACK_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
 
 // Credits spent per generation, by quality. Roughly mirrors OpenAI's own
-// cost ratio between tiers (see CREDIT_SYSTEM_PLAN.md) so a "high" request
-// isn't quietly subsidized by credits sold assuming "low" usage.
+// cost ratio between tiers so a "high" request isn't quietly subsidized by
+// credits sold assuming "low" usage.
 export const CREDIT_COST_BY_QUALITY = {
   low: 1,
   medium: 3,
@@ -207,8 +206,9 @@ export const CREDIT_PACKS = {
 export const CREDIT_PACK_CURRENCY = "ZAR";
 
 // How long a claimed bearer token stays valid. Long-lived and unrefreshable
-// by design for now — there's no login flow to renew it with yet (see
-// "Restore my credits" in CREDIT_SYSTEM_PLAN.md's Deferred section).
+// by design for now — there's no login flow to renew it with yet (see the
+// README's "Credits & payments" section — recovery instead happens via the
+// "Restore my credits" emailed-link flow, js/credits.js's claimRestore()).
 export const CREDIT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 400;
 
 // Backstop rate limit applied to bearer-token holders even when they have

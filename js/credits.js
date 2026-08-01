@@ -1,8 +1,8 @@
 // Paid-credit UI: buy modal, balance display, and the bearer-token identity
-// that generate.js/monster.js attach to /api/generate requests. See
-// CREDIT_SYSTEM_PLAN.md for the design (Paystack Checkout -> webhook grants
-// credits in D1 -> this token is how the browser proves which email's
-// balance to spend from, without any password/login system).
+// that generate.js/monster.js attach to /api/generate requests. See the
+// README's "Credits & payments" section for the design (Paystack Checkout ->
+// webhook grants credits in D1 -> this token is how the browser proves which
+// email's balance to spend from, without any password/login system).
 
 const CREDIT_TOKEN_STORAGE_KEY = "tokenvault_credit_token";
 

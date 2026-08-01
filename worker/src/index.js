@@ -482,9 +482,10 @@ async function handleGenerate(request, env, ctx, origin) {
     );
   }
 
-  // A bearer token identifies a paid balance (see CREDIT_SYSTEM_PLAN.md). An
-  // invalid or expired token isn't an error by itself — it just falls
-  // through to the same free, anonymous IP rate limit as no token at all.
+  // A bearer token identifies a paid balance (see the README's "Credits &
+  // payments" section). An invalid or expired token isn't an error by
+  // itself — it just falls through to the same free, anonymous IP rate
+  // limit as no token at all.
   const { error: chargeError, credit } = await chargeForGeneration(request, env, origin, quality, "generate");
   if (chargeError) return chargeError;
 
@@ -1040,6 +1041,14 @@ async function handleServeImage(env, pathname, origin) {
   const headers = new Headers();
   object.writeHttpMetadata(headers);
   headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  // Vary: Origin is required here, not just cosmetic — this response is
+  // cached for a full year (immutable), and Access-Control-Allow-Origin
+  // below varies per requesting origin. Without Vary, a cache (browser or
+  // CDN) that stored this response for one allowed origin could replay it to
+  // a different allowed origin with a mismatched/missing ACAO header,
+  // breaking the crossOrigin="anonymous" image loads the token customizer
+  // relies on to read the image into a canvas.
+  headers.set("Vary", "Origin");
   if (isAllowedOrigin(origin)) {
     headers.set("Access-Control-Allow-Origin", origin);
   }
