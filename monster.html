@@ -184,6 +184,15 @@
 
       <div class="token-modal-controls">
         <fieldset class="token-control-group">
+          <legend class="generator-label">Shape</legend>
+          <div class="shape-options" id="shape-options" role="radiogroup" aria-label="Border shape">
+            <button type="button" class="shape-btn" data-shape="circle">Circle</button>
+            <button type="button" class="shape-btn" data-shape="square">Square</button>
+            <button type="button" class="shape-btn" data-shape="hexagon">Hexagon</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
           <legend class="generator-label">Position &amp; Zoom</legend>
           <div class="token-subcontrol">
             <label for="zoom-range" class="token-subcontrol-label">Zoom</label>
@@ -208,15 +217,6 @@
           <div class="token-subcontrol">
             <label for="border-width" class="token-subcontrol-label">Width</label>
             <input type="range" id="border-width" min="1" max="12" step="1" value="5">
-          </div>
-        </fieldset>
-
-        <fieldset class="token-control-group">
-          <legend class="generator-label">Shape</legend>
-          <div class="shape-options" id="shape-options" role="radiogroup" aria-label="Border shape">
-            <button type="button" class="shape-btn" data-shape="circle">Circle</button>
-            <button type="button" class="shape-btn" data-shape="square">Square</button>
-            <button type="button" class="shape-btn" data-shape="hexagon">Hexagon</button>
           </div>
         </fieldset>
 

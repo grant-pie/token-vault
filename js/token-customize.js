@@ -6,7 +6,7 @@ const TOKEN_CUSTOMIZE_STORAGE_KEY = "tokenVaultCustomizeSettings";
 const CANVAS_SIZE = 1024;
 
 const DEFAULT_SETTINGS = {
-  shape: "circle",
+  shape: "square",
   borderEnabled: true,
   borderColor: "#c9a227",
   borderWidth: 5,
