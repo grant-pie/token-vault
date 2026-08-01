@@ -84,6 +84,7 @@ const SKIN_OPTIONS = [
   { label: "Blue", hex: "#5b7c99" },
   { label: "Red", hex: "#a13d3d" },
   { label: "Bronze", hex: "#b08d57" },
+  { label: "Omit", hex: null },
 ];
 
 const HAIR_OPTIONS = [
@@ -97,7 +98,7 @@ const HAIR_OPTIONS = [
   { label: "Silver", hex: "#c9c9c9" },
   { label: "Blue", hex: "#3d5a80" },
   { label: "Green", hex: "#4a7856" },
-  { label: "None", hex: null },
+  { label: "Omit", hex: null },
 ];
 
 const SHADOW_OPTIONS = [
