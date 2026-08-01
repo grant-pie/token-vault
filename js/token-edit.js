@@ -8,10 +8,14 @@ const editDescriptionField = document.getElementById("edit-description");
 const editBtn = document.getElementById("edit-btn");
 const editStatusEl = document.getElementById("edit-status");
 
-const resultImage = document.getElementById("result-image");
-const downloadLink = document.getElementById("download-link");
-const customizeBtn = document.getElementById("customize-btn");
-const resultFrame = document.getElementById("result-frame");
+// Suffixed to avoid colliding with generate.js/monster.js, which declare
+// their own top-level const of the same DOM elements — plain <script> tags
+// share one global scope, so two same-named top-level consts across files is
+// a SyntaxError that aborts the whole script.
+const editorResultImage = document.getElementById("result-image");
+const editorDownloadLink = document.getElementById("download-link");
+const editorCustomizeBtn = document.getElementById("customize-btn");
+const editorResultFrame = document.getElementById("result-frame");
 
 let currentTokenId = null;
 let currentTokenName = "Token";
@@ -46,7 +50,7 @@ if (editBtn) {
     editBtn.disabled = true;
     editBtn.textContent = "Editing...";
     if (editStatusEl) editStatusEl.textContent = "";
-    if (resultFrame) resultFrame.classList.add("is-loading");
+    if (editorResultFrame) editorResultFrame.classList.add("is-loading");
 
     try {
       const res = await fetch(`${API_BASE}/api/edit`, {
@@ -70,10 +74,10 @@ if (editBtn) {
       }
 
       const imageUrl = `${API_BASE}${data.url}`;
-      resultImage.src = imageUrl;
-      downloadLink.href = imageUrl;
-      downloadLink.download = `${data.id}.png`;
-      customizeBtn.onclick = () => {
+      editorResultImage.src = imageUrl;
+      editorDownloadLink.href = imageUrl;
+      editorDownloadLink.download = `${data.id}.png`;
+      editorCustomizeBtn.onclick = () => {
         if (window.openTokenCustomizer) {
           window.openTokenCustomizer({ name: currentTokenName }, imageUrl);
         }
@@ -86,7 +90,7 @@ if (editBtn) {
         editStatusEl.textContent = "Couldn't reach the generator. Check your connection and try again.";
       }
     } finally {
-      if (resultFrame) resultFrame.classList.remove("is-loading");
+      if (editorResultFrame) editorResultFrame.classList.remove("is-loading");
       editBtn.disabled = false;
       editBtn.textContent = "Apply Edit";
     }
