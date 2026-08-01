@@ -36,7 +36,8 @@
 <main class="generator-main">
   <div class="credit-bar">
     <span id="credit-balance" class="credit-balance" hidden></span>
-    <button type="button" id="buy-credits-btn" class="page-btn credit-buy-btn">Buy Credits</button>
+    <button type="button" id="buy-credits-btn" class="page-btn credit-buy-btn" hidden>Buy Credits</button>
+    <button type="button" id="redeem-credits-btn" class="page-btn credit-buy-btn">Redeem Credits</button>
   </div>
 
   <form id="generate-form" class="generator-form">
@@ -200,12 +201,14 @@
 <dialog id="credit-modal" class="token-modal credit-modal">
   <form method="dialog" class="token-modal-form">
     <button type="submit" class="token-modal-close" aria-label="Close">&times;</button>
-    <h2 class="token-modal-title">Buy Generation Credits</h2>
-    <p class="generator-label">Generating a token requires credits — they never expire and work here and on the monster summoner.</p>
-    <label for="credit-email" class="generator-label">Email (for your receipt, and to restore credits on a new device)</label>
-    <input type="email" id="credit-email" class="generator-select" placeholder="you@example.com" autocomplete="email">
-    <div id="credit-pack-buttons" class="credit-pack-buttons"></div>
-    <p class="credit-fx-note">Charged in South African Rand (ZAR) — the USD amount shown is an estimate; your card issuer sets the actual exchange rate.</p>
+    <h2 id="credit-modal-title" class="token-modal-title">Buy Generation Credits</h2>
+    <div id="credit-buy-section">
+      <p class="generator-label">Generating a token requires credits — they never expire and work here and on the monster summoner.</p>
+      <label for="credit-email" class="generator-label">Email (for your receipt, and to restore credits on a new device)</label>
+      <input type="email" id="credit-email" class="generator-select" placeholder="you@example.com" autocomplete="email">
+      <div id="credit-pack-buttons" class="credit-pack-buttons"></div>
+      <p class="credit-fx-note">Charged in South African Rand (ZAR) — the USD amount shown is an estimate; your card issuer sets the actual exchange rate.</p>
+    </div>
     <p id="credit-modal-status" class="generator-status" aria-live="polite"></p>
 
     <div class="credit-restore">

@@ -76,7 +76,10 @@ function sleep(ms) {
 
 const balanceEl = document.getElementById("credit-balance");
 const buyBtn = document.getElementById("buy-credits-btn");
+const redeemBtn = document.getElementById("redeem-credits-btn");
 const creditModal = document.getElementById("credit-modal");
+const creditModalTitle = document.getElementById("credit-modal-title");
+const creditBuySection = document.getElementById("credit-buy-section");
 const creditModalStatus = document.getElementById("credit-modal-status");
 const packButtonsEl = document.getElementById("credit-pack-buttons");
 const emailInput = document.getElementById("credit-email");
@@ -249,12 +252,28 @@ async function startCheckout(packId, triggerBtn) {
   }
 }
 
+// Buy and redeem share one dialog: buy mode shows the pack-purchase section
+// with the restore toggle collapsed underneath; redeem mode (the only one
+// currently linked from the page while purchases are hidden for friend
+// testing) hides the buy section entirely and opens straight into the
+// restore-link form.
+function openCreditModal({ redeeming }) {
+  if (creditModalStatus) creditModalStatus.textContent = "";
+  if (creditModalTitle) creditModalTitle.textContent = redeeming ? "Redeem Credits" : "Buy Generation Credits";
+  if (creditBuySection) creditBuySection.hidden = redeeming;
+  if (restoreToggleBtn) restoreToggleBtn.hidden = redeeming;
+  if (restoreFormEl) restoreFormEl.hidden = !redeeming;
+  creditModal.showModal();
+  if (redeeming && restoreEmailInput) restoreEmailInput.focus();
+}
+
 if (buyBtn && creditModal) {
   renderPackButtons();
-  buyBtn.addEventListener("click", () => {
-    if (creditModalStatus) creditModalStatus.textContent = "";
-    creditModal.showModal();
-  });
+  buyBtn.addEventListener("click", () => openCreditModal({ redeeming: false }));
+}
+
+if (redeemBtn && creditModal) {
+  redeemBtn.addEventListener("click", () => openCreditModal({ redeeming: true }));
 }
 
 if (restoreToggleBtn && restoreFormEl) {
