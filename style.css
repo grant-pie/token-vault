@@ -768,6 +768,21 @@ footer {
   margin: 0 0 2rem;
 }
 
+.legal-section .news-heading {
+  margin-top: 2.5rem;
+}
+
+.legal-section .news-heading:first-of-type {
+  margin-top: 0;
+}
+
+.legal-updated {
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin: 0 0 2.5rem;
+}
+
 .news-list {
   display: flex;
   flex-direction: column;
