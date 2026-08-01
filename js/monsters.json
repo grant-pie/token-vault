@@ -4,8 +4,11 @@
     "category": "Celestial",
     "tags": [
       "angel",
-      "flying",
-      "healer"
+      "celestial",
+      "divine",
+      "outsider",
+      "extraplanar",
+      "deva"
     ]
   },
   "angel-guardian": {
@@ -13,8 +16,11 @@
     "category": "Celestial",
     "tags": [
       "angel",
-      "flying",
-      "powerful"
+      "celestial",
+      "divine",
+      "outsider",
+      "extraplanar",
+      "planetar"
     ]
   },
   "angel-lord": {
@@ -22,17 +28,18 @@
     "category": "Celestial",
     "tags": [
       "angel",
-      "flying",
-      "powerful",
-      "boss"
+      "celestial",
+      "divine",
+      "outsider",
+      "extraplanar",
+      "solar"
     ]
   },
   "animated-object-armor": {
     "name": "Animated Object - Armor",
     "category": "Construct",
     "tags": [
-      "animated-object",
-      "guardian"
+      "animated-object"
     ]
   },
   "animated-object-rug": {
@@ -46,15 +53,16 @@
     "name": "Animated Object - Sword",
     "category": "Construct",
     "tags": [
-      "animated-object",
-      "flying"
+      "animated-object"
     ]
   },
   "astral-mystic": {
     "name": "Astral Mystic",
     "category": "Humanoid",
     "tags": [
+      "psionic",
       "gith",
+      "githzerai",
       "monk"
     ]
   },
@@ -62,8 +70,10 @@
     "name": "Astral Mystic - Master",
     "category": "Humanoid",
     "tags": [
+      "psionic",
       "gith",
       "spellcaster",
+      "githzerai",
       "monk"
     ]
   },
@@ -71,16 +81,20 @@
     "name": "Astral Raider",
     "category": "Humanoid",
     "tags": [
+      "psionic",
       "gith",
+      "githyanki",
       "warrior"
     ]
   },
   "astral-raider-knight": {
     "name": "Astral Raider - Knight",
     "category": "Humanoid",
-    "tags": [
+    "tags": [ 
+      "psionic",
       "gith",
       "spellcaster",
+      "githyanki",
       "warrior"
     ]
   },
@@ -89,8 +103,7 @@
     "category": "Undead",
     "tags": [
       "incorporeal",
-      "scream",
-      "fey-spirit"
+      "ghost"
     ]
   },
   "basilisk": {
@@ -98,7 +111,8 @@
     "category": "Monstrosity",
     "tags": [
       "petrifying",
-      "reptile"
+      "reptile",
+      "monster"
     ]
   },
   "blind-cave-stalker": {
@@ -107,15 +121,16 @@
     "tags": [
       "blind",
       "underdark",
-      "cannibal"
+      "cannibal",
+      "grimlock"
     ]
   },
   "bloodwing": {
     "name": "Bloodwing",
     "category": "Beast",
     "tags": [
-      "flying",
-      "blood-drain"
+      "mosquito",
+      "stirge"
     ]
   },
   "boulder-elemental": {
@@ -131,8 +146,9 @@
     "category": "Aberration",
     "tags": [
       "underdark",
-      "mind-flayer-kin",
-      "possession"
+      "brain",
+      "intellect",
+      "devourer"
     ]
   },
   "brainspawn-mystic": {
@@ -141,7 +157,7 @@
     "tags": [
       "psychic",
       "underdark",
-      "boss"
+      "mindflayer"
     ]
   },
   "bugbear": {
@@ -164,7 +180,8 @@
     "category": "Monstrosity",
     "tags": [
       "burrowing",
-      "acid"
+      "acid",
+      "ankheg"
     ]
   },
   "cave-ambusher": {
@@ -173,7 +190,8 @@
     "tags": [
       "flying",
       "stealth",
-      "underdark"
+      "underdark",
+      "darkmantle"
     ]
   },
   "cave-dropper": {
@@ -181,15 +199,17 @@
     "category": "Monstrosity",
     "tags": [
       "ambush",
-      "cave"
+      "cave",
+      "piercer"
     ]
   },
   "cave-dweller": {
-    "name": "cave-dweller",
+    "name": "Cave Dweller",
     "category": "Humanoid",
     "tags": [
       "underdark",
-      "feral"
+      "feral",
+      "quaggoth"
     ]
   },
   "cave-strangler": {
@@ -199,6 +219,7 @@
       "cave",
       "tentacles",
       "ambush"
+
     ]
   },
   "centaur": {
@@ -276,7 +297,9 @@
     "tags": [
       "underdark",
       "burrowing",
-      "confusion"
+      "confusion",
+      "umber",
+      "hulk"
     ]
   },
   "clockwork-sentinel-drone": {
@@ -284,7 +307,8 @@
     "category": "Construct",
     "tags": [
       "modron",
-      "lawful"
+      "lawful",
+      "sentinel"
     ]
   },
   "clockwork-sentinel-enforcer": {
@@ -292,7 +316,8 @@
     "category": "Construct",
     "tags": [
       "modron",
-      "lawful"
+      "lawful",
+      "sentinel"
     ]
   },
   "clockwork-sentinel-prime": {
@@ -300,7 +325,8 @@
     "category": "Construct",
     "tags": [
       "modron",
-      "lawful"
+      "lawful",
+      "sentinel"
     ]
   },
   "clockwork-sentinel-scout": {
@@ -309,7 +335,8 @@
     "tags": [
       "modron",
       "lawful",
-      "weak"
+      "weak",
+      "sentinel"
     ]
   },
   "clockwork-sentinel-warden": {
@@ -317,7 +344,8 @@
     "category": "Construct",
     "tags": [
       "modron",
-      "lawful"
+      "lawful",
+      "sentinel"
     ]
   },
   "cockatrice": {
@@ -326,7 +354,8 @@
     "tags": [
       "petrifying",
       "hybrid",
-      "flying"
+      "flying",
+      "monster"
     ]
   },
   "coilborn-defiler": {
@@ -334,7 +363,8 @@
     "category": "Undead",
     "tags": [
       "naga",
-      "spellcaster"
+      "spellcaster",
+      "snake"
     ]
   },
   "coilborn-protector": {
@@ -343,7 +373,8 @@
     "tags": [
       "naga",
       "spellcaster",
-      "guardian"
+      "guardian",
+      "snake"
     ]
   },
   "coilborn-spirit": {
@@ -351,7 +382,8 @@
     "category": "Monstrosity",
     "tags": [
       "naga",
-      "spellcaster"
+      "spellcaster",
+      "snake"
     ]
   },
   "corpse-crawler": {
@@ -360,7 +392,8 @@
     "tags": [
       "paralysis",
       "tentacles",
-      "underdark"
+      "underdark",
+      "grell"
     ]
   },
   "couatl": {
@@ -377,14 +410,17 @@
     "category": "Undead",
     "tags": [
       "minor",
-      "swarm-like"
+      "swarm-like",
+      "skeletal",
+      "skeleton"
     ]
   },
   "crowkin": {
     "name": "Crowkin",
     "category": "Humanoid",
     "tags": [
-      "mimicry"
+      "mimicry",
+      "kenku"
     ]
   },
   "cursed-one-eye": {
@@ -393,7 +429,8 @@
     "tags": [
       "underdark",
       "rot",
-      "one-eyed"
+      "one-eyed",
+      "nothic"
     ]
   },
   "cyclops": {
@@ -408,7 +445,8 @@
     "category": "Humanoid",
     "tags": [
       "dwarf",
-      "underdark"
+      "underdark",
+      "duergar"
     ]
   },
   "dark-elf": {
@@ -416,7 +454,8 @@
     "category": "Humanoid",
     "tags": [
       "elf",
-      "underdark"
+      "underdark",
+      "drow"
     ]
   },
   "dark-elf-mage": {
@@ -425,7 +464,8 @@
     "tags": [
       "elf",
       "underdark",
-      "spellcaster"
+      "spellcaster",
+      "drow"
     ]
   },
   "dark-elf-priestess": {
@@ -435,7 +475,8 @@
       "elf",
       "underdark",
       "spellcaster",
-      "leader"
+      "leader",
+      "drow"
     ]
   },
   "dark-elf-warrior": {
@@ -443,7 +484,8 @@
     "category": "Humanoid",
     "tags": [
       "elf",
-      "underdark"
+      "underdark",
+      "drow"
     ]
   },
   "death-knight": {
@@ -452,7 +494,8 @@
     "tags": [
       "spellcaster",
       "boss",
-      "knight"
+      "knight",
+      "death"
     ]
   },
   "deep-gnome": {
@@ -460,7 +503,8 @@
     "category": "Humanoid",
     "tags": [
       "gnome",
-      "underdark"
+      "underdark",
+      "svirfneblin"
     ]
   },
   "deepwater-clawfiend": {
@@ -469,7 +513,8 @@
     "tags": [
       "aquatic",
       "paralysis",
-      "tentacles"
+      "tentacles",
+      "chuul"
     ]
   },
   "demilich": {
@@ -478,14 +523,17 @@
     "tags": [
       "lich",
       "boss",
-      "ancient"
+      "ancient",
+      "skeletal",
+      "skeleton"
     ]
   },
   "demon-ape-brute": {
     "name": "Demon - Ape Brute",
     "category": "Fiend",
     "tags": [
-      "demon"
+      "demon",
+      "barlgura"
     ]
   },
   "demon-bonecrusher": {
@@ -493,7 +541,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "large"
+      "large",
+      "goristo"
     ]
   },
   "demon-carrion-fly": {
@@ -501,7 +550,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "flying"
+      "flying",
+      "chasme"
     ]
   },
   "demon-familiar": {
@@ -510,7 +560,8 @@
     "tags": [
       "demon",
       "familiar",
-      "small"
+      "small",
+      "quasit"
     ]
   },
   "demon-gluttonous-horror": {
@@ -518,7 +569,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "flying"
+      "flying",
+      "nalfeshnee"
     ]
   },
   "demon-inferno-lord": {
@@ -528,7 +580,8 @@
       "demon",
       "boss",
       "fire",
-      "flying"
+      "flying",
+      "balor"
     ]
   },
   "demon-lesser-grunt": {
@@ -536,7 +589,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "weak"
+      "weak",
+      "dretch"
     ]
   },
   "demon-ooze-handmaiden": {
@@ -545,7 +599,8 @@
     "tags": [
       "demon",
       "shapechanger",
-      "spellcaster"
+      "spellcaster",
+      "yochlol"
     ]
   },
   "demon-pincer-fiend": {
@@ -553,7 +608,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "spellcaster"
+      "spellcaster",
+      "glabrezu"
     ]
   },
   "demon-serpent-blademaster": {
@@ -561,7 +617,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "multi-armed"
+      "multi-armed",
+      "marilith"
     ]
   },
   "demon-shadowfiend": {
@@ -577,7 +634,8 @@
     "name": "Demon - Toad Brute",
     "category": "Fiend",
     "tags": [
-      "demon"
+      "demon",
+      "hezrou"
     ]
   },
   "demon-vulture-fiend": {
@@ -585,7 +643,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "flying"
+      "flying",
+      "vrock"
     ]
   },
   "demon-wretch": {
@@ -593,7 +652,8 @@
     "category": "Fiend",
     "tags": [
       "demon",
-      "weak"
+      "weak",
+      "manes"
     ]
   },
   "devil-briar": {
@@ -603,6 +663,23 @@
       "devil"
     ]
   },
+  "devil-incubus": {
+    "name": "Devil - Incubus",
+    "category": "Fiend",
+    "tags": [
+      "shapechanger",
+      "charm"
+    ]
+  },
+  "devil-succubus": {
+    "name": "Devil - Succubus",
+    "category": "Fiend",
+    "tags": [
+      "shapechanger",
+      "charm",
+      "flying"
+    ]
+  },
   "devil-familiar": {
     "name": "Devil - Familiar",
     "category": "Fiend",
@@ -610,7 +687,8 @@
       "devil",
       "familiar",
       "flying",
-      "shapechanger"
+      "shapechanger",
+      "imp"
     ]
   },
   "devil-fiend": {
@@ -680,14 +758,16 @@
     "category": "Fiend",
     "tags": [
       "devil",
-      "flying"
+      "flying",
+      "erniyes"
     ]
   },
   "devilkin": {
     "name": "Devilkin",
     "category": "Fiend",
     "tags": [
-      "half-fiend"
+      "half-fiend",
+      "cambion"
     ]
   },
   "dinosaur-allosaurus": {
@@ -747,7 +827,8 @@
     "tags": [
       "boss",
       "demigod",
-      "flying"
+      "flying",
+      "empyrean"
     ]
   },
   "doppelganger": {
@@ -946,7 +1027,9 @@
     "tags": [
       "dragon",
       "boss",
-      "spellcaster"
+      "spellcaster",
+      "dracolich",
+      "lich"
     ]
   },
   "dragon-white-old": {
@@ -972,7 +1055,8 @@
     "category": "Humanoid",
     "tags": [
       "dragon-blooded",
-      "warrior"
+      "warrior",
+      "half-dragon"
     ]
   },
   "dryad": {
@@ -990,7 +1074,8 @@
     "tags": [
       "aquatic",
       "psychic",
-      "ancient"
+      "ancient",
+      "aboleth"
     ]
   },
   "elemental-air": {
@@ -1080,7 +1165,8 @@
     "category": "Monstrosity",
     "tags": [
       "shapechanger",
-      "ambush"
+      "ambush",
+      "mimc"
     ]
   },
   "fiend-mercenary-archmage": {
@@ -1149,7 +1235,8 @@
     "tags": [
       "flying",
       "tentacles",
-      "underdark"
+      "underdark",
+      "grell"
     ]
   },
   "floating-spore": {
@@ -1157,7 +1244,8 @@
     "category": "Monstrosity",
     "tags": [
       "flying",
-      "small"
+      "small",
+      "fungus"
     ]
   },
   "flying-skull": {
@@ -1166,7 +1254,9 @@
     "tags": [
       "flying",
       "spellcaster",
-      "fire"
+      "fire",
+      "skeletal",
+      "skeleton"
     ]
   },
   "frogfolk": {
@@ -1174,7 +1264,10 @@
     "category": "Humanoid",
     "tags": [
       "swamp",
-      "amphibian"
+      "amphibian",
+      "boggard",
+      "bullywug"
+
     ]
   },
   "frost-worm": {
@@ -1183,7 +1276,8 @@
     "tags": [
       "cold",
       "burrowing",
-      "boss"
+      "boss",
+      "remorhaz"
     ]
   },
   "fungi-purple-rotcap": {
@@ -1263,7 +1357,8 @@
     "category": "Undead",
     "tags": [
       "paralysis",
-      "ghoul-kin"
+      "ghoul-kin",
+      "ghost"
     ]
   },
   "ghost": {
@@ -1278,7 +1373,8 @@
     "name": "Ghoul",
     "category": "Undead",
     "tags": [
-      "paralysis"
+      "paralysis",
+      "zombie"
     ]
   },
   "giant-cloud": {
@@ -1296,7 +1392,8 @@
     "tags": [
       "cursed",
       "underdark",
-      "evil-eye"
+      "evil-eye",
+      "fomorian"
     ]
   },
   "giant-fire": {
@@ -1473,7 +1570,9 @@
     "category": "Construct",
     "tags": [
       "guardian",
-      "armor"
+      "armor",
+      "helmed",
+      "horror"
     ]
   },
   "homunculus": {
@@ -1489,7 +1588,9 @@
     "category": "Monstrosity",
     "tags": [
       "underdark",
-      "blind"
+      "blind",
+      "hook",
+      "horror"
     ]
   },
   "hydra": {
@@ -1499,14 +1600,6 @@
       "multi-headed",
       "regeneration",
       "boss"
-    ]
-  },
-  "incubus": {
-    "name": "Incubus",
-    "category": "Fiend",
-    "tags": [
-      "shapechanger",
-      "charm"
     ]
   },
   "invisible-stalker": {
@@ -1522,7 +1615,9 @@
     "name": "Iron Gnawer",
     "category": "Monstrosity",
     "tags": [
-      "metal-eating"
+      "metal-eating",
+      "rust",
+      "monster"
     ]
   },
   "iron-guardian": {
@@ -1530,7 +1625,8 @@
     "category": "Construct",
     "tags": [
       "guardian",
-      "bound"
+      "bound",
+      "shield"
     ]
   },
   "kobold": {
@@ -1573,7 +1669,8 @@
     "category": "Monstrosity",
     "tags": [
       "burrowing",
-      "landshark"
+      "landshark",
+      "bulette"
     ]
   },
   "lich": {
@@ -1582,7 +1679,9 @@
     "tags": [
       "boss",
       "spellcaster",
-      "legendary"
+      "legendary",
+      "skeletal",
+      "skeleton"
     ]
   },
   "living-ember": {
@@ -1590,7 +1689,8 @@
     "category": "Elemental",
     "tags": [
       "fire",
-      "small"
+      "small",
+      "magmin"
     ]
   },
   "living-undertow": {
@@ -1599,7 +1699,9 @@
     "tags": [
       "water",
       "aquatic",
-      "stealth"
+      "stealth",
+      "water",
+      "weird"
     ]
   },
   "lizardfolk": {
@@ -1704,7 +1806,9 @@
     "category": "Humanoid",
     "tags": [
       "insectoid",
-      "desert"
+      "desert",
+      "thri",
+      "kreen"
     ]
   },
   "many-maw": {
@@ -1712,7 +1816,9 @@
     "category": "Aberration",
     "tags": [
       "madness",
-      "amorphous"
+      "amorphous",
+      "gibbering",
+      "mouther"
     ]
   },
   "medusa": {
@@ -1735,7 +1841,8 @@
     "category": "Monstrosity",
     "tags": [
       "aquatic",
-      "ogre-kin"
+      "ogre-kin",
+      "merrow"
     ]
   },
   "minotaur": {
@@ -1752,7 +1859,8 @@
     "tags": [
       "mephit",
       "small",
-      "flying"
+      "flying",
+      "mephit"
     ]
   },
   "mote-ice": {
@@ -1761,7 +1869,8 @@
     "tags": [
       "mephit",
       "cold",
-      "flying"
+      "flying",
+      "mephit"
     ]
   },
   "mote-magma": {
@@ -1770,7 +1879,8 @@
     "tags": [
       "mephit",
       "fire",
-      "flying"
+      "flying",
+      "mephit"
     ]
   },
   "mote-mud": {
@@ -1779,7 +1889,8 @@
     "tags": [
       "mephit",
       "earth",
-      "flying"
+      "flying",
+      "mephit"
     ]
   },
   "mote-smoke": {
@@ -1788,7 +1899,8 @@
     "tags": [
       "mephit",
       "fire",
-      "flying"
+      "flying",
+      "mephit"
     ]
   },
   "mote-steam": {
@@ -1798,7 +1910,8 @@
       "mephit",
       "fire",
       "water",
-      "flying"
+      "flying",
+      "mephit"
     ]
   },
   "mummy": {
@@ -1897,7 +2010,9 @@
       "incorporeal",
       "flying",
       "light",
-      "swamp"
+      "swamp",
+      "will",
+      "wisp"
     ]
   },
   "orc": {
@@ -1912,7 +2027,8 @@
     "category": "Humanoid",
     "tags": [
       "orc",
-      "elite"
+      "elite",
+      "orog"
     ]
   },
   "orc-one-eyed-zealot": {
@@ -1954,7 +2070,9 @@
     "category": "Monstrosity",
     "tags": [
       "feline",
-      "illusion"
+      "illusion",
+      "displacer",
+      "beast"
     ]
   },
   "pixie": {
@@ -2029,12 +2147,14 @@
       "serpent"
     ]
   },
-  "salamander-flameling": {
-    "name": "Salamander - Flameling",
+  "snake-fire": {
+    "name": "Snake - Fire",
     "category": "Elemental",
     "tags": [
       "fire",
-      "serpent"
+      "serpent",
+      "snake",
+      "salamander"
     ]
   },
   "satyr": {
@@ -2086,7 +2206,8 @@
     "tags": [
       "sewer",
       "tentacles",
-      "disease"
+      "disease",
+      "otyugh"
     ]
   },
   "shadow": {
@@ -2103,7 +2224,8 @@
     "tags": [
       "flying",
       "stealth",
-      "underdark"
+      "underdark",
+      "cloaker"
     ]
   },
   "shambler": {
@@ -2111,7 +2233,9 @@
     "category": "Plant",
     "tags": [
       "swamp",
-      "engulf"
+      "engulf",
+      "mound",
+      "shambling"
     ]
   },
   "sharkfolk": {
@@ -2170,7 +2294,8 @@
     "tags": [
       "aarakocra",
       "flying",
-      "aerial"
+      "aerial",
+      "aarakocra"
     ]
   },
   "slime-amber": {
@@ -2239,7 +2364,8 @@
     "tags": [
       "spider",
       "underdark",
-      "hybrid"
+      "hybrid",
+      "drider"
     ]
   },
   "sprite": {
@@ -2256,7 +2382,8 @@
     "category": "Monstrosity",
     "tags": [
       "petrifying",
-      "bull"
+      "bull",
+      "gorgon"
     ]
   },
   "stone-devourer": {
@@ -2264,7 +2391,8 @@
     "category": "Elemental",
     "tags": [
       "earth",
-      "burrowing"
+      "burrowing",
+      "xorn"
     ]
   },
   "stone-tentacle-worm": {
@@ -2273,7 +2401,8 @@
     "tags": [
       "tentacles",
       "underdark",
-      "ambush"
+      "ambush",
+      "grick"
     ]
   },
   "storm-lizard": {
@@ -2282,16 +2411,8 @@
     "tags": [
       "lightning",
       "serpentine",
-      "underdark"
-    ]
-  },
-  "succubus": {
-    "name": "Succubus",
-    "category": "Fiend",
-    "tags": [
-      "shapechanger",
-      "charm",
-      "flying"
+      "underdark",
+      "behir"
     ]
   },
   "talon-bear": {
@@ -2299,7 +2420,8 @@
     "category": "Monstrosity",
     "tags": [
       "hybrid",
-      "forest"
+      "forest",
+      "owlbear"
     ]
   },
   "tigerkin": {
@@ -2307,7 +2429,8 @@
     "category": "Fiend",
     "tags": [
       "shapechanger",
-      "spellcaster"
+      "spellcaster",
+      "rakshasa"
     ]
   },
   "treant": {
@@ -2366,7 +2489,8 @@
     "tags": [
       "spider",
       "forest",
-      "poison"
+      "poison",
+      "ettercap"
     ]
   },
   "wight": {
@@ -2407,7 +2531,8 @@
     "tags": [
       "boss",
       "legendary",
-      "apocalyptic"
+      "apocalyptic",
+      "terrasque"
     ]
   },
   "wraith": {
