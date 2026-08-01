@@ -23,6 +23,8 @@ import {
   CREDIT_TOKEN_TTL_SECONDS,
   CREDIT_TOKEN_RATE_LIMIT_MAX,
   CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS,
+  MAX_CONCURRENT_OPENAI_REQUESTS,
+  GENERATION_SLOT_STALE_SECONDS,
   RESTORE_TOKEN_TTL_SECONDS,
   RESTORE_REQUEST_RATE_LIMIT_MAX,
   RESTORE_REQUEST_RATE_LIMIT_WINDOW_SECONDS,
@@ -142,6 +144,47 @@ async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
     expiration: record.resetAt + 60,
   });
   return { allowed: true };
+}
+
+// Single global key tracking how many OpenAI generation requests are
+// currently in flight, across every user — see MAX_CONCURRENT_OPENAI_REQUESTS
+// in config.js for why this exists on top of the per-token rate limit. KV
+// reads/writes aren't atomic, so under very heavy simultaneous traffic the
+// count can drift a little; that's an acceptable tradeoff for a soft
+// backstop, same as the other best-effort counters in this file.
+const GENERATION_SLOT_KV_KEY = "inflight:openai_generate";
+
+async function acquireGenerationSlot(kv) {
+  const now = Math.floor(Date.now() / 1000);
+  const raw = await kv.get(GENERATION_SLOT_KV_KEY);
+  let record = raw ? JSON.parse(raw) : null;
+  if (!record || now - record.updatedAt > GENERATION_SLOT_STALE_SECONDS) {
+    record = { count: 0 };
+  }
+
+  if (record.count >= MAX_CONCURRENT_OPENAI_REQUESTS) {
+    return false;
+  }
+
+  record.count += 1;
+  record.updatedAt = now;
+  await kv.put(GENERATION_SLOT_KV_KEY, JSON.stringify(record), {
+    expiration: now + GENERATION_SLOT_STALE_SECONDS,
+  });
+  return true;
+}
+
+async function releaseGenerationSlot(kv) {
+  const now = Math.floor(Date.now() / 1000);
+  const raw = await kv.get(GENERATION_SLOT_KV_KEY);
+  if (!raw) return;
+
+  const record = JSON.parse(raw);
+  record.count = Math.max(0, record.count - 1);
+  record.updatedAt = now;
+  await kv.put(GENERATION_SLOT_KV_KEY, JSON.stringify(record), {
+    expiration: now + GENERATION_SLOT_STALE_SECONDS,
+  });
 }
 
 // Drops anything older than RECENT_GENERATIONS_MAX_AGE_MS (so a feed can
@@ -362,76 +405,93 @@ async function handleGenerate(request, env, ctx, origin) {
     }
   }
 
-  let openaiRes;
-  try {
-    openaiRes = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: OPENAI_IMAGE_MODEL,
-        prompt,
-        size: OPENAI_IMAGE_SIZE,
-        quality,
-        background: "transparent",
-        output_format: OPENAI_IMAGE_OUTPUT_FORMAT,
-        n: 1,
-      }),
-    });
-  } catch {
-    await refundSpentCredit("refund:generate_unreachable");
-    return jsonResponse({ error: "The generator is unreachable right now." }, 502, origin);
-  }
-
-  if (!openaiRes.ok) {
-    const errText = await openaiRes.text();
-    console.error("OpenAI error", openaiRes.status, errText);
-    await refundSpentCredit("refund:generate_rejected");
+  // Global concurrency backstop — see MAX_CONCURRENT_OPENAI_REQUESTS in
+  // config.js. Checked after credits are spent (so it can refund cleanly
+  // like every other rejection path below) but before OpenAI is ever called.
+  const slotAcquired = await acquireGenerationSlot(env.RATE_LIMIT);
+  if (!slotAcquired) {
+    await refundSpentCredit("refund:generate_at_capacity");
     return jsonResponse(
-      { error: "That prompt couldn't be generated — try rephrasing it." },
-      openaiRes.status === 400 ? 400 : 502,
+      { error: "We're at capacity right now — try again in a minute." },
+      429,
       origin
     );
   }
 
-  const data = await openaiRes.json();
-  const b64 = data?.data?.[0]?.b64_json;
-  if (!b64) {
-    await refundSpentCredit("refund:generate_empty_response");
-    return jsonResponse({ error: "No image came back — try again." }, 502, origin);
-  }
-
-  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-  const id = crypto.randomUUID();
-  const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
-  const url = `/${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
-
   try {
-    await env.TOKEN_BUCKET.put(key, bytes, {
-      httpMetadata: { contentType: "image/png" },
-    });
-  } catch (err) {
-    console.error("R2 put failed", err);
-    await refundSpentCredit("refund:storage_failed");
-    return jsonResponse({ error: "Couldn't save the generated image — try again." }, 502, origin);
+    let openaiRes;
+    try {
+      openaiRes = await fetch("https://api.openai.com/v1/images/generations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: OPENAI_IMAGE_MODEL,
+          prompt,
+          size: OPENAI_IMAGE_SIZE,
+          quality,
+          background: "transparent",
+          output_format: OPENAI_IMAGE_OUTPUT_FORMAT,
+          n: 1,
+        }),
+      });
+    } catch {
+      await refundSpentCredit("refund:generate_unreachable");
+      return jsonResponse({ error: "The generator is unreachable right now." }, 502, origin);
+    }
+
+    if (!openaiRes.ok) {
+      const errText = await openaiRes.text();
+      console.error("OpenAI error", openaiRes.status, errText);
+      await refundSpentCredit("refund:generate_rejected");
+      return jsonResponse(
+        { error: "That prompt couldn't be generated — try rephrasing it." },
+        openaiRes.status === 400 ? 400 : 502,
+        origin
+      );
+    }
+
+    const data = await openaiRes.json();
+    const b64 = data?.data?.[0]?.b64_json;
+    if (!b64) {
+      await refundSpentCredit("refund:generate_empty_response");
+      return jsonResponse({ error: "No image came back — try again." }, 502, origin);
+    }
+
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const id = crypto.randomUUID();
+    const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+    const url = `/${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+
+    try {
+      await env.TOKEN_BUCKET.put(key, bytes, {
+        httpMetadata: { contentType: "image/png" },
+      });
+    } catch (err) {
+      console.error("R2 put failed", err);
+      await refundSpentCredit("refund:storage_failed");
+      return jsonResponse({ error: "Couldn't save the generated image — try again." }, 502, origin);
+    }
+
+    const createdAt = Date.now();
+    ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
+    ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
+    ctx.waitUntil(recordPromptForFile(env, key, prompt));
+
+    return jsonResponse(
+      {
+        id,
+        url,
+        ...(credit ? { creditsRemaining: credit.balance } : {}),
+      },
+      200,
+      origin
+    );
+  } finally {
+    await releaseGenerationSlot(env.RATE_LIMIT);
   }
-
-  const createdAt = Date.now();
-  ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
-  ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
-  ctx.waitUntil(recordPromptForFile(env, key, prompt));
-
-  return jsonResponse(
-    {
-      id,
-      url,
-      ...(credit ? { creditsRemaining: credit.balance } : {}),
-    },
-    200,
-    origin
-  );
 }
 
 async function handleCheckout(request, env, origin) {

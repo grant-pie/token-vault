@@ -208,6 +208,21 @@ export const CREDIT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 400;
 export const CREDIT_TOKEN_RATE_LIMIT_MAX = 50;
 export const CREDIT_TOKEN_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
 
+// Global cap on OpenAI generation requests in flight at once, across every
+// paying user combined — independent of the per-token limit above. Per-token
+// limits can't stop many different tokens (or one tightly scripted token)
+// from bursting simultaneously and tripping OpenAI's account-wide rate limit,
+// which would 429 every paying customer's request, not just the burst's
+// source. Tune this to comfortably sit under the account's actual OpenAI
+// concurrency/RPM limit for gpt-image-1.
+export const MAX_CONCURRENT_OPENAI_REQUESTS = 4;
+
+// Safety expiry for a held generation slot, in seconds — comfortably longer
+// than a "high" quality request should ever take. Guards against a slot
+// never being released (e.g. the worker instance is killed mid-request)
+// permanently eating into the concurrency cap.
+export const GENERATION_SLOT_STALE_SECONDS = 180;
+
 // How long an emailed "restore my credits" link stays valid. Short and
 // single-purpose by design — unlike the long-lived credit token, this one
 // only exists to be exchanged once for a fresh credit token (see
