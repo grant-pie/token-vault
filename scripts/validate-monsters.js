@@ -13,17 +13,10 @@
 
 const fs = require("fs");
 const path = require("path");
+const { slugify } = require("./lib/slug");
 
 const MONSTERS_FILE = path.join(__dirname, "..", "js", "monsters.json");
 const ID_FORMAT_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-
-function slugify(name) {
-  return name
-    .toLowerCase()
-    .replace(/'/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 function main() {
   const registry = JSON.parse(fs.readFileSync(MONSTERS_FILE, "utf8"));

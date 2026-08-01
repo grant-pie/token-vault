@@ -13,6 +13,7 @@
 const fs = require("fs");
 const path = require("path");
 const { getAllowedStyles, folderNameForStyle } = require("./lib/styles");
+const { slugify } = require("./lib/slug");
 
 const ROOT_DIR = path.join(__dirname, "..");
 const OPTIMIZED_DIR = path.join(ROOT_DIR, "images-optimized");
@@ -40,10 +41,15 @@ function idsForStyle(style) {
     return { style, files: new Map(), source: null };
   }
 
+  // Files are named after the monster's display name (e.g. "Angel -
+  // Ascendant.webp"), not its id — slugify() derives the id the same way
+  // monsters.json's ids are derived from their names (see
+  // validate-monsters.js), so a file matches a registry entry exactly when
+  // its slugified name equals that entry's id.
   const files = new Map();
   fs.readdirSync(dir)
     .filter((f) => IMG_RE.test(f))
-    .forEach((f) => files.set(f.replace(IMG_RE, ""), f));
+    .forEach((f) => files.set(slugify(f.replace(IMG_RE, "")), f));
 
   return { style, files, source: path.relative(ROOT_DIR, dir) };
 }
