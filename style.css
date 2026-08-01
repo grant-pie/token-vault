@@ -34,16 +34,6 @@ body {
 }
 
 /* Banner */
-.ai-disclaimer-form {
-  padding: 1.6rem 1.8rem 1.8rem;
-  text-align: center;
-}
-
-.ai-disclaimer-actions {
-  gap: 0.8rem;
-  flex-wrap: wrap;
-}
-
 .banner {
   text-align: center;
   padding: 3rem 1rem 2rem;
@@ -167,6 +157,15 @@ main {
 
 .token-search::-webkit-search-cancel-button {
   cursor: pointer;
+}
+
+.vault-ai-note {
+  max-width: 640px;
+  margin: 0 auto 2rem;
+  text-align: center;
+  font-style: italic;
+  color: var(--parchment-dark);
+  opacity: 0.85;
 }
 
 /* Vault search autocomplete (vault.html) */
