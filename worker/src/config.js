@@ -103,7 +103,7 @@ export const DEFAULT_FACING_DIRECTION = "forward";
 
 // When true, "[direction]" is filled in with a randomly chosen facing
 // direction per request. When false, DEFAULT_FACING_DIRECTION is used every time.
-export const RANDOMIZE_FACING_DIRECTION = true;
+export const RANDOMIZE_FACING_DIRECTION = false;
 
 // Facing directions randomly chosen from when RANDOMIZE_FACING_DIRECTION is true.
 export const FACING_DIRECTIONS = ["right", "left", "forward"];
