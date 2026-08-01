@@ -437,9 +437,14 @@ async function finalizeGeneratedImage({ b64, env, ctx, origin, credit, descripti
 
 // The edit request only ever carries a description of the change plus the id
 // of a token this site already generated — never an uploaded image — so the
-// instruction just needs to call out what must be preserved.
+// instruction just needs to call out what must be preserved. gpt-image-1's
+// edit endpoint re-renders the whole image rather than inpainting a masked
+// region, so anything not called out here (weapons, armor, held items,
+// colors) is liable to drift even when the request only asked to change one
+// thing — spelling it out, on top of input_fidelity: "high" on the request
+// itself (see handleEditToken), is what actually keeps it in check.
 function buildEditPrompt(instruction) {
-  return `Apply the following change to this fantasy RPG creature token image. Keep the existing art style, camera angle, pose, proportions, and the fully transparent background exactly as they are — change only what's described below.\n\nRequested change: ${instruction}`;
+  return `Apply ONLY the following change to this fantasy RPG creature token image. Everything else about the reference image must stay exactly as it is: the art style, camera angle, pose, proportions, colors, and the fully transparent background, and every weapon, shield, armor piece, held item, or other piece of equipment the creature is carrying. Do not add, remove, resize, recolor, or otherwise alter any equipment unless the requested change explicitly says to.\n\nRequested change: ${instruction}`;
 }
 
 async function handleGenerate(request, env, ctx, origin) {
@@ -643,6 +648,12 @@ async function handleEditToken(request, env, ctx, origin) {
     formData.append("quality", quality);
     formData.append("background", "transparent");
     formData.append("output_format", OPENAI_IMAGE_OUTPUT_FORMAT);
+    // Tells gpt-image-1 to weight the reference image more heavily against
+    // the prompt, so unrelated details (equipment, colors, proportions)
+    // survive an edit instead of drifting — this endpoint re-renders the
+    // whole image rather than inpainting, so without it even an unrelated
+    // one-line edit can subtly reroll everything else.
+    formData.append("input_fidelity", "high");
     formData.append("n", "1");
 
     let openaiRes;
