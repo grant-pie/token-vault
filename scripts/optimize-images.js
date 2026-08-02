@@ -1,6 +1,9 @@
 // Converts images/<Style>/*.{png,jpg,jpeg} to WebP in images-optimized/<Style>/, one
 // folder per art style (see ALLOWED_STYLES in worker/src/config.js). Styles without an
-// images/<Style>/ folder yet are skipped.
+// images/<Style>/ folder yet are skipped. Only images that don't already have a matching
+// .webp in images-optimized/<Style>/ are converted, so re-running after adding new source
+// images won't redo work on ones already optimized. Any .webp left over in
+// images-optimized/<Style>/ with no matching source image is reported (not deleted) as orphaned.
 // Run: npm run optimize
 
 const fs = require("fs");
@@ -22,17 +25,29 @@ async function optimizeStyle(style) {
     return;
   }
 
-  const files = fs.readdirSync(srcDir).filter((f) => EXT_RE.test(f));
-  if (files.length === 0) {
-    console.log(`No PNG/JPEG files found in ${srcDir}`);
-    return;
-  }
-
   const outDir = path.join(OPTIMIZED_DIR, folder);
-  // Wipe and recreate so renamed/removed source images don't leave stale
-  // orphaned .webp files behind in the output folder.
-  fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir, { recursive: true });
+
+  const allFiles = fs.readdirSync(srcDir).filter((f) => EXT_RE.test(f));
+  const expectedWebp = new Set(allFiles.map((f) => f.replace(EXT_RE, ".webp")));
+  const files = allFiles.filter((f) => !fs.existsSync(path.join(outDir, f.replace(EXT_RE, ".webp"))));
+
+  const orphans = fs
+    .readdirSync(outDir)
+    .filter((f) => f.endsWith(".webp") && !expectedWebp.has(f))
+    .map((f) => path.join(folder, f));
+
+  if (allFiles.length === 0) {
+    console.log(`No PNG/JPEG files found in ${srcDir}`);
+    return orphans;
+  }
+  if (files.length === 0) {
+    console.log(`\n-- ${style} (${folder}/) -- up to date, nothing new to optimize`);
+    if (orphans.length > 0) {
+      console.log(`Orphaned (no matching source image): ${orphans.join(", ")}`);
+    }
+    return orphans;
+  }
 
   console.log(`\n-- ${style} (${folder}/) --`);
   let totalBefore = 0;
@@ -55,14 +70,29 @@ async function optimizeStyle(style) {
 
   const savedPct = (100 * (1 - totalAfter / totalBefore)).toFixed(1);
   console.log(`Total: ${(totalBefore / 1024 / 1024).toFixed(1)}MB -> ${(totalAfter / 1024 / 1024).toFixed(1)}MB (${savedPct}% smaller)`);
+
+  if (orphans.length > 0) {
+    console.log(`Orphaned (no matching source image): ${orphans.join(", ")}`);
+  }
+
+  return orphans;
 }
 
 async function main() {
+  const allOrphans = [];
   for (const style of getAllowedStyles()) {
-    await optimizeStyle(style);
+    const orphans = await optimizeStyle(style);
+    if (orphans) allOrphans.push(...orphans);
   }
   console.log(`\nOptimized images written to ${OPTIMIZED_DIR}`);
-  console.log(`Next: npm run tokens`);
+
+  if (allOrphans.length > 0) {
+    console.log(`\nOrphaned optimized files with no matching source image (${allOrphans.length}):`);
+    for (const orphan of allOrphans) console.log(`  images-optimized/${orphan}`);
+    console.log(`These are left as-is — delete manually if the source image was intentionally removed/renamed.`);
+  }
+
+  console.log(`\nNext: npm run vault-data`);
 }
 
 main().catch((err) => {
