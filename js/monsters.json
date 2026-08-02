@@ -37,13 +37,22 @@
   },
   "angelkin": {
     "name": "Angelkin",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "angel",
+      "celestial",
+      "divine",
+      "outsider",
+      "extraplanar",
+      "aasimar"
+    ]
   },
   "animated-object": {
     "name": "Animated Object",
-    "category": "",
-    "tags": []
+    "category": "Construct",
+    "tags": [
+      "animated-object"
+    ]
   },
   "animated-object-armor": {
     "name": "Animated Object - Armor",
@@ -68,23 +77,34 @@
   },
   "ant": {
     "name": "Ant",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect"
+    ]
   },
   "ant-swarm": {
     "name": "Ant - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect"
+    ]
   },
   "ape-gorilla": {
     "name": "Ape - Gorilla",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "ape",
+      "primate"
+    ]
   },
   "assassin-vine": {
     "name": "Assassin Vine",
-    "category": "",
-    "tags": []
+    "category": "Plant",
+    "tags": [
+      "vine",
+      "entangle",
+      "ambush"
+    ]
   },
   "astral-mystic": {
     "name": "Astral Mystic",
@@ -130,8 +150,11 @@
   },
   "auroch": {
     "name": "Auroch",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "bovine",
+      "herd"
+    ]
   },
   "banshee": {
     "name": "Banshee",
@@ -143,8 +166,11 @@
   },
   "barghest": {
     "name": "Barghest",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "extraplanar",
+      "shapechanger"
+    ]
   },
   "basilisk": {
     "name": "Basilisk",
@@ -157,33 +183,47 @@
   },
   "bat": {
     "name": "Bat",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "flying"
+    ]
   },
   "bat-swarm": {
     "name": "Bat - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "flying"
+    ]
   },
   "bear-grizzly": {
     "name": "Bear - Grizzly",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "bear"
+    ]
   },
   "beetle-fire": {
     "name": "Beetle - Fire",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect",
+      "fire"
+    ]
   },
   "beetle-stag": {
     "name": "Beetle - Stag",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect"
+    ]
   },
   "bison": {
     "name": "Bison",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "bovine",
+      "herd"
+    ]
   },
   "blind-cave-stalker": {
     "name": "Blind Cave Stalker",
@@ -205,13 +245,18 @@
   },
   "boar": {
     "name": "Boar",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "tusks",
+      "herd"
+    ]
   },
   "boggard": {
     "name": "Boggard",
-    "category": "",
-    "tags": []
+    "category": "Humanoid",
+    "tags": [
+      "frogfolk"
+    ]
   },
   "boulder-elemental": {
     "name": "Boulder Elemental",
@@ -266,18 +311,26 @@
   },
   "cat": {
     "name": "Cat",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "feline"
+    ]
   },
   "cat-cheetah": {
     "name": "Cat - Cheetah",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "feline",
+      "fast"
+    ]
   },
   "cat-leopard": {
     "name": "Cat - Leopard",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "feline",
+      "stealth"
+    ]
   },
   "cave-ambusher": {
     "name": "Cave Ambusher",
@@ -309,8 +362,12 @@
   },
   "cave-fisher": {
     "name": "Cave Fisher",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "cave",
+      "tentacles",
+      "ambush"
+    ]
   },
   "cave-strangler": {
     "name": "Cave Strangler",
@@ -331,13 +388,19 @@
   },
   "centipede": {
     "name": "Centipede",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect",
+      "poison"
+    ]
   },
   "centipede-swarm": {
     "name": "Centipede - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect",
+      "poison"
+    ]
   },
   "chaos-toad-blue": {
     "name": "Chaos Toad - Blue",
@@ -413,8 +476,11 @@
   },
   "choker": {
     "name": "Choker",
-    "category": "",
-    "tags": []
+    "category": "Aberration",
+    "tags": [
+      "cave",
+      "ambush"
+    ]
   },
   "clockwork-sentinel-drone": {
     "name": "Clockwork Sentinel - Drone",
@@ -521,13 +587,17 @@
   },
   "crab": {
     "name": "Crab",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "aquatic"
+    ]
   },
   "crab-swarm": {
     "name": "Crab - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "aquatic"
+    ]
   },
   "crawling-claw": {
     "name": "Crawling Claw",
@@ -541,13 +611,20 @@
   },
   "creeper": {
     "name": "Creeper",
-    "category": "",
-    "tags": []
+    "category": "Plant",
+    "tags": [
+      "yellow",
+      "musk",
+      "creeper"
+    ]
   },
   "crocodile": {
     "name": "Crocodile",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile",
+      "aquatic"
+    ]
   },
   "crowkin": {
     "name": "Crowkin",
@@ -624,28 +701,45 @@
   },
   "darkling-assassin": {
     "name": "Darkling - Assassin",
-    "category": "",
-    "tags": []
+    "category": "Humanoid",
+    "tags": [
+      "darkfolk",
+      "dark",
+      "creeper"
+    ]
   },
   "darkling-sneak": {
     "name": "Darkling - Sneak",
-    "category": "",
-    "tags": []
+    "category": "Humanoid",
+    "tags": [
+      "darkfolk",
+      "dark",
+      "creeper"
+    ]
   },
   "dawnfolk-bard": {
     "name": "Dawnfolk - Bard",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "celestial",
+      "azata"
+    ]
   },
   "dawnfolk-champion": {
     "name": "Dawnfolk - Champion",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "celestial",
+      "azata"
+    ]
   },
   "dawnfolk-messenger": {
     "name": "Dawnfolk - Messenger",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "celestial",
+      "azata"
+    ]
   },
   "death-knight": {
     "name": "Death Knight",
@@ -791,8 +885,11 @@
   },
   "demon-spider": {
     "name": "Demon - Spider",
-    "category": "",
-    "tags": []
+    "category": "Fiend",
+    "tags": [
+      "demon",
+      "bebelith"
+    ]
   },
   "demon-toad-brute": {
     "name": "Demon - Toad Brute",
@@ -822,8 +919,12 @@
   },
   "devil-blood": {
     "name": "Devil - Blood",
-    "category": "",
-    "tags": []
+    "category": "Fiend",
+    "tags": [
+      "devil",
+      "blood",
+      "babau"
+    ]
   },
   "devil-briar": {
     "name": "Devil - Briar",
@@ -957,18 +1058,27 @@
   },
   "dinosaur-brachiosaurus": {
     "name": "Dinosaur - Brachiosaurus",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "dinosaur",
+      "prehistoric"
+    ]
   },
   "dinosaur-deinonychus": {
     "name": "Dinosaur - Deinonychus",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "dinosaur",
+      "prehistoric"
+    ]
   },
   "dinosaur-elasmosaurus": {
     "name": "Dinosaur - Elasmosaurus",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "dinosaur",
+      "prehistoric"
+    ]
   },
   "dinosaur-plesiosaurus": {
     "name": "Dinosaur - Plesiosaurus",
@@ -990,8 +1100,11 @@
   },
   "dinosaur-stegosaurus": {
     "name": "Dinosaur - Stegosaurus",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "dinosaur",
+      "prehistoric"
+    ]
   },
   "dinosaur-triceratops": {
     "name": "Dinosaur - Triceratops",
@@ -1022,28 +1135,41 @@
   },
   "dog": {
     "name": "Dog",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "canine"
+    ]
   },
   "dog-goblin": {
     "name": "Dog - Goblin",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "goblinoid"
+    ]
   },
   "dog-night": {
     "name": "Dog - Night",
-    "category": "",
-    "tags": []
+    "category": "Magical Beast",
+    "tags": [
+      "canine",
+      "dark",
+      "fear"
+    ]
   },
   "dog-riding": {
     "name": "Dog - Riding",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "canine",
+      "mount"
+    ]
   },
   "dolphin": {
     "name": "Dolphin",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic"
+    ]
   },
   "doppelganger": {
     "name": "Doppelganger",
@@ -1284,18 +1410,25 @@
   },
   "eagle": {
     "name": "Eagle",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "flying"
+    ]
   },
   "eel-electric": {
     "name": "Eel - Electric",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic",
+      "lightning"
+    ]
   },
   "eel-moray": {
     "name": "Eel - Moray",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic"
+    ]
   },
   "eldritch-mindfish": {
     "name": "Eldritch Mindfish",
@@ -1339,8 +1472,11 @@
   },
   "elephant": {
     "name": "Elephant",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "large",
+      "herd"
+    ]
   },
   "ember-dwarf": {
     "name": "Ember Dwarf",
@@ -1405,8 +1541,13 @@
   },
   "fiend": {
     "name": "Fiend",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "half",
+      "fiend",
+      "demon-touched",
+      "hybrid"
+    ]
   },
   "fiend-mercenary-archmage": {
     "name": "Fiend Mercenary - Archmage",
@@ -1500,18 +1641,25 @@
   },
   "flytrap": {
     "name": "Flytrap",
-    "category": "",
-    "tags": []
+    "category": "Plant",
+    "tags": [
+      "plant",
+      "ambush"
+    ]
   },
   "frog": {
     "name": "Frog",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "amphibian"
+    ]
   },
   "frog-behemoth": {
     "name": "Frog - Behemoth",
-    "category": "",
-    "tags": []
+    "category": "Aberration",
+    "tags": [
+      "froghemoth"
+    ]
   },
   "frogfolk": {
     "name": "Frogfolk",
@@ -1525,8 +1673,13 @@
   },
   "frogfolk-scum": {
     "name": "Frogfolk - Scum",
-    "category": "",
-    "tags": []
+    "category": "Humanoid",
+    "tags": [
+      "swamp",
+      "amphibian",
+      "boggard",
+      "bullywug"
+    ]
   },
   "frost-worm": {
     "name": "Frost Worm",
@@ -1764,13 +1917,19 @@
   },
   "golem-wood": {
     "name": "Golem - Wood",
-    "category": "",
-    "tags": []
+    "category": "Construct",
+    "tags": [
+      "golem"
+    ]
   },
   "gorvak": {
     "name": "Gorvak",
-    "category": "",
-    "tags": []
+    "category": "Magical Beast",
+    "tags": [
+      "ape",
+      "apekin",
+      "girallon"
+    ]
   },
   "griffon": {
     "name": "Griffon",
@@ -1783,8 +1942,12 @@
   },
   "grimtongue": {
     "name": "Grimtongue",
-    "category": "",
-    "tags": []
+    "category": "Undead",
+    "tags": [
+      "skeletal",
+      "skeleton",
+      "mohrg"
+    ]
   },
   "harpy": {
     "name": "Harpy",
@@ -1797,13 +1960,20 @@
   },
   "harrower": {
     "name": "Harrower",
-    "category": "",
-    "tags": []
+    "category": "Construct",
+    "tags": [
+      "spider",
+      "vermin",
+      "demon-touched",
+      "retriever"
+    ]
   },
   "hawk": {
     "name": "Hawk",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "flying"
+    ]
   },
   "hell-hound": {
     "name": "Hell Hound",
@@ -1878,8 +2048,10 @@
   },
   "horse": {
     "name": "Horse",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "mount"
+    ]
   },
   "hydra": {
     "name": "Hydra",
@@ -1892,8 +2064,10 @@
   },
   "hyena": {
     "name": "Hyena",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "pack"
+    ]
   },
   "invisible-stalker": {
     "name": "Invisible Stalker",
@@ -1968,13 +2142,19 @@
   },
   "leech": {
     "name": "Leech",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "parasite",
+      "aquatic"
+    ]
   },
   "leech-swarm": {
     "name": "Leech - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "parasite",
+      "aquatic"
+    ]
   },
   "lich": {
     "name": "Lich",
@@ -1989,23 +2169,38 @@
   },
   "linnorm-frost": {
     "name": "Linnorm - Frost",
-    "category": "",
-    "tags": []
+    "category": "Dragon",
+    "tags": [
+      "chromatic",
+      "cold",
+      "flying"
+    ]
   },
   "linnorm-poison": {
     "name": "Linnorm - Poison",
-    "category": "",
-    "tags": []
+    "category": "Dragon",
+    "tags": [
+      "chromatic",
+      "poison",
+      "flying"
+    ]
   },
   "linnorm-stone": {
     "name": "Linnorm - Stone",
-    "category": "",
-    "tags": []
+    "category": "Dragon",
+    "tags": [
+      "chromatic",
+      "stone",
+      "flying"
+    ]
   },
   "lion": {
     "name": "Lion",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "feline",
+      "pack"
+    ]
   },
   "living-ember": {
     "name": "Living Ember",
@@ -2029,23 +2224,32 @@
   },
   "lizard": {
     "name": "Lizard",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile"
+    ]
   },
   "lizard-frilled": {
     "name": "Lizard - Frilled",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile"
+    ]
   },
   "lizard-lightning": {
     "name": "Lizard - Lightning",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile",
+      "lightning"
+    ]
   },
   "lizard-monitor": {
     "name": "Lizard - Monitor",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile"
+    ]
   },
   "lizardfolk": {
     "name": "Lizardfolk",
@@ -2137,8 +2341,13 @@
   },
   "madling": {
     "name": "Madling",
-    "category": "",
-    "tags": []
+    "category": "Humanoid",
+    "tags": [
+      "caeve-dweller",
+      "underdark",
+      "madness",
+      "derro"
+    ]
   },
   "manticore": {
     "name": "Manticore",
@@ -2151,8 +2360,11 @@
   },
   "mantis": {
     "name": "Mantis",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect",
+      "ambush"
+    ]
   },
   "mantis-folk": {
     "name": "Mantis Folk",
@@ -2176,8 +2388,11 @@
   },
   "mastodon": {
     "name": "Mastodon",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "large",
+      "prehistoric"
+    ]
   },
   "medusa": {
     "name": "Medusa",
@@ -2213,18 +2428,29 @@
   },
   "monkey": {
     "name": "Monkey",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "primate"
+    ]
   },
   "morlock": {
     "name": "Morlock",
-    "category": "",
-    "tags": []
+    "category": "Humanoid",
+    "tags": [
+      "cave-dweller",
+      "cave",
+      "underdark"
+    ]
   },
   "mote-air": {
     "name": "Mote - Air",
-    "category": "",
-    "tags": []
+    "category": "Elemental",
+    "tags": [
+      "mephit",
+      "small",
+      "flying",
+      "mephit"
+    ]
   },
   "mote-dust": {
     "name": "Mote - Dust",
@@ -2238,13 +2464,23 @@
   },
   "mote-earth": {
     "name": "Mote - Earth",
-    "category": "",
-    "tags": []
+    "category": "Elemental",
+    "tags": [
+      "mephit",
+      "small",
+      "flying",
+      "mephit"
+    ]
   },
   "mote-fire": {
     "name": "Mote - Fire",
-    "category": "",
-    "tags": []
+    "category": "Elemental",
+    "tags": [
+      "mephit",
+      "small",
+      "flying",
+      "mephit"
+    ]
   },
   "mote-ice": {
     "name": "Mote - Ice",
@@ -2278,13 +2514,23 @@
   },
   "mote-ooze": {
     "name": "Mote - Ooze",
-    "category": "",
-    "tags": []
+    "category": "Elemental",
+    "tags": [
+      "mephit",
+      "small",
+      "flying",
+      "mephit"
+    ]
   },
   "mote-salt": {
     "name": "Mote - Salt",
-    "category": "",
-    "tags": []
+    "category": "Elemental",
+    "tags": [
+      "mephit",
+      "small",
+      "flying",
+      "mephit"
+    ]
   },
   "mote-smoke": {
     "name": "Mote - Smoke",
@@ -2365,8 +2611,13 @@
   },
   "myconid-mindspore": {
     "name": "Myconid - Mindspore",
-    "category": "",
-    "tags": []
+    "category": "Plant",
+    "tags": [
+      "myconid",
+      "fungus",
+      "underdark",
+      "basidirond"
+    ]
   },
   "nightmare": {
     "name": "Nightmare",
@@ -2380,13 +2631,19 @@
   },
   "nymph": {
     "name": "Nymph",
-    "category": "",
-    "tags": []
+    "category": "Fey",
+    "tags": [
+      "forest",
+      "nature",
+      "charm"
+    ]
   },
   "octopus": {
     "name": "Octopus",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic"
+    ]
   },
   "ogre": {
     "name": "Ogre",
@@ -2458,28 +2715,43 @@
   },
   "orca": {
     "name": "Orca",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic"
+    ]
   },
   "owl": {
     "name": "Owl",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "flying"
+    ]
   },
   "paragon-beacon": {
     "name": "Paragon - Beacon",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "extraplanar",
+      "archon",
+      "small",
+      "flying"
+    ]
   },
   "paragon-guardian": {
     "name": "Paragon - Guardian",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "extraplanar",
+      "archon"
+    ]
   },
   "paragon-herald": {
     "name": "Paragon - Herald",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "extraplanar",
+      "archon"
+    ]
   },
   "pegasus": {
     "name": "Pegasus",
@@ -2510,8 +2782,10 @@
   },
   "phoenix": {
     "name": "Phoenix",
-    "category": "",
-    "tags": []
+    "category": "Magical Beast",
+    "tags": [
+      "fire"
+    ]
   },
   "pixie": {
     "name": "Pixie",
@@ -2524,8 +2798,11 @@
   },
   "pony": {
     "name": "Pony",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "mount",
+      "small"
+    ]
   },
   "pseudodragon": {
     "name": "Pseudodragon",
@@ -2547,18 +2824,24 @@
   },
   "rat": {
     "name": "Rat",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "small"
+    ]
   },
   "rat-swarm": {
     "name": "Rat - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "small"
+    ]
   },
   "raven": {
     "name": "Raven",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "flying"
+    ]
   },
   "revenant": {
     "name": "Revenant",
@@ -2570,13 +2853,20 @@
   },
   "rhinoceros": {
     "name": "Rhinoceros",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "large",
+      "charge"
+    ]
   },
   "rhinoceros-wooly": {
     "name": "Rhinoceros - Wooly",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "large",
+      "charge",
+      "cold"
+    ]
   },
   "roc": {
     "name": "Roc",
@@ -2617,48 +2907,76 @@
   },
   "scorpion": {
     "name": "Scorpion",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "poison"
+    ]
   },
   "sea-serpent": {
     "name": "Sea Serpent",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic",
+      "serpent"
+    ]
   },
   "shark": {
     "name": "Shark",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic"
+    ]
   },
   "shoggoth": {
     "name": "Shoggoth",
-    "category": "",
-    "tags": []
+    "category": "Aberration",
+    "tags": [
+      "amorphous",
+      "shapechanger",
+      "ancient",
+      "horror"
+    ]
   },
   "shrieker": {
     "name": "Shrieker",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "extraplanar",
+      "vargouille"
+    ]
   },
   "skeleton-champion": {
     "name": "Skeleton - Champion",
-    "category": "",
-    "tags": []
+    "category": "Undead",
+    "tags": [
+      "skeleton",
+      "undead",
+      "warrior"
+    ]
   },
   "slug": {
     "name": "Slug",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "slow"
+    ]
   },
   "snake": {
     "name": "Snake",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile",
+      "serpent"
+    ]
   },
   "snake-constrictor": {
     "name": "Snake - Constrictor",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile",
+      "serpent",
+      "constrict"
+    ]
   },
   "snake-fire": {
     "name": "Snake - Fire",
@@ -2844,18 +3162,30 @@
   },
   "snake-iron": {
     "name": "Snake - Iron",
-    "category": "",
-    "tags": []
+    "category": "Construct",
+    "tags": [
+      "construct",
+      "trap",
+      "guardian"
+    ]
   },
   "snake-venomous": {
     "name": "Snake - Venomous",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "reptile",
+      "serpent",
+      "poison"
+    ]
   },
   "soul-cage": {
     "name": "Soul Cage",
-    "category": "",
-    "tags": []
+    "category": "Undead",
+    "tags": [
+      "skeletal",
+      "zombie",
+      "skeleton"
+    ]
   },
   "specter": {
     "name": "Specter",
@@ -2888,8 +3218,11 @@
   },
   "spider": {
     "name": "Spider",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "poison",
+      "ambush"
+    ]
   },
   "spider-centaur": {
     "name": "Spider Centaur",
@@ -2903,13 +3236,19 @@
   },
   "spider-phase": {
     "name": "Spider - Phase",
-    "category": "",
-    "tags": []
+    "category": "Magical Beast",
+    "tags": [
+      "spider",
+      "illusion",
+      "displacer"
+    ]
   },
   "spider-swarm": {
     "name": "Spider - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "poison"
+    ]
   },
   "sprite": {
     "name": "Sprite",
@@ -2922,8 +3261,10 @@
   },
   "squid": {
     "name": "Squid",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "aquatic"
+    ]
   },
   "steel-bull": {
     "name": "Steel Bull",
@@ -2974,8 +3315,10 @@
   },
   "tiger": {
     "name": "Tiger",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "feline"
+    ]
   },
   "tigerkin": {
     "name": "Tigerkin",
@@ -2988,8 +3331,10 @@
   },
   "toad": {
     "name": "Toad",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "amphibian"
+    ]
   },
   "treant": {
     "name": "Treant",
@@ -3043,38 +3388,58 @@
   },
   "vegling": {
     "name": "Vegling",
-    "category": "",
-    "tags": []
+    "category": "Fey",
+    "tags": [
+      "plant",
+      "pantkin",
+      "vegepygmy"
+    ]
   },
   "verminkin": {
     "name": "Verminkin",
-    "category": "",
-    "tags": []
+    "category": "Fey",
+    "tags": [
+      "mite"
+    ]
   },
   "void-stalker": {
     "name": "Void Stalker",
-    "category": "",
-    "tags": []
+    "category": "Outsider",
+    "tags": [
+      "extraplanar",
+      "evil",
+      "xill"
+    ]
   },
   "vorzhul": {
     "name": "Vorzhul",
-    "category": "",
-    "tags": []
+    "category": "Aberration",
+    "tags": [
+      "neothilid"
+    ]
   },
   "wasp": {
     "name": "Wasp",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect",
+      "poison"
+    ]
   },
   "wasp-swarm": {
     "name": "Wasp - Swarm",
-    "category": "",
-    "tags": []
+    "category": "Vermin",
+    "tags": [
+      "insect",
+      "poison"
+    ]
   },
   "weasel": {
     "name": "Weasel",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "small"
+    ]
   },
   "web-stalker": {
     "name": "Web Stalker",
@@ -3120,23 +3485,37 @@
   },
   "wolf": {
     "name": "Wolf",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "canine",
+      "pack"
+    ]
   },
   "wolf-fell": {
     "name": "Wolf - Fell",
-    "category": "",
-    "tags": []
+    "category": "Magical Beast",
+    "tags": [
+      "canine",
+      "pack",
+      "predator"
+    ]
   },
   "wolf-winter": {
     "name": "Wolf - Winter",
-    "category": "",
-    "tags": []
+    "category": "Magical Beast",
+    "tags": [
+      "canine",
+      "pack",
+      "cold",
+      "breath-weapon"
+    ]
   },
   "wolverine": {
     "name": "Wolverine",
-    "category": "",
-    "tags": []
+    "category": "Beast",
+    "tags": [
+      "predator"
+    ]
   },
   "world-eater": {
     "name": "World Eater",
