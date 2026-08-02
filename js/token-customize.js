@@ -243,6 +243,12 @@ function drawToken(ctx, image, settings, transform) {
     }, "image/png");
   });
 
+  // Bumped on every open so a late-arriving retry from a *previous* token
+  // can never clobber the image/status of whatever's open now.
+  let loadId = 0;
+
+  const IMAGE_LOAD_RETRIES = 2;
+
   window.openTokenCustomizer = function (token, src) {
     currentToken = token;
     currentImage = null;
@@ -256,17 +262,34 @@ function drawToken(ctx, image, settings, transform) {
 
     modal.showModal();
 
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      currentImage = img;
-      downloadBtn.disabled = false;
-      status.textContent = "";
-      redraw();
-    };
-    img.onerror = () => {
-      status.textContent = "Couldn't load that token's image.";
-    };
-    img.src = src;
+    const thisLoad = ++loadId;
+
+    function attemptLoad(attempt) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        if (thisLoad !== loadId) return;
+        currentImage = img;
+        downloadBtn.disabled = false;
+        status.textContent = "";
+        redraw();
+      };
+      img.onerror = () => {
+        if (thisLoad !== loadId) return;
+        // The image CDN's edge cache occasionally serves a stale response
+        // that's missing CORS headers (a Cloudflare cache-population race
+        // on Vary: Origin) — a cache-busted retry almost always picks up
+        // a fresh, correctly-headered copy.
+        if (attempt < IMAGE_LOAD_RETRIES) {
+          attemptLoad(attempt + 1);
+        } else {
+          status.textContent = "Couldn't load that token's image.";
+        }
+      };
+      const separator = src.includes("?") ? "&" : "?";
+      img.src = attempt === 0 ? src : `${src}${separator}retry=${attempt}`;
+    }
+
+    attemptLoad(0);
   };
 })();
