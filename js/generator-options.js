@@ -250,7 +250,7 @@ const WEAPON_OPTIONS = [
 
 const MAINHAND_OPTIONS = [...WEAPON_OPTIONS];
 
-const OFFHAND_OPTIONS = ["Shield", "Buckler", ...WEAPON_OPTIONS];
+const OFFHAND_OPTIONS = ["None", "Shield", "Buckler", ...WEAPON_OPTIONS.filter((option) => option !== "None")];
 
 function initCombobox(fieldId, options) {
   const wrapper = document.querySelector(`[data-combobox="${fieldId}"]`);
