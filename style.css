@@ -432,6 +432,10 @@ main {
   color: var(--ink);
 }
 
+.token-modal .generator-status {
+  color: var(--ink);
+}
+
 .token-modal-form {
   position: relative;
   padding: 1.6rem 1.8rem 1.8rem;
