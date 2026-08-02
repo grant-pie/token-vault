@@ -25,6 +25,30 @@ const generateBtn = document.getElementById("generate-btn");
 
 resultImage.crossOrigin = "anonymous";
 
+// Browsers silently ignore the <a download> attribute when the link target is
+// cross-origin (generated token images are served from the worker's
+// workers.dev domain, not this static site's origin) — without this, clicking
+// Download just navigates to/opens the image instead of saving it. Fetch it
+// as a blob first so the browser always sees a same-origin blob: URL.
+downloadLink.addEventListener("click", async (e) => {
+  e.preventDefault();
+  const url = downloadLink.href;
+  if (!url) return;
+  const filename = downloadLink.download || "token.png";
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const tempLink = document.createElement("a");
+    tempLink.href = blobUrl;
+    tempLink.download = filename;
+    tempLink.click();
+    URL.revokeObjectURL(blobUrl);
+  } catch {
+    window.open(url, "_blank");
+  }
+});
+
 const SELECT_OPTIONS = {
   gender: GENDER_OPTIONS,
   age: AGE_OPTIONS,
