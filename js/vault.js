@@ -12,7 +12,8 @@ const suggestionsList = document.getElementById("vault-suggestions");
 const statusEl = document.getElementById("vault-status");
 const countEl = document.getElementById("vault-count");
 
-const styleNames = VAULT_STYLES;
+// Retro hidden: still a work in progress, not ready for the public search page.
+const styleNames = VAULT_STYLES.filter((style) => style !== "retro");
 let activeStyle = styleNames[0] || "standard";
 let matches = [];
 let highlightedIndex = -1;

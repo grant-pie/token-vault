@@ -29,7 +29,7 @@ const VAULT_DATA = [
   { id: "burrowing-acid-beast", name: "Burrowing Acid Beast", category: "Monstrosity", tags: ["burrowing","acid","ankheg"], filenames: {"standard":"Burrowing Acid Beast.webp","grimdark":"Burrowing Acid Beast.webp","retro":null} },
   { id: "cave-ambusher", name: "Cave Ambusher", category: "Monstrosity", tags: ["flying","stealth","underdark","darkmantle"], filenames: {"standard":"Cave Ambusher.webp","grimdark":"Cave Ambusher.webp","retro":null} },
   { id: "cave-dropper", name: "Cave Dropper", category: "Monstrosity", tags: ["ambush","cave","piercer"], filenames: {"standard":"Cave Dropper.webp","grimdark":"Cave Dropper.webp","retro":null} },
-  { id: "cave-dweller", name: "Cave Dweller", category: "Humanoid", tags: ["underdark","feral","quaggoth"], filenames: {"standard":"cave-dweller.webp","grimdark":"cave-dweller.webp","retro":null} },
+  { id: "cave-dweller", name: "Cave Dweller", category: "Humanoid", tags: ["underdark","feral","quaggoth"], filenames: {"standard":"Cave Dweller.webp","grimdark":"Cave Dweller.webp","retro":null} },
   { id: "cave-strangler", name: "Cave Strangler", category: "Monstrosity", tags: ["cave","tentacles","ambush"], filenames: {"standard":"Cave Strangler.webp","grimdark":"Cave Strangler.webp","retro":null} },
   { id: "centaur", name: "Centaur", category: "Monstrosity", tags: ["hybrid","forest"], filenames: {"standard":"Centaur.webp","grimdark":"Centaur.webp","retro":null} },
   { id: "chaos-toad-blue", name: "Chaos Toad - Blue", category: "Aberration", tags: ["slaad","chaos"], filenames: {"standard":"Chaos Toad - Blue.webp","grimdark":"Chaos Toad - Blue.webp","retro":null} },
