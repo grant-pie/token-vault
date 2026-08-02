@@ -10,9 +10,9 @@ const CREDIT_TOKEN_STORAGE_KEY = "tokenvault_credit_token";
 // worker/src/config.js's CREDIT_PACKS (amountSubunits). Keep these in sync
 // by hand if that ever changes.
 const CREDIT_PACK_DISPLAY = [
-  { id: "small", credits: 15, amountZar: 55 },
-  { id: "medium", credits: 50, amountZar: 150 },
-  { id: "large", credits: 150, amountZar: 350 },
+  { id: "starter", name: "Starter", credits: 10, amountZar: 83 },
+  { id: "adventurer", name: "Adventurer", credits: 25, amountZar: 182 },
+  { id: "dungeonMaster", name: "Dungeon Master", credits: 60, amountZar: 398 },
 ];
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -216,7 +216,7 @@ async function renderPackButtons() {
     btn.type = "button";
     btn.className = "page-btn credit-pack-btn";
     const usdEstimate = (pack.amountZar * usdRate).toFixed(2);
-    btn.textContent = `${pack.credits} credits — R${pack.amountZar} (~$${usdEstimate} USD)`;
+    btn.textContent = `${pack.name} — ${pack.credits} credits — R${pack.amountZar} (~$${usdEstimate} USD)`;
     btn.addEventListener("click", () => startCheckout(pack.id, btn));
     packButtonsEl.appendChild(btn);
   });

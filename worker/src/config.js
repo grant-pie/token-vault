@@ -181,25 +181,28 @@ export const FEEDBACK_RATE_LIMIT_MAX = 5;
 // Length of the feedback rate-limit window, in seconds.
 export const FEEDBACK_RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
 
-// Credits spent per generation, by quality. Roughly mirrors OpenAI's own
-// cost ratio between tiers so a "high" request isn't quietly subsidized by
-// credits sold assuming "low" usage.
+// Credits spent per generation, by quality. Flat 1 credit regardless of
+// quality tier — kept as a per-quality map (rather than a single constant)
+// since CREDIT_COST_BY_QUALITY[quality] is still looked up by quality in
+// worker/src/index.js.
 export const CREDIT_COST_BY_QUALITY = {
   low: 1,
-  medium: 3,
-  high: 10,
+  medium: 1,
+  high: 1,
 };
 
 // Credit packs sold via Paystack. Unlike Stripe, Paystack doesn't need a
 // pre-created Product/Price for a one-off charge — the amount is passed
 // directly on each transaction — so the price lives here rather than behind
 // an external ID. `amountSubunits` is in cents (ZAR's smallest unit, same
-// idea as Stripe's "amount in cents"). These are draft prices — check them
-// against a current USD/ZAR rate and comparable local products before launch.
+// idea as Stripe's "amount in cents"). Priced off $4.99 / $10.99 / $23.99
+// targets converted at ~16.575 ZAR/USD (2026-08-02) — Paystack settles in
+// ZAR only, so these are the real charged amounts; re-derive them if the
+// rate drifts meaningfully.
 export const CREDIT_PACKS = {
-  small: { credits: 15, amountSubunits: 5500 }, // R55.00
-  medium: { credits: 50, amountSubunits: 15000 }, // R150.00
-  large: { credits: 150, amountSubunits: 35000 }, // R350.00
+  starter: { credits: 10, amountSubunits: 8300 }, // R83.00 (~$4.99)
+  adventurer: { credits: 25, amountSubunits: 18200 }, // R182.00 (~$10.99)
+  dungeonMaster: { credits: 60, amountSubunits: 39800 }, // R398.00 (~$23.99)
 };
 
 // Currency CREDIT_PACKS' amountSubunits are denominated in, passed through to Paystack.
