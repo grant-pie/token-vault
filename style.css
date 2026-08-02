@@ -662,6 +662,19 @@ footer {
   opacity: 0.75;
 }
 
+footer a,
+.recent-link a {
+  color: var(--gold-bright);
+  text-decoration: underline;
+}
+
+footer a:hover,
+footer a:focus-visible,
+.recent-link a:hover,
+.recent-link a:focus-visible {
+  color: var(--parchment);
+}
+
 .share-row {
   display: flex;
   align-items: center;
