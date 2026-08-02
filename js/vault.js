@@ -10,6 +10,7 @@ const styleSelect = document.getElementById("style-select");
 const searchInput = document.getElementById("vault-search");
 const suggestionsList = document.getElementById("vault-suggestions");
 const statusEl = document.getElementById("vault-status");
+const countEl = document.getElementById("vault-count");
 
 const styleNames = VAULT_STYLES;
 let activeStyle = styleNames[0] || "standard";
@@ -30,6 +31,12 @@ function populateStyleSelect() {
     styleSelect.appendChild(option);
   });
   styleSelect.value = activeStyle;
+}
+
+function renderCount() {
+  if (!countEl) return;
+  const total = VAULT_DATA.length;
+  countEl.textContent = `${total.toLocaleString()} monster token${total === 1 ? "" : "s"} in the vault`;
 }
 
 function imageUrl(style, file) {
@@ -183,4 +190,5 @@ if (styleSelect) {
 }
 
 populateStyleSelect();
+renderCount();
 closeSuggestions();
