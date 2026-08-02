@@ -178,7 +178,6 @@ async function claimRestore(restoreToken) {
 
     setCreditToken(data.token);
     renderBalance(data.balance);
-    showModalStatus(`Restored — you have ${data.balance} credit${data.balance === 1 ? "" : "s"}.`);
   } catch {
     showModalStatus("Couldn't reach the server to restore your credits — try again.");
   }
@@ -197,7 +196,7 @@ async function requestRestoreLink(email, triggerBtn) {
     const data = await res.json();
     if (creditModalStatus) {
       creditModalStatus.textContent = res.ok
-        ? data.message || "If that email has a credit balance, we've sent a restore link."
+        ? data.message || "If that email has a credit balance, we've sent a restore link — check your spam folder if it doesn't show up in a few minutes."
         : data.error || "Couldn't send a restore link.";
     }
   } catch {

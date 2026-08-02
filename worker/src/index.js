@@ -866,7 +866,7 @@ async function handleRequestRestoreLink(request, env, ctx, origin) {
   ctx.waitUntil(sendRestoreLinkIfEligible(env, email));
 
   return jsonResponse(
-    { ok: true, message: "If that email has a credit balance, we've sent a restore link." },
+    { ok: true, message: "If that email has a credit balance, we've sent a restore link — check your spam folder if it doesn't show up in a few minutes." },
     200,
     origin
   );
