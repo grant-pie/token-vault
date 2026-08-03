@@ -180,6 +180,7 @@ const WEAPON_OPTIONS = [
   "Holy Symbol",
   "Arrow",
   "Pipe",
+  "Grimoire",
   //Musical Instruments
   "Bagpipes",
   "Drum",
