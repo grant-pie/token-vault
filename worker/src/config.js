@@ -17,7 +17,7 @@ export const PAYMENTS_ENABLED = false;
 
 // Max generate requests allowed per IP within the rate-limit window.
 // Only relevant while FREE_TIER_ENABLED is true.
-export const RATE_LIMIT_MAX = 15;
+export const RATE_LIMIT_MAX = 5;
 
 // Length of the rate-limit window, in seconds.
 export const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
