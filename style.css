@@ -1073,6 +1073,17 @@ footer a:focus-visible,
   width: 100%;
 }
 
+.credit-free-notice {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ink);
+  background: rgba(201, 162, 39, 0.12);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin: 0.6rem 0 1rem;
+}
+
 .credit-fx-note {
   font-size: 0.75rem;
   font-style: italic;
