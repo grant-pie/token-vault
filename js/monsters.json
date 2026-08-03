@@ -292,12 +292,72 @@
       "goblinoid"
     ]
   },
+  "bugbear-champion": {
+    "name": "Bugbear - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "warrior",
+      "elite"
+    ]
+  },
   "bugbear-chief": {
     "name": "Bugbear - Chief",
     "category": "Humanoid",
     "tags": [
       "goblinoid",
       "leader"
+    ]
+  },
+  "bugbear-hunter": {
+    "name": "Bugbear - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "hunter"
+    ]
+  },
+  "bugbear-shaman": {
+    "name": "Bugbear - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "bugbear-thief": {
+    "name": "Bugbear - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "thief"
+    ]
+  },
+  "bugbear-warlock": {
+    "name": "Bugbear - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "bugbear-warlord": {
+    "name": "Bugbear - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "leader",
+      "warlord"
+    ]
+  },
+  "bugbear-warrior": {
+    "name": "Bugbear - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "warrior"
     ]
   },
   "burrowing-acid-beast": {
@@ -660,6 +720,70 @@
       "duergar"
     ]
   },
+  "dark-dwarf-champion": {
+    "name": "Dark Dwarf - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "underdark",
+      "duergar",
+      "warrior",
+      "elite"
+    ]
+  },
+  "dark-dwarf-hunter": {
+    "name": "Dark Dwarf - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "underdark",
+      "duergar",
+      "hunter"
+    ]
+  },
+  "dark-dwarf-warlock": {
+    "name": "Dark Dwarf - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "underdark",
+      "duergar",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "dark-dwarf-warlord": {
+    "name": "Dark Dwarf - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "underdark",
+      "duergar",
+      "leader",
+      "warlord"
+    ]
+  },
+  "dark-dwarf-warpriest": {
+    "name": "Dark Dwarf - Warpriest",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "underdark",
+      "duergar",
+      "spellcaster",
+      "warpriest"
+    ]
+  },
+  "dark-dwarf-warrior": {
+    "name": "Dark Dwarf - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "underdark",
+      "duergar",
+      "warrior"
+    ]
+  },
   "dark-elf": {
     "name": "Dark Elf",
     "category": "Humanoid",
@@ -667,6 +791,27 @@
       "elf",
       "underdark",
       "drow"
+    ]
+  },
+  "dark-elf-champion": {
+    "name": "Dark Elf - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "underdark",
+      "drow",
+      "warrior",
+      "elite"
+    ]
+  },
+  "dark-elf-hunter": {
+    "name": "Dark Elf - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "underdark",
+      "drow",
+      "hunter"
     ]
   },
   "dark-elf-mage": {
@@ -688,6 +833,38 @@
       "spellcaster",
       "leader",
       "drow"
+    ]
+  },
+  "dark-elf-thief": {
+    "name": "Dark Elf - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "underdark",
+      "drow",
+      "thief"
+    ]
+  },
+  "dark-elf-warlock": {
+    "name": "Dark Elf - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "underdark",
+      "drow",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "dark-elf-warlord": {
+    "name": "Dark Elf - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "underdark",
+      "drow",
+      "leader",
+      "warlord"
     ]
   },
   "dark-elf-warrior": {
@@ -933,23 +1110,6 @@
       "devil"
     ]
   },
-  "devil-incubus": {
-    "name": "Devil - Incubus",
-    "category": "Fiend",
-    "tags": [
-      "shapechanger",
-      "charm"
-    ]
-  },
-  "devil-succubus": {
-    "name": "Devil - Succubus",
-    "category": "Fiend",
-    "tags": [
-      "shapechanger",
-      "charm",
-      "flying"
-    ]
-  },
   "devil-familiar": {
     "name": "Devil - Familiar",
     "category": "Fiend",
@@ -993,6 +1153,14 @@
       "weak"
     ]
   },
+  "devil-incubus": {
+    "name": "Devil - Incubus",
+    "category": "Fiend",
+    "tags": [
+      "shapechanger",
+      "charm"
+    ]
+  },
   "devil-overlord": {
     "name": "Devil - Overlord",
     "category": "Fiend",
@@ -1013,6 +1181,15 @@
     "category": "Fiend",
     "tags": [
       "devil"
+    ]
+  },
+  "devil-succubus": {
+    "name": "Devil - Succubus",
+    "category": "Fiend",
+    "tags": [
+      "shapechanger",
+      "charm",
+      "flying"
     ]
   },
   "devil-tyrant": {
@@ -1390,6 +1567,75 @@
       "flying"
     ]
   },
+  "dragonborn-champion": {
+    "name": "Dragonborn - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "warrior",
+      "elite"
+    ]
+  },
+  "dragonborn-hunter": {
+    "name": "Dragonborn - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "hunter"
+    ]
+  },
+  "dragonborn-mage": {
+    "name": "Dragonborn - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "dragonborn-shaman": {
+    "name": "Dragonborn - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "dragonborn-thief": {
+    "name": "Dragonborn - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "thief"
+    ]
+  },
+  "dragonborn-warlock": {
+    "name": "Dragonborn - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "dragonborn-warlord": {
+    "name": "Dragonborn - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "leader",
+      "warlord"
+    ]
+  },
+  "dragonborn-warrior": {
+    "name": "Dragonborn - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "dragonborn",
+      "warrior"
+    ]
+  },
   "dragonkin-warrior": {
     "name": "Dragonkin - Warrior",
     "category": "Humanoid",
@@ -1406,6 +1652,66 @@
       "forest",
       "nature",
       "shapechanger"
+    ]
+  },
+  "dwarf-champion": {
+    "name": "Dwarf - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "warrior",
+      "elite"
+    ]
+  },
+  "dwarf-hunter": {
+    "name": "Dwarf - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "hunter"
+    ]
+  },
+  "dwarf-mage": {
+    "name": "Dwarf - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "dwarf-thief": {
+    "name": "Dwarf - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "thief"
+    ]
+  },
+  "dwarf-warlord": {
+    "name": "Dwarf - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "leader",
+      "warlord"
+    ]
+  },
+  "dwarf-warpriest": {
+    "name": "Dwarf - Warpriest",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "spellcaster",
+      "warpriest"
+    ]
+  },
+  "dwarf-warrior": {
+    "name": "Dwarf - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "dwarf",
+      "warrior"
     ]
   },
   "eagle": {
@@ -1476,6 +1782,57 @@
     "tags": [
       "large",
       "herd"
+    ]
+  },
+  "elf-champion": {
+    "name": "Elf - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "warrior",
+      "elite"
+    ]
+  },
+  "elf-hunter": {
+    "name": "Elf - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "hunter"
+    ]
+  },
+  "elf-mage": {
+    "name": "Elf - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "elf-thief": {
+    "name": "Elf - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "thief"
+    ]
+  },
+  "elf-warlord": {
+    "name": "Elf - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "leader",
+      "warlord"
+    ]
+  },
+  "elf-warrior": {
+    "name": "Elf - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "elf",
+      "warrior"
     ]
   },
   "ember-dwarf": {
@@ -1862,12 +2219,141 @@
       "demon-touched"
     ]
   },
+  "gnoll-champion": {
+    "name": "Gnoll - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "gnoll",
+      "warrior",
+      "elite"
+    ]
+  },
+  "gnoll-hunter": {
+    "name": "Gnoll - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "gnoll",
+      "hunter"
+    ]
+  },
   "gnoll-lord": {
     "name": "Gnoll - Lord",
     "category": "Humanoid",
     "tags": [
       "gnoll",
       "leader"
+    ]
+  },
+  "gnoll-shaman": {
+    "name": "Gnoll - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "gnoll",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "gnoll-thief": {
+    "name": "Gnoll - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "gnoll",
+      "thief"
+    ]
+  },
+  "gnoll-warlock": {
+    "name": "Gnoll - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "gnoll",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "gnoll-warlord": {
+    "name": "Gnoll - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "gnoll",
+      "leader",
+      "warlord"
+    ]
+  },
+  "gnoll-warrior": {
+    "name": "Gnoll - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "gnoll",
+      "warrior"
+    ]
+  },
+  "gnome-champion": {
+    "name": "Gnome - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "warrior",
+      "elite"
+    ]
+  },
+  "gnome-hunter": {
+    "name": "Gnome - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "hunter"
+    ]
+  },
+  "gnome-mage": {
+    "name": "Gnome - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "gnome-thief": {
+    "name": "Gnome - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "thief"
+    ]
+  },
+  "gnome-warlock": {
+    "name": "Gnome - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "gnome-warlord": {
+    "name": "Gnome - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "leader",
+      "warlord"
+    ]
+  },
+  "gnome-warpriest": {
+    "name": "Gnome - Warpriest",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "spellcaster",
+      "warpriest"
+    ]
+  },
+  "gnome-warrior": {
+    "name": "Gnome - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "gnome",
+      "warrior"
     ]
   },
   "goblin": {
@@ -1883,6 +2369,66 @@
     "tags": [
       "goblinoid",
       "leader"
+    ]
+  },
+  "goblin-champion": {
+    "name": "Goblin - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "warrior",
+      "elite"
+    ]
+  },
+  "goblin-hunter": {
+    "name": "Goblin - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "hunter"
+    ]
+  },
+  "goblin-shaman": {
+    "name": "Goblin - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "goblin-thief": {
+    "name": "Goblin - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "thief"
+    ]
+  },
+  "goblin-warlock": {
+    "name": "Goblin - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "goblin-warlord": {
+    "name": "Goblin - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "leader",
+      "warlord"
+    ]
+  },
+  "goblin-warrior": {
+    "name": "Goblin - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "warrior"
     ]
   },
   "golem-clay": {
@@ -1949,6 +2495,134 @@
       "mohrg"
     ]
   },
+  "half-orc-champion": {
+    "name": "Half-Orc - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "warrior",
+      "elite"
+    ]
+  },
+  "half-orc-hunter": {
+    "name": "Half-Orc - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "hunter"
+    ]
+  },
+  "half-orc-mage": {
+    "name": "Half-Orc - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "half-orc-shaman": {
+    "name": "Half-Orc - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "half-orc-thief": {
+    "name": "Half-Orc - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "thief"
+    ]
+  },
+  "half-orc-warlock": {
+    "name": "Half-Orc - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "half-orc-warlord": {
+    "name": "Half-Orc - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "leader",
+      "warlord"
+    ]
+  },
+  "half-orc-warrior": {
+    "name": "Half-Orc - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "half-orc",
+      "orc",
+      "warrior"
+    ]
+  },
+  "halfling-champion": {
+    "name": "Halfling - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "halfling",
+      "warrior",
+      "elite"
+    ]
+  },
+  "halfling-hunter": {
+    "name": "Halfling - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "halfling",
+      "hunter"
+    ]
+  },
+  "halfling-mage": {
+    "name": "Halfling - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "halfling",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "halfling-thief": {
+    "name": "Halfling - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "halfling",
+      "thief"
+    ]
+  },
+  "halfling-warlord": {
+    "name": "Halfling - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "halfling",
+      "leader",
+      "warlord"
+    ]
+  },
+  "halfling-warrior": {
+    "name": "Halfling - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "halfling",
+      "warrior"
+    ]
+  },
   "harpy": {
     "name": "Harpy",
     "category": "Monstrosity",
@@ -2000,6 +2674,15 @@
       "goblinoid"
     ]
   },
+  "hobgoblin-champion": {
+    "name": "Hobgoblin - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "warrior",
+      "elite"
+    ]
+  },
   "hobgoblin-chief": {
     "name": "Hobgoblin - Chief",
     "category": "Humanoid",
@@ -2009,6 +2692,14 @@
       "warrior"
     ]
   },
+  "hobgoblin-hunter": {
+    "name": "Hobgoblin - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "hunter"
+    ]
+  },
   "hobgoblin-lord": {
     "name": "Hobgoblin - Lord",
     "category": "Humanoid",
@@ -2016,6 +2707,49 @@
       "goblinoid",
       "leader",
       "boss"
+    ]
+  },
+  "hobgoblin-shaman": {
+    "name": "Hobgoblin - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "hobgoblin-thief": {
+    "name": "Hobgoblin - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "thief"
+    ]
+  },
+  "hobgoblin-warlock": {
+    "name": "Hobgoblin - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "hobgoblin-warlord": {
+    "name": "Hobgoblin - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "leader",
+      "warlord"
+    ]
+  },
+  "hobgoblin-warrior": {
+    "name": "Hobgoblin - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "goblinoid",
+      "warrior"
     ]
   },
   "hollow-sentinel": {
@@ -2051,6 +2785,75 @@
     "category": "Beast",
     "tags": [
       "mount"
+    ]
+  },
+  "human-champion": {
+    "name": "Human - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "warrior",
+      "elite"
+    ]
+  },
+  "human-hunter": {
+    "name": "Human - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "hunter"
+    ]
+  },
+  "human-mage": {
+    "name": "Human - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "human-thief": {
+    "name": "Human - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "thief"
+    ]
+  },
+  "human-warlock": {
+    "name": "Human - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "human-warlord": {
+    "name": "Human - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "leader",
+      "warlord"
+    ]
+  },
+  "human-warpriest": {
+    "name": "Human - Warpriest",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "spellcaster",
+      "warpriest"
+    ]
+  },
+  "human-warrior": {
+    "name": "Human - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "human",
+      "warrior"
     ]
   },
   "hydra": {
@@ -2104,6 +2907,16 @@
       "dragon-worship"
     ]
   },
+  "kobold-champion": {
+    "name": "Kobold - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "kobold",
+      "dragon-worship",
+      "warrior",
+      "elite"
+    ]
+  },
   "kobold-flying": {
     "name": "Kobold - Flying",
     "category": "Humanoid",
@@ -2111,6 +2924,63 @@
       "kobold",
       "flying",
       "dragon-worship"
+    ]
+  },
+  "kobold-hunter": {
+    "name": "Kobold - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "kobold",
+      "dragon-worship",
+      "hunter"
+    ]
+  },
+  "kobold-shaman": {
+    "name": "Kobold - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "kobold",
+      "dragon-worship",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "kobold-thief": {
+    "name": "Kobold - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "kobold",
+      "dragon-worship",
+      "thief"
+    ]
+  },
+  "kobold-warlock": {
+    "name": "Kobold - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "kobold",
+      "dragon-worship",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "kobold-warlord": {
+    "name": "Kobold - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "kobold",
+      "dragon-worship",
+      "leader",
+      "warlord"
+    ]
+  },
+  "kobold-warrior": {
+    "name": "Kobold - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "kobold",
+      "dragon-worship",
+      "warrior"
     ]
   },
   "kraken": {
@@ -2259,6 +3129,25 @@
       "swamp"
     ]
   },
+  "lizardfolk-champion": {
+    "name": "Lizardfolk - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "lizardfolk",
+      "swamp",
+      "warrior",
+      "elite"
+    ]
+  },
+  "lizardfolk-hunter": {
+    "name": "Lizardfolk - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "lizardfolk",
+      "swamp",
+      "hunter"
+    ]
+  },
   "lizardfolk-king": {
     "name": "Lizardfolk - King",
     "category": "Humanoid",
@@ -2284,6 +3173,44 @@
       "lizardfolk",
       "spellcaster",
       "swamp"
+    ]
+  },
+  "lizardfolk-thief": {
+    "name": "Lizardfolk - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "lizardfolk",
+      "swamp",
+      "thief"
+    ]
+  },
+  "lizardfolk-warlock": {
+    "name": "Lizardfolk - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "lizardfolk",
+      "swamp",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "lizardfolk-warlord": {
+    "name": "Lizardfolk - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "lizardfolk",
+      "swamp",
+      "leader",
+      "warlord"
+    ]
+  },
+  "lizardfolk-warrior": {
+    "name": "Lizardfolk - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "lizardfolk",
+      "swamp",
+      "warrior"
     ]
   },
   "lycanthrope-jackal": {
@@ -2687,6 +3614,15 @@
       "orc"
     ]
   },
+  "orc-champion": {
+    "name": "Orc - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "orc",
+      "warrior",
+      "elite"
+    ]
+  },
   "orc-deep-elite": {
     "name": "Orc - Deep Elite",
     "category": "Humanoid",
@@ -2694,6 +3630,14 @@
       "orc",
       "elite",
       "orog"
+    ]
+  },
+  "orc-hunter": {
+    "name": "Orc - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "orc",
+      "hunter"
     ]
   },
   "orc-one-eyed-zealot": {
@@ -2705,12 +3649,55 @@
       "cleric"
     ]
   },
+  "orc-shaman": {
+    "name": "Orc - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "orc",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "orc-thief": {
+    "name": "Orc - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "orc",
+      "thief"
+    ]
+  },
   "orc-warchief": {
     "name": "Orc - Warchief",
     "category": "Humanoid",
     "tags": [
       "orc",
       "leader"
+    ]
+  },
+  "orc-warlock": {
+    "name": "Orc - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "orc",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "orc-warlord": {
+    "name": "Orc - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "orc",
+      "leader",
+      "warlord"
+    ]
+  },
+  "orc-warrior": {
+    "name": "Orc - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "orc",
+      "warrior"
     ]
   },
   "orca": {
@@ -2905,89 +3892,6 @@
       "serpent"
     ]
   },
-  "scorpion": {
-    "name": "Scorpion",
-    "category": "Vermin",
-    "tags": [
-      "poison"
-    ]
-  },
-  "sea-serpent": {
-    "name": "Sea Serpent",
-    "category": "Beast",
-    "tags": [
-      "aquatic",
-      "serpent"
-    ]
-  },
-  "shark": {
-    "name": "Shark",
-    "category": "Beast",
-    "tags": [
-      "aquatic"
-    ]
-  },
-  "shoggoth": {
-    "name": "Shoggoth",
-    "category": "Aberration",
-    "tags": [
-      "amorphous",
-      "shapechanger",
-      "ancient",
-      "horror"
-    ]
-  },
-  "shrieker": {
-    "name": "Shrieker",
-    "category": "Outsider",
-    "tags": [
-      "extraplanar",
-      "vargouille"
-    ]
-  },
-  "skeleton-champion": {
-    "name": "Skeleton - Champion",
-    "category": "Undead",
-    "tags": [
-      "skeleton",
-      "undead",
-      "warrior"
-    ]
-  },
-  "slug": {
-    "name": "Slug",
-    "category": "Beast",
-    "tags": [
-      "slow"
-    ]
-  },
-  "snake": {
-    "name": "Snake",
-    "category": "Beast",
-    "tags": [
-      "reptile",
-      "serpent"
-    ]
-  },
-  "snake-constrictor": {
-    "name": "Snake - Constrictor",
-    "category": "Beast",
-    "tags": [
-      "reptile",
-      "serpent",
-      "constrict"
-    ]
-  },
-  "snake-fire": {
-    "name": "Snake - Fire",
-    "category": "Elemental",
-    "tags": [
-      "fire",
-      "serpent",
-      "snake",
-      "salamander"
-    ]
-  },
   "satyr": {
     "name": "Satyr",
     "category": "Fey",
@@ -3002,6 +3906,21 @@
     "category": "Construct",
     "tags": [
       "fear"
+    ]
+  },
+  "scorpion": {
+    "name": "Scorpion",
+    "category": "Vermin",
+    "tags": [
+      "poison"
+    ]
+  },
+  "sea-serpent": {
+    "name": "Sea Serpent",
+    "category": "Beast",
+    "tags": [
+      "aquatic",
+      "serpent"
     ]
   },
   "serpentfolk-greater": {
@@ -3069,6 +3988,13 @@
       "shambling"
     ]
   },
+  "shark": {
+    "name": "Shark",
+    "category": "Beast",
+    "tags": [
+      "aquatic"
+    ]
+  },
   "sharkfolk": {
     "name": "Sharkfolk",
     "category": "Humanoid",
@@ -3096,11 +4022,38 @@
       "spellcaster"
     ]
   },
+  "shoggoth": {
+    "name": "Shoggoth",
+    "category": "Aberration",
+    "tags": [
+      "amorphous",
+      "shapechanger",
+      "ancient",
+      "horror"
+    ]
+  },
+  "shrieker": {
+    "name": "Shrieker",
+    "category": "Outsider",
+    "tags": [
+      "extraplanar",
+      "vargouille"
+    ]
+  },
   "skeleton": {
     "name": "Skeleton",
     "category": "Undead",
     "tags": [
       "skeleton"
+    ]
+  },
+  "skeleton-champion": {
+    "name": "Skeleton - Champion",
+    "category": "Undead",
+    "tags": [
+      "skeleton",
+      "undead",
+      "warrior"
     ]
   },
   "skeleton-minotaur": {
@@ -3158,6 +4111,40 @@
     "category": "Ooze",
     "tags": [
       "paralysis"
+    ]
+  },
+  "slug": {
+    "name": "Slug",
+    "category": "Beast",
+    "tags": [
+      "slow"
+    ]
+  },
+  "snake": {
+    "name": "Snake",
+    "category": "Beast",
+    "tags": [
+      "reptile",
+      "serpent"
+    ]
+  },
+  "snake-constrictor": {
+    "name": "Snake - Constrictor",
+    "category": "Beast",
+    "tags": [
+      "reptile",
+      "serpent",
+      "constrict"
+    ]
+  },
+  "snake-fire": {
+    "name": "Snake - Fire",
+    "category": "Elemental",
+    "tags": [
+      "fire",
+      "serpent",
+      "snake",
+      "salamander"
     ]
   },
   "snake-iron": {
@@ -3313,6 +4300,75 @@
       "owlbear"
     ]
   },
+  "tiefling-champion": {
+    "name": "Tiefling - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "warrior",
+      "elite"
+    ]
+  },
+  "tiefling-hunter": {
+    "name": "Tiefling - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "hunter"
+    ]
+  },
+  "tiefling-mage": {
+    "name": "Tiefling - Mage",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "spellcaster",
+      "mage"
+    ]
+  },
+  "tiefling-thief": {
+    "name": "Tiefling - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "thief"
+    ]
+  },
+  "tiefling-warlock": {
+    "name": "Tiefling - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "tiefling-warlord": {
+    "name": "Tiefling - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "leader",
+      "warlord"
+    ]
+  },
+  "tiefling-warpriest": {
+    "name": "Tiefling - Warpriest",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "spellcaster",
+      "warpriest"
+    ]
+  },
+  "tiefling-warrior": {
+    "name": "Tiefling - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "tiefling",
+      "warrior"
+    ]
+  },
   "tiger": {
     "name": "Tiger",
     "category": "Beast",
@@ -3351,6 +4407,73 @@
     "tags": [
       "underdark",
       "reptile"
+    ]
+  },
+  "troglodyte-champion": {
+    "name": "Troglodyte - Champion",
+    "category": "Humanoid",
+    "tags": [
+      "underdark",
+      "reptile",
+      "warrior",
+      "elite"
+    ]
+  },
+  "troglodyte-hunter": {
+    "name": "Troglodyte - Hunter",
+    "category": "Humanoid",
+    "tags": [
+      "underdark",
+      "reptile",
+      "hunter"
+    ]
+  },
+  "troglodyte-shaman": {
+    "name": "Troglodyte - Shaman",
+    "category": "Humanoid",
+    "tags": [
+      "underdark",
+      "reptile",
+      "spellcaster",
+      "shaman"
+    ]
+  },
+  "troglodyte-thief": {
+    "name": "Troglodyte - Thief",
+    "category": "Humanoid",
+    "tags": [
+      "underdark",
+      "reptile",
+      "thief"
+    ]
+  },
+  "troglodyte-warlock": {
+    "name": "Troglodyte - Warlock",
+    "category": "Humanoid",
+    "tags": [
+      "underdark",
+      "reptile",
+      "spellcaster",
+      "warlock"
+    ]
+  },
+  "troglodyte-warlord": {
+    "name": "Troglodyte - Warlord",
+    "category": "Humanoid",
+    "tags": [
+      "underdark",
+      "reptile",
+      "leader",
+      "warlord"
+    ]
+  },
+  "troglodyte-warrior": {
+    "name": "Troglodyte - Warrior",
+    "category": "Humanoid",
+    "tags": [
+      "underdark",
+      "reptile",
+      "warrior"
     ]
   },
   "troll": {

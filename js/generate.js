@@ -131,7 +131,6 @@ form.addEventListener("submit", async (event) => {
   if (window.hideTokenEditor) window.hideTokenEditor();
   resultFrame.classList.add("is-loading");
   resultSection.hidden = false;
-  console.log("Prompt:", prompt);
 
   try {
     const res = await fetch(`${API_BASE}/api/generate`, {
