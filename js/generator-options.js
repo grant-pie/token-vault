@@ -383,3 +383,18 @@ function buildWeaponText(mainhand, offhand) {
   }
   return `They wield a ${mainhand.toLowerCase()} in their main hand and a ${offhand.toLowerCase()} in the other.`;
 }
+
+// Shortbow and Longbow only — crossbows (Light/Hand/Heavy Crossbow) are a
+// different weapon shape (a stock with a horizontal prod) and don't suffer
+// from the same misrender, so they're deliberately excluded here.
+const BOW_WEAPONS = new Set(["Shortbow", "Longbow"]);
+
+// The image model consistently botches bowstrings (broken, floating, or
+// garbled linework), so when a bow is equipped in either hand this block
+// tells it to skip the string entirely rather than keep trying to render it.
+function buildBowstringText(mainhand, offhand) {
+  if (!BOW_WEAPONS.has(mainhand) && !BOW_WEAPONS.has(offhand)) {
+    return "";
+  }
+  return "The bow must be rendered unstrung: show only the bow's frame/limbs and completely omit the bowstring — no string, cord, or line running between the tips of the bow. This applies to the bow specifically, not to any crossbow.";
+}

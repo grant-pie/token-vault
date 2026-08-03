@@ -3,11 +3,13 @@ import { loadBrowserScript } from "./load-browser-script.js";
 
 let buildArmorText;
 let buildWeaponText;
+let buildBowstringText;
 
 beforeAll(() => {
   const scripts = loadBrowserScript("js/generator-options.js");
   buildArmorText = scripts.buildArmorText;
   buildWeaponText = scripts.buildWeaponText;
+  buildBowstringText = scripts.buildBowstringText;
 });
 
 describe("buildArmorText", () => {
@@ -46,5 +48,28 @@ describe("buildWeaponText", () => {
     expect(buildWeaponText("Longsword", "Shield")).toBe(
       "They wield a longsword in their main hand and a shield in the other."
     );
+  });
+});
+
+describe("buildBowstringText", () => {
+  it("returns nothing when no bow is equipped", () => {
+    expect(buildBowstringText("Longsword", "Shield")).toBe("");
+    expect(buildBowstringText("None", "None")).toBe("");
+  });
+
+  it("returns the no-bowstring block when a bow is in the main hand", () => {
+    expect(buildBowstringText("Shortbow", "None")).not.toBe("");
+    expect(buildBowstringText("Longbow", "None")).not.toBe("");
+  });
+
+  it("returns the no-bowstring block when a bow is in the off hand", () => {
+    expect(buildBowstringText("None", "Shortbow")).not.toBe("");
+    expect(buildBowstringText("None", "Longbow")).not.toBe("");
+  });
+
+  it("does not treat crossbows as bows", () => {
+    expect(buildBowstringText("Light Crossbow", "None")).toBe("");
+    expect(buildBowstringText("Hand Crossbow", "None")).toBe("");
+    expect(buildBowstringText("None", "Heavy Crossbow")).toBe("");
   });
 });

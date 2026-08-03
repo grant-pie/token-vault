@@ -89,12 +89,13 @@ function buildPrompt() {
   const genderText = buildGenderText(genderField.value);
   const armorText = buildArmorText(armorField.value, helmField.value);
   const weaponText = buildWeaponText(mainhandField.value, offhandField.value);
+  const bowstringText = buildBowstringText(mainhandField.value, offhandField.value);
   const traits = [];
   if (skinField.value.toLowerCase() !== "omit") traits.push(`${skinField.value.toLowerCase()} skin`);
   if (hairField.value.toLowerCase() !== "omit") traits.push(`${hairField.value.toLowerCase()} hair`);
   const traitsText = traits.length ? ` with ${traits.join(" and ")}` : "";
 
-  const invisText = `A ${ageField.value.toLowerCase()} ${genderText} ${raceField.value.toLowerCase()} ${classField.value.toLowerCase()}${traitsText} wearing ${armorText}. ${weaponText}`;
+  const invisText = `A ${ageField.value.toLowerCase()} ${genderText} ${raceField.value.toLowerCase()} ${classField.value.toLowerCase()}${traitsText} wearing ${armorText}. ${weaponText}${bowstringText ? ` ${bowstringText}` : ""}`;
 
   const description = descriptionField.value.trim();
   return description ? `${invisText} ${description}` : invisText;
