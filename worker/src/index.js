@@ -36,6 +36,12 @@ import {
   RECENT_GENERATIONS_KV_KEY,
   RECENT_GENERATIONS_MAX_AGE_MS,
   RECENT_GENERATIONS_MAX,
+  RECENT_GENERATIONS_PAGE_SIZE,
+  THUMBNAIL_KEY_SUFFIX,
+  THUMBNAIL_WIDTH,
+  THUMBNAIL_QUALITY,
+  THUMBNAIL_RESIZE_PROXY_BASE,
+  WORKER_PUBLIC_ORIGIN,
   ADMIN_GENERATION_LOG_KV_KEY,
   ADMIN_GENERATION_LOG_MAX,
   GENERATION_COUNT_KV_KEY,
@@ -226,13 +232,41 @@ async function recordRecentGeneration(env, entry) {
   }
 }
 
-async function handleRecentGenerations(env, origin) {
+// Slices an already-pruned list into one page. Pulled out of
+// handleRecentGenerations so the offset/limit clamping is unit-testable on
+// its own — malformed or hostile query params (negative, non-numeric, huge)
+// must never throw or return more than RECENT_GENERATIONS_PAGE_SIZE entries.
+// `parseInt(raw, 10) || fallback` would also catch a legitimately-parsed 0
+// (e.g. an explicit "?limit=0") and silently replace it with fallback, since
+// 0 is falsy — this checks NaN specifically so an explicit 0 still reaches
+// the Math.max clamp below instead of being reinterpreted as "unset".
+function parseIntOrDefault(raw, fallback) {
+  const n = parseInt(raw, 10);
+  return Number.isNaN(n) ? fallback : n;
+}
+
+export function paginateGenerations(list, rawOffset, rawLimit) {
+  const offset = Math.max(0, parseIntOrDefault(rawOffset, 0));
+  const limit = Math.min(
+    RECENT_GENERATIONS_PAGE_SIZE,
+    Math.max(1, parseIntOrDefault(rawLimit, RECENT_GENERATIONS_PAGE_SIZE))
+  );
+  return { items: list.slice(offset, offset + limit), offset, limit };
+}
+
+async function handleRecentGenerations(env, origin, searchParams) {
   const raw = await env.ANALYTICS.get(RECENT_GENERATIONS_KV_KEY);
   const list = raw ? JSON.parse(raw) : [];
   // Filtered again at read time (not just on write) so a stale entry never
   // shows up even if it hasn't been pruned from storage yet — e.g. between
   // an object aging past 90 days and the next generation triggering a write.
-  return jsonResponse({ tokens: pruneStaleGenerations(list, RECENT_GENERATIONS_MAX) }, 200, origin);
+  const pruned = pruneStaleGenerations(list, RECENT_GENERATIONS_MAX);
+  const { items, offset, limit } = paginateGenerations(
+    pruned,
+    searchParams.get("offset"),
+    searchParams.get("limit")
+  );
+  return jsonResponse({ tokens: items, total: pruned.length, offset, limit }, 200, origin);
 }
 
 // Same storage shape as recordRecentGeneration, but keyed separately and
@@ -423,6 +457,31 @@ async function chargeForGeneration(request, env, origin, quality, reasonPrefix) 
   return { credit: null };
 }
 
+// Fetches the full-res image (already written to R2 and publicly servable
+// via handleServeImage at this point) through a free external resize proxy,
+// and stores the resulting small WebP back to R2 as the grid-thumbnail
+// variant. Done via plain fetch() rather than any in-Worker image library:
+// the actual decode/resize/re-encode work happens on wsrv.nl's servers, not
+// in this isolate, so it only spends wall-clock time (this always runs from
+// ctx.waitUntil, after the client's response is already sent) instead of the
+// Workers Free plan's ~10ms-per-request CPU budget, which an in-process
+// resize of a 1024x1024 PNG would blow through.
+async function createThumbnail(env, id) {
+  const fullResUrl = `${WORKER_PUBLIC_ORIGIN}/${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
+  const proxyUrl = `${THUMBNAIL_RESIZE_PROXY_BASE}?url=${encodeURIComponent(fullResUrl)}&w=${THUMBNAIL_WIDTH}&output=webp&q=${THUMBNAIL_QUALITY}`;
+
+  const res = await fetch(proxyUrl);
+  if (!res.ok) {
+    throw new Error(`thumbnail proxy responded ${res.status}`);
+  }
+
+  const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}${THUMBNAIL_KEY_SUFFIX}`;
+  await env.TOKEN_BUCKET.put(key, await res.arrayBuffer(), {
+    httpMetadata: { contentType: "image/webp" },
+  });
+  return `/${key}`;
+}
+
 // Shared by handleGenerate and handleEditToken: decodes the base64 image
 // OpenAI returned, saves it to R2 under a fresh id, records it in the
 // various analytics feeds, and builds the success response. Any failure here
@@ -444,7 +503,20 @@ async function finalizeGeneratedImage({ b64, env, ctx, origin, credit, descripti
   }
 
   const createdAt = Date.now();
-  ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
+  // Thumbnail creation runs before recordRecentGeneration (rather than in its
+  // own parallel waitUntil) so the recent feed only ever advertises a
+  // thumbUrl once the R2 object it points to actually exists — a viewer
+  // hitting the feed can't race ahead of the file being written. If the
+  // proxy call fails, the entry is still recorded without a thumbUrl and
+  // js/recent.js falls back to the full-res PNG for that one card.
+  ctx.waitUntil(
+    createThumbnail(env, id)
+      .then((thumbUrl) => recordRecentGeneration(env, { id, url, thumbUrl, createdAt }))
+      .catch((err) => {
+        console.error("Failed to create thumbnail; recent feed will use full-res for this entry", err);
+        return recordRecentGeneration(env, { id, url, createdAt });
+      })
+  );
   ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
   ctx.waitUntil(recordPromptForFile(env, key, prompt));
   ctx.waitUntil(incrementGenerationCount(env));
@@ -1056,16 +1128,31 @@ async function handleVisit(env, origin) {
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
-async function handleServeImage(env, pathname, origin) {
-  // Only ever serves files this worker itself wrote (generated/<uuid>.png —
-  // see finalizeGeneratedImage), never an arbitrary key under the prefix.
+// Only ever resolves to a file this worker itself wrote — either the full-res
+// generated/<uuid>.png (see finalizeGeneratedImage) or its
+// generated/<uuid>-thumb.webp thumbnail (see createThumbnail) — never an
+// arbitrary key under the prefix. Pulled out of handleServeImage so the
+// suffix-stripping/id-validation is unit-testable without a fake R2 binding.
+export function resolveGeneratedImageKey(pathname) {
   const suffix = pathname.slice(1 + GENERATED_IMAGE_KEY_PREFIX.length);
-  const id = suffix.endsWith(".png") ? suffix.slice(0, -".png".length) : "";
+  const isThumb = suffix.endsWith(THUMBNAIL_KEY_SUFFIX);
+  const id = isThumb
+    ? suffix.slice(0, -THUMBNAIL_KEY_SUFFIX.length)
+    : suffix.endsWith(".png")
+      ? suffix.slice(0, -".png".length)
+      : "";
   if (!GENERATED_ID_SHAPE.test(id)) {
+    return null;
+  }
+  return `${GENERATED_IMAGE_KEY_PREFIX}${id}${isThumb ? THUMBNAIL_KEY_SUFFIX : ".png"}`;
+}
+
+async function handleServeImage(env, pathname, origin) {
+  const key = resolveGeneratedImageKey(pathname);
+  if (!key) {
     return new Response("Not found", { status: 404 });
   }
 
-  const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
   const object = await env.TOKEN_BUCKET.get(key);
   if (!object) {
     return new Response("Not found", { status: 404 });
@@ -1107,7 +1194,7 @@ export default {
     }
 
     if (url.pathname === "/api/recent-generations" && request.method === "GET") {
-      return handleRecentGenerations(env, origin);
+      return handleRecentGenerations(env, origin, url.searchParams);
     }
 
     if (url.pathname === "/api/admin/generation-log" && request.method === "GET") {

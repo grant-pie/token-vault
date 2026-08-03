@@ -7,6 +7,8 @@ import {
   buildTokenPrompt,
   buildEditPrompt,
   pruneStaleGenerations,
+  paginateGenerations,
+  resolveGeneratedImageKey,
   checkAndConsumeRateLimit,
   acquireGenerationSlot,
   releaseGenerationSlot,
@@ -14,6 +16,9 @@ import {
 } from "../src/index.js";
 import {
   RECENT_GENERATIONS_MAX_AGE_MS,
+  RECENT_GENERATIONS_PAGE_SIZE,
+  THUMBNAIL_KEY_SUFFIX,
+  GENERATED_IMAGE_KEY_PREFIX,
   MAX_CONCURRENT_OPENAI_REQUESTS,
   DEFAULT_STYLE,
 } from "../src/config.js";
@@ -136,6 +141,64 @@ describe("pruneStaleGenerations", () => {
   it("caps the result to the given max count even within the age window", () => {
     const list = Array.from({ length: 5 }, (_, i) => ({ id: i, createdAt: now }));
     expect(pruneStaleGenerations(list, 3)).toHaveLength(3);
+  });
+});
+
+describe("paginateGenerations", () => {
+  const list = Array.from({ length: 50 }, (_, i) => ({ id: i }));
+
+  it("defaults to the first page at the default page size", () => {
+    const { items, offset, limit } = paginateGenerations(list, null, null);
+    expect(items).toHaveLength(RECENT_GENERATIONS_PAGE_SIZE);
+    expect(items[0].id).toBe(0);
+    expect(offset).toBe(0);
+    expect(limit).toBe(RECENT_GENERATIONS_PAGE_SIZE);
+  });
+
+  it("honors a valid offset", () => {
+    const { items } = paginateGenerations(list, "10", null);
+    expect(items[0].id).toBe(10);
+  });
+
+  it("clamps limit to the page-size ceiling even if a larger value is requested", () => {
+    const { items, limit } = paginateGenerations(list, "0", "1000");
+    expect(limit).toBe(RECENT_GENERATIONS_PAGE_SIZE);
+    expect(items).toHaveLength(RECENT_GENERATIONS_PAGE_SIZE);
+  });
+
+  it("treats negative, non-numeric, or missing offset/limit as their defaults", () => {
+    expect(paginateGenerations(list, "-5", "abc").offset).toBe(0);
+    expect(paginateGenerations(list, "-5", "abc").limit).toBe(RECENT_GENERATIONS_PAGE_SIZE);
+    expect(paginateGenerations(list, undefined, "0").limit).toBe(1);
+  });
+
+  it("returns an empty page once the offset runs past the list", () => {
+    expect(paginateGenerations(list, "1000", null).items).toEqual([]);
+  });
+});
+
+describe("resolveGeneratedImageKey", () => {
+  const id = crypto.randomUUID();
+
+  it("resolves a full-res png path", () => {
+    expect(resolveGeneratedImageKey(`/${GENERATED_IMAGE_KEY_PREFIX}${id}.png`)).toBe(
+      `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`
+    );
+  });
+
+  it("resolves a thumbnail path", () => {
+    expect(resolveGeneratedImageKey(`/${GENERATED_IMAGE_KEY_PREFIX}${id}${THUMBNAIL_KEY_SUFFIX}`)).toBe(
+      `${GENERATED_IMAGE_KEY_PREFIX}${id}${THUMBNAIL_KEY_SUFFIX}`
+    );
+  });
+
+  it("rejects a malformed or path-traversing id", () => {
+    expect(resolveGeneratedImageKey(`/${GENERATED_IMAGE_KEY_PREFIX}../../secrets.png`)).toBeNull();
+    expect(resolveGeneratedImageKey(`/${GENERATED_IMAGE_KEY_PREFIX}not-a-uuid.png`)).toBeNull();
+  });
+
+  it("rejects an unknown suffix", () => {
+    expect(resolveGeneratedImageKey(`/${GENERATED_IMAGE_KEY_PREFIX}${id}.jpg`)).toBeNull();
   });
 });
 
