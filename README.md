@@ -14,7 +14,7 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
   - `IMAGE_BASE_URL` — the prefix used to build each token's image URL. Points at a custom domain backed by Cloudflare R2 by default; swap it for `images-optimized/` to serve images locally, or any other public URL/bucket.
   - `API_BASE` — the deployed Worker URL that `js/generate.js`, `js/monster.js`, `js/credits.js`, and the admin pages POST/GET against.
   - `PAGE_SIZE` — tokens shown per page in the vault grid (used by `js/admin-vault.js`).
-- **`index.html`** — landing page with nav links to the generator and the vault.
+- **`index.html`** — landing page with nav links to the generator and the vault, an "About" blurb, and a news feed (`js/news-data.js` — a hand-maintained `NEWS` array, newest first; `js/news.js` renders it). Also loads `js/visit-count.js`, which fires a fire-and-forget `GET /api/visit` to bump a site-wide visit counter in the Worker's `ANALYTICS` KV namespace; nothing currently reads that counter back (no admin UI for it yet).
 - **`style.css`** — the shared parchment/dungeon styling for every page.
 - **`vault.html`** / **`js/vault.js`** — the public vault page: a single searchbar that autocompletes by name, category, or tag as you type (top 8 matches, ranked name-first), with a style switcher (Standard/Grimdark/Retro). There's no browsable grid here — picking a suggestion (click, or Enter/arrow keys) opens the customizer modal directly for that one token. This is the lightweight, public counterpart to `admin-vault.html`.
 - **`admin-vault.html`** / **`js/admin-vault.js`** — the full token index, gated behind the admin key (see "The admin tools" below). Renders the token grid, live search-as-you-type filtering by name or tag, a category filter, and pagination. Clicking a token card opens the customizer modal (below) instead of downloading directly. This used to be the public `vault.html`; the whole catalog isn't meant to be publicly browsable, which is why the public `vault.html` is search-only rather than a grid dump.
@@ -38,6 +38,7 @@ Both admin pages are gated by the same `ADMIN_API_KEY` secret (see "The generato
 - **`js/generator-options.js`** — the option lists and swatch colors (`RACE_OPTIONS`, `CLASS_OPTIONS`, `SKIN_OPTIONS`, weapon lists, etc.) that populate the form. Edit this to add/remove races, classes, or gear.
 - **`js/generate.js`** — wires up the form (combobox search/keyboard nav, swatch pickers), assembles the character description into a prompt string from the selected fields, and POSTs it to the Worker's `/api/generate` endpoint. Renders the returned image, enables its direct download link and a "Customize" button (opens the border/tint modal from `js/token-customize.js`), or surfaces an inline error (rate limit, content rejection, network failure).
 - **`monster.html`** / **`js/monster.js`** — the "Summon a Monster" page: a stripped-down variant of the generator with just a single free-text description field. Same result panel, loading animation, download link, and border/tint customize modal as `generate.html`, reusing `js/token-customize.js`. `js/monster.js` wraps the textarea input with light monster framing before POSTing it to the same `/api/generate` endpoint.
+- **`js/token-edit.js`** — the "Edit this token" flow shared by `generate.html` and `monster.html`: once a generation succeeds, `showEditableToken(id, tokenName)` reveals a text field for describing a change; submitting POSTs `{ id, description }` to `/api/edit` and swaps the result panel's image/download link for the edited version. Never uploads an image from the browser — the Worker re-fetches the original from R2 by id server-side (see below).
 - **`worker/`** — a standalone Cloudflare Worker project (own `package.json`, deployed separately from the static site) that proxies OpenAI's Images API and runs the credit/payment system below:
   - Wraps the incoming description in one of three fixed prompt templates — `standard` / `grimdark` / `retro`, per `ALLOWED_STYLES` (`worker/src/index.js`, templates in `worker/src/config.js`) — tuned for top-down, transparent-background D&D token art, using `gpt-image-1` so it can return a real alpha cutout. `/api/edit` re-renders an existing generated token with `input_fidelity: "high"` given a text instruction, never an uploaded image.
   - `worker/src/config.js` holds the Worker's tuning constants, imported into `worker/src/index.js` — see the comment above each constant there for the current value and rationale; the notable ones:
@@ -45,9 +46,11 @@ Both admin pages are gated by the same `ADMIN_API_KEY` secret (see "The generato
     - `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_SECONDS` — free-tier requests allowed per IP (Workers KV-backed), per window.
     - `MAX_CONCURRENT_OPENAI_REQUESTS` — global cap on OpenAI requests in flight at once, across every user, independent of the per-IP/per-token limits.
     - `MAX_PROMPT_LENGTH` / `ALLOWED_QUALITIES` / `DEFAULT_QUALITY` — request validation for `/api/generate` and `/api/edit`.
+    - `ALLOWED_SHADOW_COLORS` — the fixed set of battlemap drop-shadow colors a request may ask for (matching `SHADOW_OPTIONS` in `js/generator-options.js`); anything else falls back to no shadow, since this value is spliced directly into the OpenAI prompt.
     - `SEND_TO_OPENAI` — debug toggle; when `false`, the worker logs the built prompt and returns without calling OpenAI or spending credits.
     - `MAX_FEEDBACK_LENGTH`, `FEEDBACK_RATE_LIMIT_MAX` / `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` — feedback form limits (Workers KV-backed).
   - Stores each result in the same R2 bucket the vault serves images from, under a separate `generated/` prefix — generated art never enters `js/vault-data.js` or the curated vault. `RECENT_GENERATIONS_MAX_AGE_MS` mirrors the R2 bucket's 90-day lifecycle rule so the public recent-generations feed (`recent.html`) can never point at a file R2 has already deleted.
+  - Unlike vault images (served directly from R2 via `IMAGE_BASE_URL`), generated/edited images are served back through the Worker itself at `GET /generated/<uuid>.png` (`handleServeImage`), which validates the id's shape before touching R2 and sets a year-long immutable cache header plus `Vary: Origin` (so a cached response for one allowed origin is never replayed to another).
   - Restricts CORS to the production origin plus local-dev hosts (`localhost`, LAN IPs) via `PRODUCTION_ORIGINS`/`isAllowedOrigin` in `worker/src/index.js`.
   - Needs an `OPENAI_API_KEY` secret set via `wrangler secret put` (never committed; see `worker/.gitignore`).
 
@@ -76,16 +79,27 @@ Static site (repo root):
 npm run optimize    # convert images/*.png|jpg -> images-optimized/*.webp
 npm run vault-data  # regenerate js/vault-data.js from js/monsters.json + images-optimized/ (or images/ as a fallback)
 npm run build       # runs both, in order
+npm test            # run the frontend unit tests (test/) — see "Testing" below
 ```
 
 Adding or removing a token is: drop/remove the file in `images/<Style>/<id>.png` (id must match an entry in `js/monsters.json` — add one first for a new monster), then run `npm run build`.
+
+Run `node scripts/validate-monsters.js` after hand-editing `js/monsters.json` to catch a bad id, an id that no longer matches `slugify(name)`, or a missing `category`/`tags` before it reaches `vault-data`.
 
 Worker (`worker/`):
 
 ```bash
 npm run dev        # wrangler dev — run the generator API locally
 npm run deploy     # wrangler deploy — publish the Worker
+npm test           # run the worker unit tests (worker/test/) — see "Testing" below
 ```
+
+## Testing
+
+Two independent Vitest suites, one per package — each has its own `npm test`, and the root suite's `vitest.config.mjs` excludes `worker/` so the two don't overlap:
+
+- **`test/`** (repo root) — unit tests for pure, DOM-free helpers in `js/generator-options.js` (e.g. `buildArmorText`/`buildWeaponText`). Since that file is loaded via a plain `<script>` tag (no bundler, no `type="module"`), `test/load-browser-script.js` loads its real source into a Node `vm` context and hands back its top-level functions, rather than adding module syntax that would break in the browser or duplicating the logic into a copy that could drift out of sync.
+- **`worker/test/`** — unit tests for `worker/src/index.js` and `worker/src/credits.js`: CORS origin allow-listing, shadow-color/prompt-template substitution, generated-id validation, recent-generations pruning, rate limiting and the OpenAI concurrency slot, credit/restore bearer-token signing and verification, and Paystack webhook signature checks. The credit-ledger tests (`spendCredits`/`grantCredits` — atomic spend-with-balance-check, idempotent grants against a duplicated Paystack webhook delivery) run against a real SQLite database via Node's built-in `node:sqlite`, with the project's actual `worker/migrations/*.sql` applied through a small D1-compatible shim (`worker/test/test-d1.js`), so they exercise the real SQL rather than a hand-rolled re-implementation of D1's semantics. A handful of otherwise-private helpers in `index.js` are `export`ed solely so these tests can reach them directly; that doesn't change the Worker's behavior.
 
 ## Running locally
 
