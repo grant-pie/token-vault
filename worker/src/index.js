@@ -7,6 +7,7 @@ import {
   DEFAULT_QUALITY,
   ALLOWED_STYLES,
   DEFAULT_STYLE,
+  ALLOWED_SHADOW_COLORS,
   DEFAULT_FACING_DIRECTION,
   RANDOMIZE_FACING_DIRECTION,
   FACING_DIRECTIONS,
@@ -469,8 +470,8 @@ async function handleGenerate(request, env, ctx, origin) {
 
   const quality = ALLOWED_QUALITIES.has(body.quality) ? body.quality : DEFAULT_QUALITY;
   const style = ALLOWED_STYLES.has(body.style) ? body.style : DEFAULT_STYLE;
-  const shadowColor =
-    typeof body.shadowColor === "string" ? body.shadowColor.trim().slice(0, 30).toLowerCase() : "";
+  const shadowColorInput = typeof body.shadowColor === "string" ? body.shadowColor.trim().toLowerCase() : "";
+  const shadowColor = ALLOWED_SHADOW_COLORS.has(shadowColorInput) ? shadowColorInput : "";
   const prompt = buildTokenPrompt(description, style, shadowColor);
 
   if (!SEND_TO_OPENAI) {
@@ -1032,7 +1033,15 @@ async function handleVisit(env, origin) {
 }
 
 async function handleServeImage(env, pathname, origin) {
-  const key = pathname.replace(/^\//, "");
+  // Only ever serves files this worker itself wrote (generated/<uuid>.png —
+  // see finalizeGeneratedImage), never an arbitrary key under the prefix.
+  const suffix = pathname.slice(1 + GENERATED_IMAGE_KEY_PREFIX.length);
+  const id = suffix.endsWith(".png") ? suffix.slice(0, -".png".length) : "";
+  if (!GENERATED_ID_SHAPE.test(id)) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  const key = `${GENERATED_IMAGE_KEY_PREFIX}${id}.png`;
   const object = await env.TOKEN_BUCKET.get(key);
   if (!object) {
     return new Response("Not found", { status: 404 });

@@ -96,6 +96,13 @@ export const ALLOWED_STYLES = new Set(["standard", "grimdark", "retro"]);
 // Style used when the client doesn't specify one (or specifies an invalid value).
 export const DEFAULT_STYLE = "standard";
 
+// Shadow color values accepted from the client (see js/generator-options.js's
+// SHADOW_OPTIONS) — anything else is treated the same as "None" and produces
+// no shadow. This value gets spliced directly into the prompt sent to
+// OpenAI (see parsePrompt in index.js), so it's allow-listed rather than
+// passed through as free text.
+export const ALLOWED_SHADOW_COLORS = new Set(["black", "grey", "purple", "blue", "green", "red"]);
+
 // Facing direction substituted into the "[direction]" placeholder when
 // RANDOMIZE_FACING_DIRECTION is false.
 export const DEFAULT_FACING_DIRECTION = "forward";
@@ -122,7 +129,7 @@ export const TOKEN_PROMPT_TEMPLATES = {
 
 The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
 
-[[shadow]]The one exception to the rules above: add a soft circular [shadow color] drop shadow directly beneath the creature's feet, to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, moderately feathered, medium opacity (35–45%), and remain entirely beneath the creature without wrapping around the body. This drop shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
+[[shadow]]The one exception to the rules above: add a soft circular [shadow color] drop shadow directly beneath the creature, to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, moderately feathered, medium opacity (35–45%), and remain entirely beneath the creature without wrapping around the body. This drop shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
 
 Description: [description]
 
@@ -140,7 +147,7 @@ Prioritize tabletop readability over anatomical realism. Slightly exaggerate the
 
 The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
 
-[[shadow]]The one exception to the rules above: add a soft circular [shadow color] drop shadow directly beneath the creature's feet, to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, moderately feathered, medium opacity (35–45%), and remain entirely beneath the creature without wrapping around the body. This drop shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
+[[shadow]]The one exception to the rules above: add a soft circular [shadow color] drop shadow directly beneath the creature, to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, moderately feathered, medium opacity (35–45%), and remain entirely beneath the creature without wrapping around the body. This drop shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
 
 Description: [description]
 
@@ -156,7 +163,7 @@ The head, shoulders, chest, hips, legs, and feet must all be oriented toward the
 
 The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
 
-[[shadow]]The one exception to the rules above: place a small [shadow color] pixel shadow directly beneath the creature's feet, to improve readability on busy battlemaps, drawn as a solid or lightly dithered ellipse of pixels in a clearly opaque, clearly visible shade (no soft feathering, no gradient blur, and no near-invisible opacity — consistent with the pixel art style). The shadow should be approximately 15% larger than the creature's footprint and remain entirely beneath the creature without wrapping around the body. This pixel shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
+[[shadow]]The one exception to the rules above: place a small [shadow color] pixel shadow directly beneath the creature, to improve readability on busy battlemaps, drawn as a solid or lightly dithered ellipse of pixels in a clearly opaque, clearly visible shade (no soft feathering, no gradient blur, and no near-invisible opacity — consistent with the pixel art style). The shadow should be approximately 15% larger than the creature's footprint and remain entirely beneath the creature without wrapping around the body. This pixel shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
 
 Description: [description]
 
