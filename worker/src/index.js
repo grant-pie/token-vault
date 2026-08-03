@@ -58,9 +58,9 @@ import {
 // ever being interpolated into an R2 key, both against malformed input and
 // against a key that could otherwise be steered outside the generated/
 // prefix.
-const GENERATED_ID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const GENERATED_ID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function isAllowedOrigin(origin) {
+export function isAllowedOrigin(origin) {
   if (!origin) return false;
   if (PRODUCTION_ORIGINS.has(origin)) return true;
   try {
@@ -91,7 +91,7 @@ function pickFacingDirection() {
 // grounding shadow as a stylistic habit, so simply omitting the request
 // isn't enough to suppress one. Letting the boilerplate wording live in
 // config.js instead of being hardcoded here.
-function parsePrompt(template, description, shadowColor) {
+export function parsePrompt(template, description, shadowColor) {
   const withShadow = template.replace(/\[\[shadow\]\]([\s\S]*?)\[\[\/shadow\]\]/g, (_match, shadowSentence) => {
     if (!shadowColor) {
       return "Do not add any shadow, glow, halo, or highlight beneath or around the creature.";
@@ -101,12 +101,12 @@ function parsePrompt(template, description, shadowColor) {
   return withShadow.replace("[description]", description).replace("[direction]", pickFacingDirection());
 }
 
-function buildTokenPrompt(description, style, shadowColor) {
+export function buildTokenPrompt(description, style, shadowColor) {
   const template = TOKEN_PROMPT_TEMPLATES[style] || TOKEN_PROMPT_TEMPLATES[DEFAULT_STYLE];
   return parsePrompt(template, description, shadowColor);
 }
 
-function corsHeaders(origin) {
+export function corsHeaders(origin) {
   const headers = {
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -134,7 +134,7 @@ function jsonResponse(body, status, origin) {
   });
 }
 
-async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
+export async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
   const key = `${keyPrefix}${ip}`;
   const now = Math.floor(Date.now() / 1000);
   const raw = await kv.get(key);
@@ -163,7 +163,7 @@ async function checkAndConsumeRateLimit(kv, keyPrefix, ip, max, windowSeconds) {
 // backstop, same as the other best-effort counters in this file.
 const GENERATION_SLOT_KV_KEY = "inflight:openai_generate";
 
-async function acquireGenerationSlot(kv) {
+export async function acquireGenerationSlot(kv) {
   const now = Math.floor(Date.now() / 1000);
   const raw = await kv.get(GENERATION_SLOT_KV_KEY);
   let record = raw ? JSON.parse(raw) : null;
@@ -183,7 +183,7 @@ async function acquireGenerationSlot(kv) {
   return true;
 }
 
-async function releaseGenerationSlot(kv) {
+export async function releaseGenerationSlot(kv) {
   const now = Math.floor(Date.now() / 1000);
   const raw = await kv.get(GENERATION_SLOT_KV_KEY);
   if (!raw) return;
@@ -202,7 +202,7 @@ async function releaseGenerationSlot(kv) {
 // cap on top. List is assumed newest-first already. Shared by the public
 // recent-generations feed and the admin generation log, which differ only
 // in their count cap.
-function pruneStaleGenerations(list, max) {
+export function pruneStaleGenerations(list, max) {
   const cutoff = Date.now() - RECENT_GENERATIONS_MAX_AGE_MS;
   return list.filter((entry) => entry.createdAt >= cutoff).slice(0, max);
 }
@@ -444,7 +444,7 @@ async function finalizeGeneratedImage({ b64, env, ctx, origin, credit, descripti
 // colors) is liable to drift even when the request only asked to change one
 // thing — spelling it out, on top of input_fidelity: "high" on the request
 // itself (see handleEditToken), is what actually keeps it in check.
-function buildEditPrompt(instruction) {
+export function buildEditPrompt(instruction) {
   return `Apply ONLY the following change to this fantasy RPG creature token image. Everything else about the reference image must stay exactly as it is: the art style, camera angle, pose, proportions, colors, and the fully transparent background, and every weapon, shield, armor piece, held item, or other piece of equipment the creature is carrying. Do not add, remove, resize, recolor, or otherwise alter any equipment unless the requested change explicitly says to.\n\nRequested change: ${instruction}`;
 }
 

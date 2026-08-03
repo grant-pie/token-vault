@@ -5,9 +5,11 @@
   "scripts": {
     "optimize": "node scripts/optimize-images.js",
     "vault-data": "node scripts/generate-vault-data.js",
-    "build": "npm run optimize && npm run vault-data"
+    "build": "npm run optimize && npm run vault-data",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "vitest": "^4.1.10"
   }
 }
