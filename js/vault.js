@@ -12,8 +12,7 @@ const suggestionsList = document.getElementById("vault-suggestions");
 const statusEl = document.getElementById("vault-status");
 const countEl = document.getElementById("vault-count");
 
-// Classic hidden: beta style, no pre-generated vault art for it yet.
-const styleNames = VAULT_STYLES.filter((style) => style !== "classic");
+const styleNames = VAULT_STYLES;
 let activeStyle = styleNames[0] || "standard";
 let matches = [];
 let highlightedIndex = -1;

@@ -98,8 +98,8 @@ describe("buildTokenPrompt", () => {
 
   it("produces different output for different valid styles", () => {
     const standard = buildTokenPrompt("a goblin", "standard", "");
-    const classic = buildTokenPrompt("a goblin", "classic", "");
-    expect(standard).not.toBe(classic);
+    const grimdark = buildTokenPrompt("a goblin", "grimdark", "");
+    expect(standard).not.toBe(grimdark);
   });
 });
 

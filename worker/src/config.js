@@ -137,7 +137,7 @@ export const OPENAI_IMAGE_SIZE = "1024x1024";
 export const OPENAI_IMAGE_OUTPUT_FORMAT = "png";
 
 // Art style values accepted from the client, each mapped to its own prompt template below.
-export const ALLOWED_STYLES = new Set(["standard", "grimdark", "classic"]);
+export const ALLOWED_STYLES = new Set(["standard", "grimdark"]);
 
 // Style used when the client doesn't specify one (or specifies an invalid value).
 export const DEFAULT_STYLE = "standard";
@@ -225,46 +225,6 @@ The head, shoulders, chest, hips, legs, and feet must all be oriented toward the
 Render with a natural perspective and realistic anatomical proportions, avoiding the exaggerated wide-angle appearance common in game assets. Keep the head, hands, feet, and limbs proportionally natural rather than enlarged, favor grounded, believable anatomy over heroic exaggeration, and avoid oversized heads, oversized hands, oversized feet, and exaggerated muscles. Use only subtle readability adjustments where genuinely necessary so the creature stays legible at a glance from this top-down perspective, and do not let any such adjustment push any part of the creature or its weapons outside the image frame; scale the whole creature down slightly first if a weapon would otherwise reach the edge.
 
 [[shadow]]Before finishing, double-check the image includes the required [shadow color] grounding shadow beneath the creature's feet, and that it too stays comfortably inside the safe area.[[/shadow]] Before finishing, verify that transparent background is visible between every edge of the finished artwork — including weapon tips, blade edges, bowstring ends, polearm hafts, wings, tails, shields, spell effects, and the full grounding shadow — and every edge of the image; if anything would be cut off or feels cramped against the edge, shrink the whole creature rather than letting any part of it leave the frame or lose its breathing room. Dark fantasy realism inspired by grounded medieval worlds rather than exaggerated horror. Prioritize believable materials, visible painterly texture, cinematic lighting, ancient decay, and premium fantasy concept-art quality. The creature should read first as a professionally painted dark fantasy illustration that also happens to function perfectly as a tabletop token — intimidating, ancient, and realistically weathered, while remaining visually striking and suitable for a broad fantasy audience.
-`,
-  classic: `Create a highly detailed top-down fantasy RPG creature token.
-
-Traditional hand-painted fantasy illustration with realistic anatomy, classic tabletop RPG artwork quality, and visible painterly brushwork. The artwork should resemble a professionally painted fantasy illustration created for a printed roleplaying game book rather than modern cinematic concept art.
-
-Use natural, restrained colors with slightly muted earth tones and believable skin colors. Avoid excessive saturation, dramatic color grading, or extreme lighting. Materials should appear hand painted with visible brush texture, soft transitions, and convincing natural wear without excessive grime or exaggerated realism.
-
-Leather should appear worn but well maintained, with visible stitching and natural creasing. Metal should be functional and slightly weathered with restrained highlights rather than mirror-like reflections. Cloth should display natural folds, layered garments, and subtle fabric texture. Skin should have realistic color variation and painterly shading while remaining clean and readable.
-
-Use soft directional daylight with gentle shadows, subtle ambient occlusion, and balanced lighting. Avoid harsh cinematic contrast, intense rim lighting, glowing effects, or dramatic color grading.
-
-Maintain realistic anatomy with clear silhouettes and excellent tabletop readability. The creature should appear grounded, believable, and confidently illustrated rather than exaggerated, stylized, or cartoonish.
-
-The overall illustration should feel timeless, elegant, and handcrafted, emphasizing traditional fantasy painting over modern digital rendering. Visible painterly brushwork should remain throughout the image without appearing rough or unfinished.
-
-Compose this like an illustrator working within a fixed safe area, not like someone maximizing creature size: imagine an invisible safe area inset from every edge of the canvas, and make sure the complete finished artwork — every weapon, shield, wing, tail, horn, banner, staff, spear, bow, cloak, and outstretched limb — fits comfortably inside that safe area, well short of the canvas edge. The creature's overall scale must be judged from its complete silhouette, not its torso: the longest protruding element (a raised weapon, an outstretched wing, a trailing tail or cloak) is what sets how large the creature can be, not the body alone. As a loose guide, that complete silhouette should occupy approximately 65-70% of the image at most, leaving a generous transparent margin of at least 12-15% on all sides — treat that figure as a ceiling to stay well under, not a target to fill: it is always preferable for the creature to read slightly smaller than for any part of the artwork to approach the edge of the image, and when in doubt, reduce its scale rather than risk cropping. If the creature is holding or wielding a long weapon (spear, polearm, staff, bow, greatsword, etc.), pose it close to the body — angled inward in a natural ready stance rather than fully extended, raised overhead, or pointed toward the frame edge — and shrink the whole creature further if needed so the weapon's tip lands comfortably inside the safe area.
-
-[[shadow]]That safe area must be generous enough to also comfortably contain the [shadow color] drop shadow beneath the creature — the shadow is part of the finished artwork, and the transparent margin begins outside the shadow, not outside the creature, so it must never touch or be cropped by the image edge.[[/shadow]]
-
-Nothing may be cropped or cut off by the image edge — the entire creature, its weapons, and everything else it is holding or wearing must be fully visible within the frame, with generous transparent breathing room visible on every side of the complete silhouette.
-
-The background must be completely transparent. No ground. No floor. No base. No environment. No scenery. No decorative border. No text. No labels. No UI. No watermark.
-
-[[shadow]]The one exception to the rules above: add a soft circular [shadow color] drop shadow directly beneath the creature, to improve readability on busy battlemaps. The shadow should be approximately 15% larger than the creature's footprint, moderately feathered, medium opacity (35–45%), and remain entirely beneath the creature without wrapping around the body. This drop shadow is deliberate token artwork, required in the final image — not scenery to be cut away with the rest of the background.[[/shadow]]
-
-Description: [description]
-
-Camera Angle: High-angle top-down three-quarter view (approximately 60° downward), looking down from above but still showing the creature's face, chest, shoulders, and upper body. The camera should not be a true 90° overhead orthographic view. The creature should appear naturally foreshortened with the head and shoulders slightly larger than the legs due to perspective.
-
-It is facing [direction]
-
-The head, shoulders, chest, hips, legs, and feet must all be oriented toward the chosen edge of the image. Maintain the same 60° downward viewing angle while rotating the creature around its vertical axis. This is a composition requirement, not a pose suggestion. Do not revert to the model's default forward-facing orientation.
-
-Prioritize tabletop readability over anatomical realism. Slightly exaggerate the visibility of the head, shoulders, hands, weapons, and feet so the creature remains instantly recognizable from a true top-down perspective, while preserving believable proportions.
-
-[[shadow]]Before finishing, double-check the image includes the required [shadow color] grounding shadow beneath the creature's feet, and that it too stays comfortably inside the safe area.[[/shadow]]
-
-Before finishing, verify that transparent background is visible between every edge of the finished artwork — including weapon tips, blade edges, bowstring ends, polearm hafts, wings, tails, shields, spell effects, and the full grounding shadow — and every edge of the image; if anything would be cut off or feels cramped against the edge, shrink the whole creature rather than letting any part of it leave the frame or lose its breathing room.
-
-Traditional fantasy roleplaying artwork. Timeless, painterly, handcrafted, believable, readable, and suitable for a premium tabletop RPG bestiary.
 `,
 };
 
