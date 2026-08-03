@@ -1,5 +1,6 @@
 import {
   FREE_TIER_ENABLED,
+  PAYMENTS_ENABLED,
   RATE_LIMIT_MAX,
   RATE_LIMIT_WINDOW_SECONDS,
   MAX_PROMPT_LENGTH,
@@ -383,7 +384,7 @@ async function handleAdminPrompt(request, env, origin) {
 // ledger entries ("spend:generate:..." vs "spend:edit:...") distinguishable.
 async function chargeForGeneration(request, env, origin, quality, reasonPrefix) {
   const authHeader = request.headers.get("Authorization") || "";
-  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  const bearerToken = PAYMENTS_ENABLED && authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
 
   if (bearerToken) {
     const claims = await verifyCreditToken(env.TOKEN_SIGNING_SECRET, bearerToken);
@@ -804,6 +805,14 @@ async function handleEditToken(request, env, ctx, origin) {
 }
 
 async function handleCheckout(request, env, origin) {
+  if (!PAYMENTS_ENABLED) {
+    return jsonResponse(
+      { error: "Credit purchases are turned off right now — generation is free for the time being." },
+      503,
+      origin
+    );
+  }
+
   let body;
   try {
     body = await request.json();

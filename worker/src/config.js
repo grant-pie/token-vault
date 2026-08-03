@@ -2,7 +2,18 @@
 // off entirely — every generate request must come from a bearer token with
 // a funded credit balance. Flip back to true and redeploy to restore free
 // generation; nothing else about the anonymous path changes when it's back on.
-export const FREE_TIER_ENABLED = false;
+export const FREE_TIER_ENABLED = true;
+
+// PAYMENT SYSTEM TOGGLE: generation output quality is currently too
+// inconsistent to justify charging for it, so this is off for now — every
+// generate/edit request is treated as free (see chargeForGeneration in
+// index.js, which skips straight past any bearer token to the free-tier path
+// below) and /api/checkout refuses to start new Paystack purchases. Existing
+// credit balances in D1 are left untouched while this is off, so flipping it
+// back to true resumes charging without losing anyone's purchased credits.
+// The balance/restore endpoints are deliberately left working either way, so
+// past buyers can still see/restore what they have.
+export const PAYMENTS_ENABLED = false;
 
 // Max generate requests allowed per IP within the rate-limit window.
 // Only relevant while FREE_TIER_ENABLED is true.
