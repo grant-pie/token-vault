@@ -38,6 +38,7 @@ import {
   RECENT_GENERATIONS_MAX,
   ADMIN_GENERATION_LOG_KV_KEY,
   ADMIN_GENERATION_LOG_MAX,
+  GENERATION_COUNT_KV_KEY,
   PROMPT_LOG_KEY_PREFIX,
   PROMPT_LOG_TTL_SECONDS,
 } from "./config.js";
@@ -251,6 +252,22 @@ async function recordGenerationLog(env, entry) {
   }
 }
 
+// Permanent, uncapped lifetime tally of images actually generated — see
+// GENERATION_COUNT_KV_KEY in config.js for why this exists alongside
+// recordGenerationLog's capped/pruned log. Same best-effort, non-atomic
+// tradeoff as handleVisit's counter below: a lost or duplicated increment
+// under concurrent generations just leaves the tally briefly off by one,
+// which isn't worth a stronger primitive for a cost-tracking count.
+export async function incrementGenerationCount(env) {
+  try {
+    const raw = await env.ANALYTICS.get(GENERATION_COUNT_KV_KEY);
+    const count = raw ? parseInt(raw, 10) : 0;
+    await env.ANALYTICS.put(GENERATION_COUNT_KV_KEY, String(count + 1));
+  } catch (err) {
+    console.error("Failed to increment generation count", err);
+  }
+}
+
 // Compares the Authorization header's bearer token against env.ADMIN_API_KEY
 // by hashing both sides first (rather than comparing the raw strings), so a
 // timing attack can't learn anything about the secret from how long the
@@ -290,7 +307,13 @@ async function handleAdminGenerationLog(request, env, origin) {
   }
   const raw = await env.ANALYTICS.get(ADMIN_GENERATION_LOG_KV_KEY);
   const list = raw ? JSON.parse(raw) : [];
-  return jsonResponse({ entries: pruneStaleGenerations(list, ADMIN_GENERATION_LOG_MAX) }, 200, origin);
+  const totalRaw = await env.ANALYTICS.get(GENERATION_COUNT_KV_KEY);
+  const totalGenerations = totalRaw ? parseInt(totalRaw, 10) : 0;
+  return jsonResponse(
+    { entries: pruneStaleGenerations(list, ADMIN_GENERATION_LOG_MAX), totalGenerations },
+    200,
+    origin
+  );
 }
 
 // Full prompts are looked up one at a time on demand (see js/admin.js's
@@ -424,6 +447,7 @@ async function finalizeGeneratedImage({ b64, env, ctx, origin, credit, descripti
   ctx.waitUntil(recordRecentGeneration(env, { id, url, createdAt }));
   ctx.waitUntil(recordGenerationLog(env, { id, url, description, style, quality, createdAt }));
   ctx.waitUntil(recordPromptForFile(env, key, prompt));
+  ctx.waitUntil(incrementGenerationCount(env));
 
   return jsonResponse(
     {

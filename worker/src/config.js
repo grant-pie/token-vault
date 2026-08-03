@@ -65,6 +65,13 @@ export const RECENT_GENERATIONS_MAX = 200;
 export const ADMIN_GENERATION_LOG_KV_KEY = "generation_log";
 export const ADMIN_GENERATION_LOG_MAX = 500;
 
+// KV key (under ANALYTICS) for a permanent, uncapped lifetime tally of images
+// actually generated (every successful /api/generate + /api/edit call, i.e.
+// each one a billed OpenAI request). Unlike ADMIN_GENERATION_LOG_KV_KEY's
+// log, this never expires and has no entry cap, so it stays accurate as a
+// running cost-tracking total even after old log/R2 entries have aged out.
+export const GENERATION_COUNT_KV_KEY = "generation_count";
+
 // KV key prefix (under ANALYTICS) for the one-row-per-image filename->prompt
 // record, as opposed to the two JSON-blob feeds above. Key is the R2 object
 // key (e.g. "generated/<uuid>.png"), value is the full prompt text sent to

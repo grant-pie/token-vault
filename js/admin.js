@@ -4,6 +4,7 @@ const authForm = document.getElementById("admin-auth-form");
 const adminKeyField = document.getElementById("admin-key");
 const loadBtn = document.getElementById("admin-load-btn");
 const statusEl = document.getElementById("admin-status");
+const totalCountEl = document.getElementById("admin-total-count");
 const logEl = document.getElementById("admin-log");
 
 function formatDate(ms) {
@@ -106,6 +107,7 @@ async function loadLog(key) {
     if (res.status === 401) {
       sessionStorage.removeItem(ADMIN_KEY_STORAGE);
       statusEl.textContent = "That admin key was rejected.";
+      totalCountEl.textContent = "";
       logEl.innerHTML = "";
       return;
     }
@@ -118,6 +120,10 @@ async function loadLog(key) {
     const data = await res.json();
     sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
     statusEl.textContent = "";
+    totalCountEl.textContent =
+      typeof data.totalGenerations === "number"
+        ? `Lifetime generations: ${data.totalGenerations.toLocaleString()} (includes edits; never expires, unlike the log below)`
+        : "";
     renderEntries(data.entries, key);
   } catch {
     statusEl.textContent = "Couldn't reach the worker. Check your connection and try again.";

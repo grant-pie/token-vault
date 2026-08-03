@@ -10,6 +10,7 @@ import {
   checkAndConsumeRateLimit,
   acquireGenerationSlot,
   releaseGenerationSlot,
+  incrementGenerationCount,
 } from "../src/index.js";
 import {
   RECENT_GENERATIONS_MAX_AGE_MS,
@@ -195,5 +196,25 @@ describe("generation concurrency slot", () => {
 
     await releaseGenerationSlot(kv);
     expect(await acquireGenerationSlot(kv)).toBe(true);
+  });
+});
+
+describe("incrementGenerationCount", () => {
+  it("starts at 1 on the first call and keeps counting up", async () => {
+    const env = { ANALYTICS: createTestKV() };
+    await incrementGenerationCount(env);
+    expect(await env.ANALYTICS.get("generation_count")).toBe("1");
+
+    await incrementGenerationCount(env);
+    await incrementGenerationCount(env);
+    expect(await env.ANALYTICS.get("generation_count")).toBe("3");
+  });
+
+  it("never expires or resets — unlike the capped/pruned admin log", async () => {
+    const env = { ANALYTICS: createTestKV() };
+    for (let i = 0; i < 10; i++) {
+      await incrementGenerationCount(env);
+    }
+    expect(await env.ANALYTICS.get("generation_count")).toBe("10");
   });
 });

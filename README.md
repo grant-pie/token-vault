@@ -25,7 +25,7 @@ A website for D&D monster tokens: a static gallery for browsing and downloading 
 
 Both admin pages are gated by the same `ADMIN_API_KEY` secret (see "The generator" below), entered once and cached in `sessionStorage` (`tokenVaultAdminKey`) so it isn't re-typed on every reload of that tab.
 
-- **`admin.html`** / **`js/admin.js`** — the generation log: every AI generation site-wide (free or paid), including the description, style, quality, and a lazily-fetched full prompt per entry (`GET /api/admin/prompt`, to avoid one KV read per row on page load). Reads `GET /api/admin/generation-log`.
+- **`admin.html`** / **`js/admin.js`** — the generation log: every AI generation site-wide (free or paid), including the description, style, quality, and a lazily-fetched full prompt per entry (`GET /api/admin/prompt`, to avoid one KV read per row on page load). Reads `GET /api/admin/generation-log`, which also returns `totalGenerations` — a permanent, uncapped lifetime count of every completed `/api/generate` + `/api/edit` call (`GENERATION_COUNT_KV_KEY` in `worker/src/config.js`, incremented in `finalizeGeneratedImage`), shown above the log. Unlike the log itself (capped at `ADMIN_GENERATION_LOG_MAX` entries and pruned after `RECENT_GENERATIONS_MAX_AGE_MS`), this count never expires or drops entries, so it stays accurate for cost tracking (OpenAI spend ÷ this number ≈ cost per generation) even once old log/R2 entries have aged out.
 - **`admin-vault.html`** / **`js/admin-vault.js`** — see "The vault" above; reuses the same admin-gated endpoint purely to verify the key, discarding the log data in the response.
 
 ### The customizer
