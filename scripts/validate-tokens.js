@@ -1,5 +1,5 @@
-// Sanity-checks js/monsters.json — the single source of truth for monster
-// data (id/name/category/tags). Read-only — makes no changes.
+// Sanity-checks js/tokens.json — the single source of truth for pregenerated
+// token data (id/name/category/tags). Read-only — makes no changes.
 //
 // Checks, for every entry:
 //   1. id is valid kebab-case.
@@ -9,17 +9,17 @@
 //   3. category is present.
 //   4. tags is a non-empty array.
 //
-// Run: node scripts/validate-monsters.js
+// Run: node scripts/validate-tokens.js
 
 const fs = require("fs");
 const path = require("path");
 const { slugify } = require("./lib/slug");
 
-const MONSTERS_FILE = path.join(__dirname, "..", "js", "monsters.json");
+const TOKENS_FILE = path.join(__dirname, "..", "js", "tokens.json");
 const ID_FORMAT_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 function main() {
-  const registry = JSON.parse(fs.readFileSync(MONSTERS_FILE, "utf8"));
+  const registry = JSON.parse(fs.readFileSync(TOKENS_FILE, "utf8"));
   const ids = Object.keys(registry);
   const issues = [];
 
@@ -44,7 +44,7 @@ function main() {
     }
   });
 
-  console.log(`Checked ${ids.length} entries in js/monsters.json.`);
+  console.log(`Checked ${ids.length} entries in js/tokens.json.`);
 
   if (issues.length > 0) {
     console.log(`\n${issues.length} issue(s):`);
