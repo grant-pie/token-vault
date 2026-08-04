@@ -36,7 +36,7 @@ function populateStyleSelect() {
 function renderCount() {
   if (!countEl) return;
   const total = VAULT_DATA.length;
-  countEl.textContent = `${total.toLocaleString()} monster token${total === 1 ? "" : "s"} in the vault`;
+  countEl.textContent = `${total.toLocaleString()} token${total === 1 ? "" : "s"} in the vault`;
 }
 
 function imageUrl(style, file) {
