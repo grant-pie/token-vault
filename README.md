@@ -78,10 +78,11 @@ Generation is metered by a credit balance rather than a login: a purchase or "re
 Static site (repo root):
 
 ```bash
-npm run optimize    # convert images/*.png|jpg -> images-optimized/*.webp
-npm run vault-data  # regenerate js/vault-data.js from js/tokens.json + images-optimized/ (or images/ as a fallback)
-npm run build       # runs both, in order
-npm test            # run the frontend unit tests (test/) — see "Testing" below
+npm run optimize            # convert images/*.png|jpg -> images-optimized/*.webp
+npm run vault-data          # regenerate js/vault-data.js from js/tokens.json + images-optimized/ (or images/ as a fallback)
+npm run check-vault-images  # verify every vault-data.js image exists locally (exact case) and loads from the live IMAGE_BASE_URL; add --offline to skip the network check
+npm run build                # runs optimize + vault-data, in order
+npm test                     # run the frontend unit tests (test/) — see "Testing" below
 ```
 
 Adding or removing a token is: drop/remove the file in `images/<Style>/<id>.png` (id must match an entry in `js/tokens.json` — add one first for a new monster), then run `npm run build`.

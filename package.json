@@ -5,6 +5,7 @@
   "scripts": {
     "optimize": "node scripts/optimize-images.js",
     "vault-data": "node scripts/generate-vault-data.js",
+    "check-vault-images": "node scripts/check-vault-images.js",
     "build": "npm run optimize && npm run vault-data",
     "test": "vitest run"
   },
