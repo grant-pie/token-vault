@@ -35,8 +35,10 @@ function populateStyleSelect() {
 
 function renderCount() {
   if (!countEl) return;
-  const total = VAULT_DATA.length;
-  countEl.textContent = `${total.toLocaleString()} token${total === 1 ? "" : "s"} for each style, in the vault`;
+  const perStyle = VAULT_DATA.length;
+  const styleCount = styleNames.length;
+  const total = perStyle * styleCount;
+  countEl.textContent = `There are ${perStyle.toLocaleString()} token${perStyle === 1 ? "" : "s"} for each style. That is a total of ${total.toLocaleString()} in the vault.`;
 }
 
 function imageUrl(style, file) {
