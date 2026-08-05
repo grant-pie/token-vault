@@ -138,6 +138,14 @@ function renderSuggestions(query) {
     name.textContent = monster.name;
     text.appendChild(name);
 
+    if (monster.set) {
+      const set = document.createElement("span");
+      set.className = "vault-suggestion-set";
+      set.textContent = monster.set;
+      name.appendChild(document.createTextNode(" "));
+      name.appendChild(set);
+    }
+
     item.appendChild(thumb);
     item.appendChild(text);
 

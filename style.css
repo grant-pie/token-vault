@@ -255,6 +255,14 @@ main {
   text-overflow: ellipsis;
 }
 
+.vault-suggestion-set {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--ink);
+  opacity: 0.6;
+}
+
 /* Token card */
 .token-card {
   display: flex;
