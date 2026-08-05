@@ -42,6 +42,15 @@
     <p>Searching and downloading tokens from the vault is completely free. The AI generator is different &mdash; running it costs real money on our end, so generating a custom token requires purchasing credits. Prefer not to pay? The vault already has a growing library of ready-made tokens to use instead. New tokens, styles, and features are added regularly, so check the news below for updates from the vaultkeeper.</p>
   </section>
 
+  <section class="totd-section" aria-label="Tokens of the day">
+    <h2 class="news-heading">Tokens of the Day</h2>
+    <p class="totd-subtitle">Five tokens from the vault, freshly rolled each day. Click one to customize and download it.</p>
+    <div id="totd-grid" class="token-grid totd-grid">
+      <!-- Token cards are rendered here by tokens-of-the-day.js -->
+    </div>
+    <p id="totd-status" class="generator-status" aria-live="polite"></p>
+  </section>
+
   <section class="news-section" aria-label="Latest news">
     <h2 class="news-heading">News from the Vault</h2>
     <div id="news-list" class="news-list">
@@ -49,6 +58,79 @@
     </div>
   </section>
 </main>
+
+<dialog id="token-modal" class="token-modal">
+  <form method="dialog" class="token-modal-form">
+    <button type="submit" class="token-modal-close" aria-label="Close">&times;</button>
+    <h2 id="token-modal-title" class="token-modal-title">Token Name</h2>
+
+    <div class="token-modal-body">
+      <div class="token-preview-col">
+        <div class="token-preview-wrap">
+          <canvas id="token-preview-canvas" width="1024" height="1024"></canvas>
+        </div>
+        <p class="token-position-hint">Drag the token to reposition it</p>
+      </div>
+
+      <div class="token-modal-controls">
+        <fieldset class="token-control-group">
+          <legend class="generator-label">Position &amp; Zoom</legend>
+          <div class="token-subcontrol">
+            <label for="zoom-range" class="token-subcontrol-label">Zoom</label>
+            <input type="range" id="zoom-range" min="50" max="300" step="5" value="100">
+          </div>
+          <div class="token-modal-actions">
+            <button type="button" id="reset-position-btn" class="page-btn">Reset Position</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">
+            <label class="token-toggle">
+              <input type="checkbox" id="border-toggle">
+              Add border
+            </label>
+          </legend>
+          <div class="token-subcontrol">
+            <label for="border-color" class="token-subcontrol-label">Color</label>
+            <input type="color" id="border-color" value="#c9a227">
+          </div>
+          <div class="token-subcontrol">
+            <label for="border-width" class="token-subcontrol-label">Width</label>
+            <input type="range" id="border-width" min="1" max="12" step="1" value="5">
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">Shape</legend>
+          <div class="shape-options" id="shape-options" role="radiogroup" aria-label="Border shape">
+            <button type="button" class="shape-btn" data-shape="circle">Circle</button>
+            <button type="button" class="shape-btn" data-shape="square">Square</button>
+            <button type="button" class="shape-btn" data-shape="hexagon">Hexagon</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="token-control-group">
+          <legend class="generator-label">
+            <label class="token-toggle">
+              <input type="checkbox" id="tint-toggle">
+              Add background tint
+            </label>
+          </legend>
+          <div class="token-subcontrol">
+            <label for="tint-color" class="token-subcontrol-label">Color</label>
+            <input type="color" id="tint-color" value="#241609">
+          </div>
+        </fieldset>
+
+        <div class="token-modal-actions">
+          <button type="button" id="token-download-btn" class="page-btn">Download</button>
+        </div>
+        <p id="token-modal-status" class="generator-status" aria-live="polite"></p>
+      </div>
+    </div>
+  </form>
+</dialog>
 
 <footer>
   <p>May your rolls be ever in your favor.</p>
@@ -72,6 +154,9 @@
 
 <script src="js/config.js"></script>
 <script src="js/visit-count.js"></script>
+<script src="js/vault-data.js"></script>
+<script src="js/tokens-of-the-day.js"></script>
+<script src="js/token-customize.js"></script>
 <script src="js/news-data.js"></script>
 <script src="js/news.js"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1620a70c88d54fb2b28d390f12d3938b"}'></script><!-- End Cloudflare Web Analytics -->
