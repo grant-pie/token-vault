@@ -4,7 +4,7 @@
 // tomorrow. Clicking a card opens the shared customize/download modal
 // (js/token-customize.js), same as vault.html and recent.html.
 
-const TOTD_COUNT = 5;
+const TOTD_COUNT = 6;
 
 const totdGrid = document.getElementById("totd-grid");
 const totdStatusEl = document.getElementById("totd-status");
