@@ -22,6 +22,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 const { folderNameForStyle } = require("./lib/styles");
+const { listStyleImages } = require("./lib/images");
 
 const ROOT_DIR = path.join(__dirname, "..");
 const OPTIMIZED_DIR = path.join(ROOT_DIR, "images-optimized");
@@ -71,6 +72,9 @@ function imageUrl(baseUrl, style, file) {
   return baseUrl + "vault/" + encodeURIComponent(style) + "/" + encodeURIComponent(file);
 }
 
+// onDiskFiles: Map<filename, absoluteDir> — images may live directly in
+// images-optimized/<Style>/ or one level down in a <Set> subfolder (see
+// lib/images.js), so "on disk" is resolved by filename, not a flat listing.
 function checkLocal(style, entry, folder, onDiskFiles) {
   const file = entry.filenames[style];
   if (!file) return null;
@@ -78,14 +82,14 @@ function checkLocal(style, entry, folder, onDiskFiles) {
   if (!onDiskFiles.has(file)) {
     // Might still exist under different case — case-insensitive lookup gives a more useful message.
     const lower = file.toLowerCase();
-    const actual = [...onDiskFiles].find((f) => f.toLowerCase() === lower);
+    const actual = [...onDiskFiles.keys()].find((f) => f.toLowerCase() === lower);
     if (actual) {
       return `[local] ${style} / ${entry.name}: on-disk filename "${actual}" doesn't match vault-data.js's "${file}" (case mismatch — will 404 on a case-sensitive host)`;
     }
     return `[local] ${style} / ${entry.name}: missing at images-optimized/${folder}/${file}`;
   }
 
-  const size = fs.statSync(path.join(OPTIMIZED_DIR, folder, file)).size;
+  const size = fs.statSync(path.join(onDiskFiles.get(file), file)).size;
   if (size === 0) {
     return `[local] ${style} / ${entry.name}: images-optimized/${folder}/${file} is empty (0 bytes)`;
   }
@@ -159,7 +163,7 @@ async function main() {
   for (const style of styles) {
     const folder = folderNameForStyle(style);
     const dir = path.join(OPTIMIZED_DIR, folder);
-    const onDiskFiles = fs.existsSync(dir) ? new Set(fs.readdirSync(dir)) : new Set();
+    const onDiskFiles = new Map(listStyleImages(dir).map((img) => [img.file, img.dir]));
 
     const entriesForStyle = data.filter((entry) => entry.filenames[style]);
     localChecked += entriesForStyle.length;
