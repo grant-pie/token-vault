@@ -177,6 +177,98 @@ main {
   letter-spacing: 0.02em;
 }
 
+/* Sets download page (sets.html) */
+.sets-note {
+  max-width: 640px;
+  margin: 0 auto 2rem;
+  text-align: center;
+  color: var(--parchment-dark);
+  line-height: 1.5;
+}
+
+.sets-note strong {
+  color: var(--gold-bright);
+}
+
+.set-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.set-card {
+  background: linear-gradient(var(--parchment), var(--parchment-dark));
+  color: var(--ink);
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 3px var(--wood-mid),
+    0 6px 14px rgba(0,0,0,0.5);
+  padding: 1.2rem 1.5rem 1.5rem;
+}
+
+.set-title {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 1.3rem;
+  margin: 0 0 0.3rem;
+}
+
+.set-meta {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #5a4425;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.set-styles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.set-style-block {
+  background: rgba(36, 22, 9, 0.06);
+  border: 1px solid rgba(36, 22, 9, 0.2);
+  border-radius: 6px;
+  padding: 0.7rem 0.9rem;
+}
+
+.set-style-label {
+  font-family: 'MedievalSharp', cursive;
+  font-size: 0.95rem;
+  margin: 0 0 0.6rem;
+}
+
+.set-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.set-download-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-decoration: none;
+  line-height: 1.2;
+  flex: 1 1 auto;
+  min-width: 90px;
+}
+
+.set-download-label {
+  font-size: 0.95rem;
+}
+
+.set-download-size {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
 /* Vault search autocomplete (vault.html) */
 .vault-search-field {
   position: relative;
@@ -753,6 +845,8 @@ footer a:focus-visible,
 
 /* Landing page */
 .landing-banner {
+  --banner-skew: min(10vh, 8vw); /* diagonal slant amount, capped by width so bands don't collapse on tall/narrow screens */
+  position: relative;
   min-height: 100vh;
   box-sizing: border-box;
   display: flex;
@@ -760,6 +854,68 @@ footer a:focus-visible,
   align-items: center;
   justify-content: center;
   border-bottom: none;
+  background-color: var(--wood-dark);
+  overflow: hidden;
+}
+
+/* Dark readability gradient, sits above the image layers, below the text */
+.landing-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(15, 9, 3, 0.6) 0%, rgba(15, 9, 3, 0.45) 45%, var(--wood-dark) 100%);
+  pointer-events: none;
+}
+
+.banner-layers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.banner-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+}
+
+/* Three diagonal bands (left / middle / right), each showing a different banner */
+.banner-layer--1 {
+  background-image: url("banner-1.webp");
+  clip-path: polygon(
+    0 0,
+    calc(33.333% + var(--banner-skew)) 0,
+    calc(33.333% - var(--banner-skew)) 100%,
+    0 100%
+  );
+}
+
+.banner-layer--2 {
+  background-image: url("banner-2.webp");
+  clip-path: polygon(
+    calc(33.333% + var(--banner-skew)) 0,
+    calc(66.666% + var(--banner-skew)) 0,
+    calc(66.666% - var(--banner-skew)) 100%,
+    calc(33.333% - var(--banner-skew)) 100%
+  );
+}
+
+.banner-layer--3 {
+  background-image: url("banner-3.webp");
+  clip-path: polygon(
+    calc(66.666% + var(--banner-skew)) 0,
+    100% 0,
+    100% 100%,
+    calc(66.666% - var(--banner-skew)) 100%
+  );
+}
+
+.landing-banner-content {
+  position: relative;
+  z-index: 2;
 }
 
 .landing-nav {

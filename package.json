@@ -7,7 +7,9 @@
     "vault-data": "node scripts/generate-vault-data.js",
     "apply-sets": "node scripts/apply-sets.js",
     "check-vault-images": "node scripts/check-vault-images.js",
-    "build": "npm run optimize && npm run vault-data",
+    "build-zips": "node scripts/build-set-zips.js",
+    "set-zips-data": "node scripts/generate-set-zips-data.js",
+    "build": "npm run optimize && npm run vault-data && npm run build-zips && npm run set-zips-data",
     "test": "vitest run"
   },
   "devDependencies": {

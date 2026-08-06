@@ -18,18 +18,31 @@ A "set" is a named batch of art (e.g. "Winter Update") with a shared release dat
 1. Move its source art into a `<Set>` subfolder under each style, using the same set name in both: `images/Standard/Winter Update/Frost Giant.png` and `images/Grimdark/Winter Update/Frost Giant.png`. Tokens not yet sorted just stay directly in `images/<Style>/` as before.
 2. Add the set's release date to `scripts/sets.json` (gitignored-free, hand-maintained), keyed by set name: `{ "Winter Update": { "dateCreated": "2026-08-05" } }`.
 3. Run `npm run apply-sets` — scans `images/<Style>/<Set>/`, writes `set`/`dateCreated` onto the matching `js/tokens.json` entries. Reports (without failing) any set folder missing from `scripts/sets.json`, any monster filed under a different set per style, and any set-folder image with no matching registry entry.
-4. Run `npm run build` as usual (`optimize` + `vault-data`) to carry the update through.
+4. Run `npm run build` as usual (`optimize` + `vault-data` + `build-zips` + `set-zips-data`) to carry the update through — the last two also rebuild that set's downloadable ZIPs, see "Set ZIP downloads" below.
 
 `set`/`dateCreated` are optional on every entry — plenty of tokens predate this and simply have `null` for both until sorted into a set.
+
+#### Set ZIP downloads
+
+Each set-sorted style/resolution combo can be downloaded as a single ZIP from `sets.html` (see below) — e.g. "Base Set 1, Standard, Hi-Res". These are pre-built, not generated on request: a hi-res set zip can run to hundreds of megabytes, well past what's sane to build inside a Cloudflare Worker request (tight CPU/memory limits, no local disk), so they're built locally as a pipeline step and served as plain static files from the same R2 bucket that already serves images.
+
+- **`scripts/build-set-zips.js`** (`npm run build-zips`) — for every set folder found under `images/<Style>/<Set>/` and `images-optimized/<Style>/<Set>/`, writes `zips/<Style>/<Set>-hires.zip` (from `images/`) and `zips/<Style>/<Set>-lowres.zip` (from `images-optimized/`). Incremental like `optimize-images.js`: a zip is only rebuilt if it's missing or older than the newest source file in that set/style, so it's cheap to run on every `npm run build` even though a full rebuild is a lot of data. `zips/` is gitignored, same as `images/` and `images-optimized/`.
+- **`scripts/lib/zip-store.js`** — a small dependency-free ZIP writer/reader used by `build-set-zips.js`. Writes STORE-method (uncompressed) entries only, deliberately: the source images are already-compressed PNG/WebP, so re-deflating them costs real CPU for negligible size savings. Also exposes `readEntryCount()`, which reads a zip's entry count straight out of its end-of-central-directory record (its last 22 bytes, since this writer never adds a comment) without needing a full zip parser.
+- **`scripts/generate-set-zips-data.js`** (`npm run set-zips-data`) — scans `zips/` and writes `js/set-zips-data.js`: one entry per set, per style, holding the hi-res/lo-res zip's filename, byte size, and image count, so `sets.html` can render download buttons (with sizes) without any network round-trip.
+- **`sets.html`** / **`js/sets.js`** — the public "Download Sets" page: one card per set (token count, release date) with a Hi-Res/Lo-Res download button per style, reading straight from `SET_ZIPS_DATA` and `VAULT_DATA` (for the set's release date). Just plain `<a href download>` links to R2 — no Worker involvement at download time.
+
+After running `npm run build-zips`, upload the `zips/` folder to R2 the same way you already sync `images-optimized/` (see "Deploying" below), with `Content-Type: application/zip` set explicitly on each object — R2 won't infer it, and without it some browsers won't reliably trigger a download.
 - **`js/config.js`** — shared site config, loaded before any page-specific script:
   - `IMAGE_BASE_URL` — the prefix used to build each token's image URL. Points at a custom domain backed by Cloudflare R2 by default; swap it for `images-optimized/` to serve images locally, or any other public URL/bucket.
   - `API_BASE` — the deployed Worker URL that `js/generate.js`, `js/monster.js`, `js/credits.js`, and the admin pages POST/GET against.
   - `PAGE_SIZE` — tokens shown per page in the vault grid (used by `js/admin-vault.js`).
-- **`index.html`** — landing page with nav links to the generator and the vault, an "About" blurb, and a news feed (`js/news-data.js` — a hand-maintained `NEWS` array, newest first; `js/news.js` renders it). Also loads `js/visit-count.js`, which fires a fire-and-forget `GET /api/visit` to bump a site-wide visit counter in the Worker's `ANALYTICS` KV namespace; nothing currently reads that counter back (no admin UI for it yet).
+- **`index.html`** — landing page with nav links to the generator and the vault, an "About" blurb, a "Tokens of the Day" section, and a news feed (`js/news-data.js` — a hand-maintained `NEWS` array, newest first; `js/news.js` renders it). Also loads `js/visit-count.js`, which fires a fire-and-forget `GET /api/visit` to bump a site-wide visit counter in the Worker's `ANALYTICS` KV namespace; nothing currently reads that counter back (no admin UI for it yet).
+- **`js/tokens-of-the-day.js`** — picks `TOTD_COUNT` (6) tokens from `VAULT_DATA` for the index page's "Tokens of the Day" grid, seeded by today's calendar date (`xmur3` hash + `mulberry32` PRNG) so every visitor sees the same picks, and a new set the next day. Clicking a card opens the same customize/download modal as the vault pages (`js/token-customize.js`).
 - **`style.css`** — the shared parchment/dungeon styling for every page.
 - **`vault.html`** / **`js/vault.js`** — the public vault page: a single searchbar that autocompletes by name, category, or tag as you type (top 8 matches, ranked name-first), with a style switcher (Standard/Grimdark). There's no browsable grid here — picking a suggestion (click, or Enter/arrow keys) opens the customizer modal directly for that one token. This is the lightweight, public counterpart to `admin-vault.html`.
 - **`admin-vault.html`** / **`js/admin-vault.js`** — the full token index, gated behind the admin key (see "The admin tools" below). Renders the token grid, live search-as-you-type filtering by name or tag, a category filter, and pagination. Clicking a token card opens the customizer modal (below) instead of downloading directly. This used to be the public `vault.html`; the whole catalog isn't meant to be publicly browsable, which is why the public `vault.html` is search-only rather than a grid dump.
 - **`recent.html`** / **`js/recent.js`** — a public feed of the most recently AI-generated tokens (site-wide, not per-visitor), pulled from `GET /api/recent-generations`. Clicking a card opens the same customizer modal as the vault pages.
+- **`sets.html`** / **`js/sets.js`** — see "Set ZIP downloads" above.
 - **`legal.html`** — privacy policy, refund policy, terms of use, and the fan-content disclaimer; linked from every page's nav.
 
 ### The admin tools
@@ -93,7 +106,9 @@ npm run optimize            # convert images/*.png|jpg -> images-optimized/*.web
 npm run vault-data          # regenerate js/vault-data.js from js/tokens.json + images-optimized/ (or images/ as a fallback)
 npm run apply-sets          # backfill set/dateCreated in js/tokens.json from images/<Style>/<Set>/ + scripts/sets.json — see "Sets" above
 npm run check-vault-images  # verify every vault-data.js image exists locally (exact case) and loads from the live IMAGE_BASE_URL; add --offline to skip the network check
-npm run build                # runs optimize + vault-data, in order
+npm run build-zips          # (re)build zips/<Style>/<Set>-{hires,lowres}.zip from images/ + images-optimized/ — see "Set ZIP downloads" above
+npm run set-zips-data       # regenerate js/set-zips-data.js from whatever's in zips/
+npm run build                # runs optimize + vault-data + build-zips + set-zips-data, in order
 npm test                     # run the frontend unit tests (test/) — see "Testing" below
 ```
 
@@ -136,7 +151,7 @@ npm run dev
 
 ## Deploying
 
-- **Site**: GitHub Pages (or any static host) with images served from `images-optimized/`, or from a remote bucket (Cloudflare R2, S3, B2, etc.) by pointing `IMAGE_BASE_URL` in `js/config.js` at the bucket's public URL.
+- **Site**: GitHub Pages (or any static host) with images served from `images-optimized/`, or from a remote bucket (Cloudflare R2, S3, B2, etc.) by pointing `IMAGE_BASE_URL` in `js/config.js` at the bucket's public URL. When using a remote bucket, also upload `zips/` (from `npm run build-zips`) under a `zips/` prefix alongside the images, with `Content-Type: application/zip` set explicitly — see "Set ZIP downloads" above.
 - **Worker**: `cd worker && npm run deploy` (Wrangler). Requires:
   - The R2 bucket and all three KV namespaces (`RATE_LIMIT`, `FEEDBACK`, `ANALYTICS`) declared in `worker/wrangler.toml` to already exist in the Cloudflare account.
   - The `CREDITS_DB` D1 database to exist, with migrations applied: `cd worker && npx wrangler d1 migrations apply token-vault-credits --remote`.

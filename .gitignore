@@ -1,4 +1,6 @@
 node_modules/
 images/
 images-optimized/
+zips/
 pvt/
+.claude/settings.local.json
