@@ -30,20 +30,32 @@ function formatSetDate(isoDate) {
   return date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
 }
 
-function buildDownloadButton(zipInfo, label) {
+function buildDownloadButton(part, label, bytes) {
   const a = document.createElement("a");
   a.className = "set-download-btn page-btn";
-  a.href = zipUrl(zipInfo.file);
+  a.href = zipUrl(part.file);
   a.download = "";
   const name = document.createElement("span");
   name.className = "set-download-label";
   name.textContent = label;
   const size = document.createElement("span");
   size.className = "set-download-size";
-  size.textContent = formatBytes(zipInfo.bytes);
+  size.textContent = formatBytes(bytes);
   a.appendChild(name);
   a.appendChild(size);
   return a;
+}
+
+// A resolution ships as one or more parts (see build-set-zips.js — a set too big for
+// a single upload is split into several under-300MB pieces). One part renders as a
+// single "Hi-Res" button; several render as "Hi-Res (Part 1 of 3)" etc., one button
+// each, so a visitor can grab (or resume) them individually.
+function buildDownloadButtons(zipInfo, baseLabel) {
+  if (!zipInfo) return [];
+  if (zipInfo.parts.length === 1) return [buildDownloadButton(zipInfo.parts[0], baseLabel, zipInfo.parts[0].bytes)];
+  return zipInfo.parts.map((part, i) =>
+    buildDownloadButton(part, `${baseLabel} (Part ${i + 1} of ${zipInfo.parts.length})`, part.bytes)
+  );
 }
 
 function buildStyleBlock(style, byResolution) {
@@ -57,8 +69,8 @@ function buildStyleBlock(style, byResolution) {
 
   const downloads = document.createElement("div");
   downloads.className = "set-downloads";
-  if (byResolution.hires) downloads.appendChild(buildDownloadButton(byResolution.hires, "Hi-Res"));
-  if (byResolution.lowres) downloads.appendChild(buildDownloadButton(byResolution.lowres, "Lo-Res"));
+  buildDownloadButtons(byResolution.hires, "Hi-Res").forEach((btn) => downloads.appendChild(btn));
+  buildDownloadButtons(byResolution.lowres, "Lo-Res").forEach((btn) => downloads.appendChild(btn));
   block.appendChild(downloads);
 
   return block;
