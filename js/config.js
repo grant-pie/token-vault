@@ -5,7 +5,8 @@ const IMAGE_BASE_URL = "https://grantpieterse.com/";
 // Base URL of the Cloudflare Worker that powers the AI token/monster generator.
 const API_BASE = "https://token-vault-generator.grant-public1.workers.dev";
 
-// Number of token cards shown per page in the vault grid.
+// Number of token cards shown per page in the vault grid (js/vault.js and
+// js/admin-vault.js both use this).
 const PAGE_SIZE = 24;
 
 // Number of cards fetched per "page" from GET /api/recent-generations.

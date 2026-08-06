@@ -1,21 +1,19 @@
-// Powers vault.html: a single searchbar that autocompletes across VAULT_DATA
-// (see vault-data.js) by name, category, or tag, and opens the shared
-// customize/download modal (js/token-customize.js) directly on selection.
-// There's no results grid — this is the lightweight public search page, not
-// the full catalog browser (that's the admin-gated js/admin-vault.js).
+// Powers vault.html: the public token grid — paginated, filterable by style, and
+// live-searched by name or tag as you type. Structurally the public counterpart of
+// js/admin-vault.js's grid/pagination, minus the admin gate, the category filter, and
+// the tags shown per card (kept admin-only; see README "The vault").
 
-const MAX_SUGGESTIONS = 8;
+let currentPage = 1;
 
+// VAULT_STYLES/VAULT_DATA (see vault-data.js) come from worker/src/config.js's
+// ALLOWED_STYLES, so the dropdown's options come straight from that list — no need to
+// touch this file when a new style's art is added. VAULT_DATA is monster-primary: one
+// entry per monster with a `filenames` object holding the art file per style (or null
+// if that style doesn't have art for this monster yet).
 const styleSelect = document.getElementById("style-select");
-const searchInput = document.getElementById("vault-search");
-const suggestionsList = document.getElementById("vault-suggestions");
-const statusEl = document.getElementById("vault-status");
-const countEl = document.getElementById("vault-count");
-
 const styleNames = VAULT_STYLES;
 let activeStyle = styleNames[0] || "standard";
-let matches = [];
-let highlightedIndex = -1;
+let activeTokens = [];
 
 function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
@@ -34,6 +32,7 @@ function populateStyleSelect() {
 }
 
 function renderCount() {
+  const countEl = document.getElementById("vault-count");
   if (!countEl) return;
   const perStyle = VAULT_DATA.length;
   const styleCount = styleNames.length;
@@ -45,160 +44,183 @@ function imageUrl(style, file) {
   return IMAGE_BASE_URL + "vault/" + encodeURIComponent(style) + "/" + encodeURIComponent(file);
 }
 
-// Ranks name matches above category/tag-only matches, and "starts with" above
-// "contains", so typing "drag" surfaces the dragons before a tag-only hit.
-function rank(monster, query) {
-  const name = monster.name.toLowerCase();
-  if (name.startsWith(query)) return 0;
-  if (name.includes(query)) return 1;
-  return 2;
-}
+// No category or tags shown here — that stays admin-only (js/admin-vault.js). This is
+// otherwise the same card as the admin grid: click to open the customize/download modal.
+function renderTokens(tokens, emptyMessage) {
+  const grid = document.getElementById("token-grid");
+  grid.innerHTML = "";
 
-// Only monsters with art in the active style are eligible, since there's
-// nothing to preview or download otherwise.
-function findMatches(query) {
-  if (!query) return [];
-  const q = query.toLowerCase();
-
-  return VAULT_DATA
-    .filter((monster) => monster.filenames[activeStyle])
-    .filter((monster) => {
-      if (monster.name.toLowerCase().includes(q)) return true;
-      if (monster.category && monster.category.toLowerCase().includes(q)) return true;
-      return (monster.tags || []).some((tag) => tag.toLowerCase().includes(q));
-    })
-    .sort((a, b) => rank(a, q) - rank(b, q) || a.name.localeCompare(b.name))
-    .slice(0, MAX_SUGGESTIONS);
-}
-
-function setHighlighted(index) {
-  highlightedIndex = index;
-  [...suggestionsList.children].forEach((el, i) => {
-    el.setAttribute("aria-selected", i === index ? "true" : "false");
-  });
-  if (highlightedIndex >= 0 && suggestionsList.children[highlightedIndex]) {
-    searchInput.setAttribute("aria-activedescendant", suggestionsList.children[highlightedIndex].id);
-  } else {
-    searchInput.removeAttribute("aria-activedescendant");
-  }
-}
-
-function closeSuggestions() {
-  matches = [];
-  highlightedIndex = -1;
-  suggestionsList.innerHTML = "";
-  suggestionsList.hidden = true;
-  searchInput.setAttribute("aria-expanded", "false");
-  searchInput.removeAttribute("aria-activedescendant");
-}
-
-function selectMatch(monster) {
-  const src = imageUrl(activeStyle, monster.filenames[activeStyle]);
-  searchInput.value = monster.name;
-  closeSuggestions();
-  statusEl.textContent = "";
-  if (window.openTokenCustomizer) {
-    window.openTokenCustomizer({ name: monster.name }, src);
-  }
-}
-
-function renderSuggestions(query) {
-  matches = findMatches(query);
-  suggestionsList.innerHTML = "";
-
-  if (!matches.length) {
-    highlightedIndex = -1;
-    suggestionsList.hidden = true;
-    searchInput.setAttribute("aria-expanded", "false");
-    searchInput.removeAttribute("aria-activedescendant");
-    statusEl.textContent = query.trim() ? `No tokens match "${query.trim()}".` : "";
+  if (!tokens || tokens.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = emptyMessage || "No tokens in the vault yet.";
+    grid.appendChild(empty);
     return;
   }
 
-  statusEl.textContent = "";
+  tokens.forEach((token) => {
+    const src = imageUrl(activeStyle, token.file);
 
-  matches.forEach((monster, index) => {
-    const item = document.createElement("li");
-    item.id = `vault-option-${index}`;
-    item.role = "option";
-    item.className = "vault-suggestion";
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "token-card";
+    card.addEventListener("click", () => {
+      if (window.openTokenCustomizer) {
+        window.openTokenCustomizer(token, src);
+      }
+    });
 
-    const thumb = document.createElement("div");
-    thumb.className = "vault-suggestion-thumb";
+    const frame = document.createElement("div");
+    frame.className = "token-frame";
+
     const img = document.createElement("img");
-    img.src = imageUrl(activeStyle, monster.filenames[activeStyle]);
-    img.alt = "";
+    img.crossOrigin = "anonymous";
+    img.src = src;
+    img.alt = token.name;
     img.loading = "lazy";
-    thumb.appendChild(img);
 
-    const text = document.createElement("div");
-    text.className = "vault-suggestion-text";
-    const name = document.createElement("span");
-    name.className = "vault-suggestion-name";
-    name.textContent = monster.name;
-    text.appendChild(name);
+    frame.appendChild(img);
 
-    if (monster.set) {
-      const set = document.createElement("span");
-      set.className = "vault-suggestion-set";
-      set.textContent = monster.set;
-      name.appendChild(document.createTextNode(" "));
-      name.appendChild(set);
-    }
+    const name = document.createElement("p");
+    name.className = "token-name";
+    name.textContent = token.name;
 
-    item.appendChild(thumb);
-    item.appendChild(text);
+    card.appendChild(frame);
+    card.appendChild(name);
 
-    // preventDefault on mousedown stops the input from blurring (and the list
-    // from closing) before the click that follows can select the match.
-    item.addEventListener("mousedown", (e) => e.preventDefault());
-    item.addEventListener("click", () => selectMatch(monster));
-    item.addEventListener("mouseenter", () => setHighlighted(index));
+    const hint = document.createElement("span");
+    hint.className = "token-hint";
+    hint.textContent = "click to customize & download";
+    card.appendChild(hint);
 
-    suggestionsList.appendChild(item);
+    grid.appendChild(card);
   });
-
-  suggestionsList.hidden = false;
-  searchInput.setAttribute("aria-expanded", "true");
-  setHighlighted(0);
 }
 
-searchInput.addEventListener("input", () => {
-  renderSuggestions(searchInput.value);
-});
-
-searchInput.addEventListener("focus", () => {
-  if (searchInput.value.trim()) renderSuggestions(searchInput.value);
-});
-
-searchInput.addEventListener("keydown", (e) => {
-  if (suggestionsList.hidden) return;
-
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    setHighlighted(Math.min(highlightedIndex + 1, matches.length - 1));
-  } else if (e.key === "ArrowUp") {
-    e.preventDefault();
-    setHighlighted(Math.max(highlightedIndex - 1, 0));
-  } else if (e.key === "Enter") {
-    if (highlightedIndex >= 0 && matches[highlightedIndex]) {
-      e.preventDefault();
-      selectMatch(matches[highlightedIndex]);
+// Builds a compact page list like [1, "...", 4, 5, 6, "...", 12]
+function getPageNumbers(current, total) {
+  const delta = 1;
+  const pages = [];
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+      pages.push(i);
     }
-  } else if (e.key === "Escape") {
-    closeSuggestions();
   }
-});
 
-searchInput.addEventListener("blur", closeSuggestions);
-
-if (styleSelect) {
-  styleSelect.addEventListener("change", () => {
-    activeStyle = styleSelect.value;
-    if (searchInput.value.trim()) renderSuggestions(searchInput.value);
+  const withDots = [];
+  let previous;
+  pages.forEach((page) => {
+    if (previous !== undefined) {
+      if (page - previous === 2) {
+        withDots.push(previous + 1);
+      } else if (page - previous > 2) {
+        withDots.push("...");
+      }
+    }
+    withDots.push(page);
+    previous = page;
   });
+  return withDots;
 }
 
-populateStyleSelect();
-renderCount();
-closeSuggestions();
+function renderPagination(totalItems) {
+  const container = document.getElementById("pagination");
+  container.innerHTML = "";
+
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  if (totalPages <= 1) {
+    return;
+  }
+
+  const goToPage = (page) => {
+    currentPage = page;
+    update();
+    document.getElementById("token-grid").scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const makeButton = (label, page, { active = false, disabled = false } = {}) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "page-btn" + (active ? " active" : "");
+    btn.textContent = label;
+    btn.disabled = disabled;
+    if (active) btn.setAttribute("aria-current", "page");
+    if (!disabled) {
+      btn.addEventListener("click", () => goToPage(page));
+    }
+    return btn;
+  };
+
+  container.appendChild(makeButton("« Prev", currentPage - 1, { disabled: currentPage === 1 }));
+
+  getPageNumbers(currentPage, totalPages).forEach((page) => {
+    if (page === "...") {
+      const span = document.createElement("span");
+      span.className = "page-ellipsis";
+      span.textContent = "...";
+      container.appendChild(span);
+    } else {
+      container.appendChild(makeButton(String(page), page, { active: page === currentPage }));
+    }
+  });
+
+  container.appendChild(makeButton("Next »", currentPage + 1, { disabled: currentPage === totalPages }));
+}
+
+function update() {
+  const totalPages = Math.max(1, Math.ceil(activeTokens.length / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = activeTokens.slice(start, start + PAGE_SIZE);
+  const query = searchInput ? searchInput.value.trim() : "";
+
+  renderTokens(pageItems, query ? `No tokens match "${query}".` : undefined);
+  renderPagination(activeTokens.length);
+}
+
+const searchInput = document.getElementById("vault-search");
+
+// A query matches on the monster's name OR any of its search tags, so typing "fire"
+// finds fire-tagged monsters even if "fire" isn't in the name — tags just aren't shown
+// on the card here (see renderTokens). Only monsters that have art for the active style
+// are shown; each match is given a `file` prop (pulled from its filenames[activeStyle])
+// so the rest of the rendering code doesn't need to know about the per-style nesting.
+function refreshActiveTokens() {
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+  activeTokens = VAULT_DATA
+    .filter((monster) => {
+      if (!monster.filenames[activeStyle]) return false;
+      if (!query) return true;
+      if (monster.name.toLowerCase().includes(query)) return true;
+      return (monster.tags || []).some((tag) => tag.toLowerCase().includes(query));
+    })
+    .map((monster) => ({ ...monster, file: monster.filenames[activeStyle] }));
+}
+
+function init() {
+  populateStyleSelect();
+  renderCount();
+  refreshActiveTokens();
+  update();
+
+  if (styleSelect) {
+    styleSelect.addEventListener("change", () => {
+      activeStyle = styleSelect.value;
+      currentPage = 1;
+      refreshActiveTokens();
+      update();
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      currentPage = 1;
+      refreshActiveTokens();
+      update();
+    });
+  }
+}
+
+init();
